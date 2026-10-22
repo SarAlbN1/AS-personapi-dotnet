@@ -1,0 +1,115 @@
+# .editorconfig · personapi-dotnet
+# Alineado con docs/wiki/04-implementacion/convenciones.md.
+# Nombres: clases y métodos PascalCase, parámetros camelCase,
+# campos privados _camelCase, interfaces con prefijo I.
+root = true
+
+# ----------------------------------------------------------------------
+# Todos los archivos
+# ----------------------------------------------------------------------
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# ----------------------------------------------------------------------
+# Formatos de datos y documentación
+# ----------------------------------------------------------------------
+[*.{json,jsonc,yml,yaml}]
+indent_size = 2
+
+[*.{js,css,html,cshtml,razor}]
+indent_size = 2
+
+[*.md]
+indent_size = 2
+# Markdown admite dos espacios finales como salto de línea
+trim_trailing_whitespace = false
+
+[*.{csproj,props,targets,config,sln,slnx}]
+indent_size = 2
+end_of_line = crlf
+
+[*.sql]
+indent_size = 4
+
+[*.{cmd,bat,ps1}]
+end_of_line = crlf
+
+[Makefile]
+indent_style = tab
+
+# ----------------------------------------------------------------------
+# C#
+# ----------------------------------------------------------------------
+[*.cs]
+indent_size = 4
+csharp_using_directive_placement = outside_namespace:suggestion
+csharp_style_namespace_declarations = file_scoped:suggestion
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_prefer_braces = true:suggestion
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_expression_bodied_methods = false:suggestion
+
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
+dotnet_style_object_initializer = true:suggestion
+dotnet_style_collection_initializer = true:suggestion
+dotnet_style_null_propagation = true:suggestion
+dotnet_style_coalesce_expression = true:suggestion
+dotnet_style_readonly_field = true:suggestion
+
+# Asincronía: no bloquear llamadas a la base de datos
+dotnet_diagnostic.CS4014.severity = error
+
+# Nomenclatura: interfaces con prefijo I
+dotnet_naming_rule.interfaces_con_prefijo_i.symbols = interfaz
+dotnet_naming_rule.interfaces_con_prefijo_i.style = prefijo_i
+dotnet_naming_rule.interfaces_con_prefijo_i.severity = warning
+dotnet_naming_symbols.interfaz.applicable_kinds = interface
+dotnet_naming_symbols.interfaz.applicable_accessibilities = *
+dotnet_naming_style.prefijo_i.required_prefix = I
+dotnet_naming_style.prefijo_i.capitalization = pascal_case
+
+# Nomenclatura: tipos y miembros públicos en PascalCase
+dotnet_naming_rule.tipos_pascal_case.symbols = tipos_y_miembros
+dotnet_naming_rule.tipos_pascal_case.style = pascal_case
+dotnet_naming_rule.tipos_pascal_case.severity = warning
+dotnet_naming_symbols.tipos_y_miembros.applicable_kinds = class,struct,enum,delegate,method,property,event
+dotnet_naming_symbols.tipos_y_miembros.applicable_accessibilities = *
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+# Nomenclatura: campos privados _camelCase
+dotnet_naming_rule.campos_privados_guion_bajo.symbols = campo_privado
+dotnet_naming_rule.campos_privados_guion_bajo.style = guion_bajo_camel_case
+dotnet_naming_rule.campos_privados_guion_bajo.severity = warning
+dotnet_naming_symbols.campo_privado.applicable_kinds = field
+dotnet_naming_symbols.campo_privado.applicable_accessibilities = private
+dotnet_naming_style.guion_bajo_camel_case.required_prefix = _
+dotnet_naming_style.guion_bajo_camel_case.capitalization = camel_case
+
+# Nomenclatura: parámetros y locales camelCase
+dotnet_naming_rule.parametros_camel_case.symbols = parametro_o_local
+dotnet_naming_rule.parametros_camel_case.style = camel_case
+dotnet_naming_rule.parametros_camel_case.severity = suggestion
+dotnet_naming_symbols.parametro_o_local.applicable_kinds = parameter,local
+dotnet_naming_symbols.parametro_o_local.applicable_accessibilities = *
+dotnet_naming_style.camel_case.capitalization = camel_case
+
+# ----------------------------------------------------------------------
+# Código generado por Database First: no exigir estilo manual
+# ----------------------------------------------------------------------
+[personapi-dotnet/Models/Entities/*.cs]
+dotnet_analyzer_diagnostic.severity = none
+generated_code = true

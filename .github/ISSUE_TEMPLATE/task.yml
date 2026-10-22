@@ -1,0 +1,73 @@
+name: Tarea técnica o documental
+description: Trabajo de soporte, configuración, documentación o scripts del repositorio.
+title: "[task] "
+labels: ["chore"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Para trabajo sin comportamiento nuevo de negocio: configuración, scripts SQL,
+        documentación, pruebas o preparación del repositorio.
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: Qué queda listo al terminar.
+    validations:
+      required: true
+
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripción
+      description: Pasos previstos y archivos o carpetas que se tocan.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alcance
+    attributes:
+      label: Alcance
+      value: |
+        Incluye:
+        -
+
+        No incluye:
+        -
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área / componente afectado
+      multiple: true
+      options:
+        - "area:core"
+        - "area:database"
+        - "area:api"
+        - "area:mvc"
+        - "area:qa"
+        - "area:docs"
+        - "area:repo"
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidencia
+    attributes:
+      label: Evidencia esperada
+      description: Salida de comandos, enlaces a documentación actualizada o archivos resultantes.
+    validations:
+      required: true

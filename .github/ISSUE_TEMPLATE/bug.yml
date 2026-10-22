@@ -1,0 +1,81 @@
+name: Defecto
+description: Comportamiento que contradice el SRS, el SDD o un contrato aprobado.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: Qué comportamiento correcto debe quedar restablecido.
+    validations:
+      required: true
+
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripción del defecto
+      value: |
+        Pasos para reproducir:
+        1.
+        2.
+
+        Resultado obtenido:
+
+        Resultado esperado (según contrato o SDD):
+    validations:
+      required: true
+
+  - type: textarea
+    id: alcance
+    attributes:
+      label: Alcance de la corrección
+      description: Hasta dónde llega el arreglo; qué se deja para otra issue.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área / componente afectado
+      multiple: true
+      options:
+        - "area:core"
+        - "area:database"
+        - "area:personas"
+        - "area:profesiones"
+        - "area:telefonos"
+        - "area:estudios"
+        - "area:api"
+        - "area:mvc"
+        - "area:qa"
+        - "area:docs"
+        - "area:repo"
+    validations:
+      required: true
+
+  - type: input
+    id: contrato
+    attributes:
+      label: Requisito o contrato incumplido
+      description: Enlace o referencia al documento que define el comportamiento esperado.
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      value: |
+        - [ ] El caso reproducido ya no falla.
+        - [ ] Existe prueba o verificación que cubre el caso.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidencia
+    attributes:
+      label: Evidencia esperada
+      description: Salida antes y después, o prueba que falla y luego pasa.
+    validations:
+      required: true

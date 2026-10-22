@@ -1,0 +1,92 @@
+name: Funcionalidad
+description: Capacidad nueva o ampliada de PersonAPI derivada del SRS/SAD/SDD.
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Una issue, un responsable, una rama, un PR. El estado vive en GitHub Projects,
+        no en archivos Markdown.
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: Resultado observable en una frase.
+      placeholder: Permitir registrar un teléfono asociado a una persona existente.
+    validations:
+      required: true
+
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripción técnica
+      description: Comportamiento esperado y capas implicadas (MVC, Service, DAO).
+    validations:
+      required: true
+
+  - type: textarea
+    id: alcance
+    attributes:
+      label: Alcance
+      description: Qué entra y qué queda explícitamente fuera.
+      value: |
+        Incluye:
+        -
+
+        No incluye:
+        -
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área / componente afectado
+      multiple: true
+      options:
+        - "area:core"
+        - "area:database"
+        - "area:personas"
+        - "area:profesiones"
+        - "area:telefonos"
+        - "area:estudios"
+        - "area:api"
+        - "area:mvc"
+        - "area:qa"
+        - "area:docs"
+        - "area:repo"
+    validations:
+      required: true
+
+  - type: textarea
+    id: requisitos
+    attributes:
+      label: Requisitos y contratos de referencia
+      description: Enlaces a SRS, SAD, SDD o contratos que gobiernan este cambio.
+      value: |
+        - SRS:
+        - SDD:
+        - Contrato:
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      description: Verificables uno por uno.
+      value: |
+        - [ ]
+        - [ ]
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidencia
+    attributes:
+      label: Evidencia esperada
+      description: Comandos, respuestas HTTP, capturas o salida de pruebas que cerrarán la issue.
+    validations:
+      required: true
