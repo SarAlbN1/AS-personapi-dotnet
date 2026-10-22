@@ -51,6 +51,20 @@ Ante conflictos, no adivinar y no editar por iniciativa propia: documentar el co
 - Reportar defectos encontrados fuera de la issue propia en comentarios/issue.
 - Antes de `Done`, demostrar pruebas, contratos y criterios; actualizar documentos afectados.
 - GitHub Projects es la fuente de estado; no duplicar el backlog en Markdown.
+- Equipo e identidades reales: [`docs/wiki/06-backlog/equipo.tsv`](docs/wiki/06-backlog/equipo.tsv). Sara (`SarAlbN1`), Juan Diego (`Juandi48`), Miguel (`ma-sarmiento`). No inventar cuentas ni reasignar responsables.
+
+## Reglas obligatorias para Claude Code y cualquier agente
+
+`main` está protegida en GitHub. Antes de modificar archivos, leer [CONTRIBUTING](CONTRIBUTING.md) y la [política de integración](docs/wiki/05-proceso/pull-requests-y-releases.md#protección-de-main-y-revisión-cruzada-obligatoria), que es la fuente única de estas reglas.
+
+- **No escribir en `main`.** Ningún commit ni push directo, ni siquiera para un cambio trivial: se trabaja en rama y se integra por PR.
+- **No aprobar un PR propio ni uno escrito por un agente.** La aprobación la da una persona distinta del autor, con permiso de escritura.
+- **No fusionar sin una aprobación humana externa válida** registrada en el PR. Que GitHub indique `MERGEABLE`, `CLEAN` o ausencia de conflictos **no** es una aprobación, y no se presenta como tal en ningún informe.
+- **No usar permisos administrativos para eludir las protecciones**, ni activar auto-merge, ni hacer force-push, ni borrar `main`.
+- **No deshabilitar, relajar ni convertir a Ruleset** las reglas de protección de GitHub sin autorización expresa del equipo.
+- **No sobrescribir ramas, commits ni worktrees de otros integrantes**, ni reescribir historia publicada.
+- Respetar la revisión cruzada y **reportar resultados reales**: lo ejecutado se describe con su salida; lo no ejecutado se declara pendiente.
+- Si una regla de GitHub impide una acción pedida, informarlo y detenerse; no buscar una vía alternativa para sortearla.
 
 ## Protocolo de implementación
 

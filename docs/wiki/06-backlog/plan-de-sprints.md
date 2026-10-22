@@ -2,7 +2,7 @@
 
 [← Backlog](README.md) · [Priorización](priorizacion.md) · [DoR/DoD](../05-proceso/dor-y-dod.md)
 
-Dos sprints, tres integrantes, 15 historias, **58 puntos**. Los responsables son temporales (`Integrante A`, `B`, `C`) hasta que el equipo asigne los usuarios reales de GitHub. Los estados viven en GitHub Projects; esta página fija alcance, reparto y objetivos, no el progreso.
+Dos sprints, tres integrantes, 15 historias, **58 puntos**. Los responsables se nombran como `Integrante A`, `B` y `C`; la correspondencia con las cuentas reales de GitHub (`SarAlbN1`, `Juandi48`, `ma-sarmiento`) está en [equipo.tsv](equipo.tsv) y es la que usa el script al crear las issues. Los estados viven en GitHub Projects; esta página fija alcance, reparto y objetivos, no el progreso.
 
 ## Reparto global
 

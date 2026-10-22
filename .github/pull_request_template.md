@@ -51,7 +51,7 @@ dotnet test
 - [ ] No se exponen entidades EF con navegaciones como contrato HTTP; se usan DTO o ViewModels.
 - [ ] Integridad de datos: PK, FK y CHECK del DDL se respetan; sin borrado en cascada de personas o profesiones con dependencias; conflictos devuelven `409`.
 - [ ] Database First intacto: el DDL de `scripts/` sigue siendo el origen del esquema, sin migraciones Code First y sin editar a mano el código regenerable de `Models/Entities`.
-- [ ] Sin secretos, cadenas con contraseñas ni archivos `.env` en el diff.
+- [ ] Sin secretos en el diff: ninguna contraseña, token, certificado privado, cadena de conexión con credenciales ni archivo `.env`.
 - [ ] Sin archivos generados ni dependencias fuera del alcance aprobado (ni Kafka, microservicios, API Gateway, autenticación o PostgreSQL).
 - [ ] El cambio se limita al alcance de la issue; sin refactores ni archivos de otras personas.
 
@@ -60,12 +60,19 @@ dotnet test
 - [ ] Documentos de la wiki afectados actualizados en este mismo PR, o
 - [ ] No aplica: el cambio no altera requisitos, arquitectura ni contratos.
 
-## Revisión cruzada (3 integrantes)
+## Revisión cruzada obligatoria
 
-- [ ] Revisión solicitada a otro integrante; el autor no aprueba ni integra su propio PR.
+Revisor solicitado: @<otro-integrante>
+
+- [ ] Revisión solicitada a otro integrante con permiso de escritura; el autor no aprueba ni integra su propio PR.
 - [ ] Revisado contra criterios de aceptación y `docs/wiki/02-arquitectura/reglas-arquitectonicas.md`, no solo estilo.
-- [ ] Los cambios posteriores a la aprobación se vuelven a revisar si alteran el alcance.
+- [ ] Conversaciones de revisión resueltas; si llegaron commits nuevos tras la aprobación, se pidió otra.
+- [ ] Hay una aprobación válida registrada en el PR. Que GitHub lo marque como fusionable no cuenta como aprobación.
 - [ ] Integración por squash merge, borrando la rama tras integrar; `main` siempre compila.
+
+<!-- `main` está protegida: PR obligatoria, 1 aprobación, conversaciones resueltas, historia
+     lineal, sin excepciones para administradores, sin force-push ni eliminación.
+     Política completa: docs/wiki/05-proceso/pull-requests-y-releases.md -->
 
 ## Resultado
 

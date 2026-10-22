@@ -27,14 +27,19 @@ Las reglas completas y la lista de revisión de PR están en [reglas arquitectó
 
 ## Flujo de trabajo (tres integrantes)
 
+`main` está **protegida en GitHub**: exige pull request, una aprobación de otra persona, resolución de conversaciones e historia lineal, sin excepciones para administradores y sin force-push ni eliminación. La política completa y su estado verificado están en [pull requests, revisión y versiones](docs/wiki/05-proceso/pull-requests-y-releases.md#protección-de-main-y-revisión-cruzada-obligatoria); aquí no se repite.
+
 1. Trabajar sobre una issue real de GitHub Projects, con criterios de aceptación y un único responsable.
-2. Crear rama `<tipo>/LAB-NN-descripcion` desde `main` actualizado. No se escribe directamente en `main`.
+2. Crear rama `<tipo>/LAB-NN-descripcion` desde `main` actualizado. **No se escribe directamente en `main`.**
 3. Commits: `<tipo>(<área>): <acción breve> [LAB-NN]`.
 4. Nadie edita ni sube cambios a la rama de otra persona ni corrige sus archivos sin acuerdo. Los defectos ajenos se reportan en un comentario o una issue.
 5. PR con `Closes #<número real>`, pruebas, evidencia y enlaces a requisito y decisión arquitectónica.
-6. Revisión cruzada: el revisor es otro integrante; el autor corrige su propio trabajo. Nadie integra su PR sin revisión.
-7. Integración con squash merge; `main` siempre debe compilar.
-8. Cualquier desviación del SRS, SAD o SDD se propone y se revisa **antes** de implementarla.
+6. **Revisión cruzada obligatoria:** el revisor es otro integrante con permiso de escritura; el autor no aprueba ni integra su propio PR, ni usa permisos de administrador para omitir la revisión. Si llegan commits nuevos que invalidan la aprobación, se pide otra.
+7. Antes de integrar: conversaciones resueltas y aprobación válida. Que GitHub muestre el PR como fusionable **no** equivale a estar aprobado.
+8. Integración con squash merge; `main` siempre debe compilar.
+9. Cualquier desviación del SRS, SAD o SDD se propone y se revisa **antes** de implementarla.
+
+El equipo son tres integrantes, registrados con sus cuentas reales en [`equipo.tsv`](docs/wiki/06-backlog/equipo.tsv): Sara (`SarAlbN1`), Juan Diego (`Juandi48`) y Miguel (`ma-sarmiento`).
 
 ## Evidencias antes de declarar terminado
 

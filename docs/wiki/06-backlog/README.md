@@ -29,7 +29,9 @@ Esta sección define el **alcance, el reparto y los criterios** del backlog de P
 | [EP-04 · Estudios](epicas/EP-04-estudios.md) | CRUD dual de `estudios`, clave compuesta `(id_prof, cc_per)` | HU-011, HU-013 | 9 |
 | [EP-05 · Integración y entrega](epicas/EP-05-integracion-y-entrega.md) | OpenAPI 3 y Swagger, verificación integral y entrega con `v1.0.0` | HU-009, HU-014, HU-015 | 12 |
 
-**Total: 15 historias · 58 puntos · 2 sprints · 3 integrantes.** Los responsables se escriben como marcadores `A`, `B`, `C` en [backlog.tsv](backlog.tsv) y se traducen a cuentas reales en [equipo.tsv](equipo.tsv): tres columnas (`marcador`, `nombre`, `github`) que `crear-issues.sh` lee para añadir `--assignee`. Una fila con la columna `github` vacía crea la issue **sin asignar** y el script lo advierte; no se inventan cuentas ni se reparten responsabilidades en los documentos. Completar los usuarios que falten es requisito previo a publicar las issues, no a aprobar el backlog.
+**Total: 15 historias · 58 puntos · 2 sprints · 3 integrantes.** Los responsables se escriben como marcadores `A`, `B`, `C` en [backlog.tsv](backlog.tsv) y se traducen a cuentas reales en [equipo.tsv](equipo.tsv): tres columnas (`marcador`, `nombre`, `github`) que `crear-issues.sh` lee para añadir `--assignee`. Los tres usuarios están registrados: **A = Sara (`SarAlbN1`), B = Juan Diego (`Juandi48`), C = Miguel (`ma-sarmiento`)**. Una fila con la columna `github` vacía crearía la issue sin asignar y el script lo advierte; no se inventan cuentas ni se reparten responsabilidades en los documentos.
+
+**Condición operativa previa a publicar las issues:** GitHub solo asigna una issue a quien es colaborador del repositorio, y solo cuenta como aprobación la revisión de alguien con permiso de escritura. Las invitaciones de `Juandi48` y `ma-sarmiento` deben estar **aceptadas** antes de ejecutar `crear-issues.sh --apply`; registrarlos aquí no sustituye esa aceptación.
 
 ## Alcance del backlog
 

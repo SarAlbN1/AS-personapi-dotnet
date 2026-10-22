@@ -20,7 +20,8 @@ Los asistentes son apoyo técnico; el integrante asignado sigue siendo responsab
 - Ampliar el stack más allá de [versiones](../04-implementacion/versiones.md) sin cambio aprobado del SRS y del SAD.
 - Acceder a `DbContext` desde controladores, duplicar reglas entre UI y REST, cambiar el modelo sin actualizar DDL.
 - Inventar credenciales, versiones, IDs de issues, pruebas aprobadas, capturas o despliegues.
-- Subir commits a `main` o editar ramas de otro integrante por iniciativa propia.
+- Subir commits a `main` (está protegida: sin push directo, sin force-push, sin excepciones para administradores) o editar ramas de otro integrante por iniciativa propia.
+- Aprobar o fusionar un PR propio, o presentar como aprobado un PR que solo está libre de conflictos. La aprobación la da otra persona ([política de integración](pull-requests-y-releases.md#protección-de-main-y-revisión-cruzada-obligatoria)).
 - Transformar sugerencias técnicas en nuevos requisitos sin aprobación del equipo.
 - Dejar rastro del asistente en el repositorio: líneas de co-autoría, firmas, menciones de la herramienta o marcas de generación automática en commits, PR, documentos, informe o logs. El autor registrado es el integrante asignado ([CONTRIBUTING](../../../CONTRIBUTING.md)).
 
