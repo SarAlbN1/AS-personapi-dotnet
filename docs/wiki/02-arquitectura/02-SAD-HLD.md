@@ -19,7 +19,7 @@ Sistema web monolítico ASP.NET Core MVC 10 con **dos interfaces de entrada**, v
 | AD-05 | SQL Server 2025 Express + Database First | Mantiene modelo entregado y genera entidades desde DDL. |
 | AD-06 | PK/FK/CHECK y borrado `NO ACTION` | Evita registros inconsistentes. |
 | AD-07 | OpenAPI 3 + Swagger UI integrado | Permite comprobar los 20 endpoints. |
-| AD-08 | Ejecución local sin Docker ni autenticación | Ajusta alcance a práctica docente; sin publicación en Internet. |
+| AD-08 | Ejecución local como camino verificado, sin autenticación; Docker como propuesta de despliegue del equipo | Ajusta alcance a práctica docente; sin publicación en Internet. Las historias se desarrollan y verifican con ejecución local; la propuesta con Docker y Compose vive en el informe y su exigibilidad depende del enunciado original. |
 | AD-09 | Configuración `ConnectionStrings:PersonaDb` externa y sin secretos en Git | Protege credenciales en repositorio público. |
 | AD-10 | DTOs de entrada/salida y ViewModels de formularios | Evita exponer entidades EF y acoplar presentación al esquema. |
 
@@ -105,7 +105,9 @@ flowchart LR
 persona_db)]
 ```
 
-Visual Studio 2026 Community / `dotnet run` hospedan el monolito. SQL Server 2025 Express se instala por separado; SSMS 22 administra el esquema. El proyecto no exige Docker y **no** distribuye SQL Server dentro del artefacto web.
+Visual Studio 2026 Community / `dotnet run` hospedan el monolito. SQL Server 2025 Express se instala por separado; SSMS 22 administra el esquema. El artefacto web **no** distribuye SQL Server dentro de sí mismo.
+
+El [informe académico](../../informe/main.tex) documenta además una vista de despliegue con Docker Compose (servicios `personapi`, `sqlserver` y `db-init` en una red propia). Es la misma arquitectura lógica empaquetada de otra forma: no introduce capas, procesos de negocio ni dependencias nuevas, y no sustituye la ejecución local usada para verificar las historias. Si el enunciado original exige contenedores, esa vista es la que aplica; esa comprobación sigue pendiente del documento del docente.
 
 ## 8. Escenarios principales
 **Crear teléfono:** usuario/REST → controlador → servicio valida `duenio` → DAO persiste → SQL Server → controlador devuelve vista/redirección o `201 Created`.

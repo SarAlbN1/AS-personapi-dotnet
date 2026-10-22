@@ -12,7 +12,9 @@ Implementar una aplicación monolítica que permita realizar CRUD de **persona, 
 ## 2. Alcance confirmado
 **Incluye:** CRUD web y REST de cuatro entidades; base de datos `persona_db`; SQL DDL y DML; validaciones; patrón MVC; patrón DAO; Swagger/OpenAPI; repositorio público `personapi-dotnet`; README, código, tag Git y documento de entrega con portada, marco conceptual, diseño, procedimiento, conclusiones/lecciones y referencias.
 
-**No incluye:** autenticación, perfiles, aplicación móvil, microservicios, nube, colas ni integración con servicios externos. **Docker no es necesario para el alcance base** y queda excluido de esta línea base para evitar infraestructura adicional no solicitada. El despliegue se hará como proceso ASP.NET Core local con SQL Server Express local.
+**No incluye:** autenticación, perfiles, aplicación móvil, microservicios, nube, colas ni integración con servicios externos.
+
+**Despliegue y contenedores.** El camino de ejecución verificado para desarrollar y demostrar las historias es el **proceso ASP.NET Core local contra SQL Server 2025 Express accesible**: es el que se usa para validar criterios de aceptación. Además, el equipo contempla una **propuesta de despliegue con Docker y Docker Compose**, desarrollada en el [informe académico](../../informe/main.tex) (Dockerfile, `docker-compose.yml` y vista de despliegue con Compose). Esa propuesta se conserva como parte del trabajo. Su **obligatoriedad académica depende del enunciado original del laboratorio**, que no está versionado en este repositorio: mientras no se verifique contra ese documento, no se afirma que Docker sea exigido por el docente ni que esté excluido del entregable. Contenerizar no altera el alcance funcional ni la arquitectura: el artefacto sigue siendo un monolito único con MVC, servicios, DAO y EF Core.
 
 ## 3. Línea base técnica cerrada
 | ID | Decisión | Valor adoptado |

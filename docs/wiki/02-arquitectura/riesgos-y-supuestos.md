@@ -12,6 +12,6 @@ Las elecciones tecnológicas y de alcance se consideran **cerradas por el equipo
 | Borrado con FKs provoca error 500 | Capturar y traducir colisiones de integridad a `409` |
 | Doble escritura simultánea de una PK | PK en SQL es la protección definitiva; manejar la excepción además de la validación previa |
 | Tres integrantes cambian `Program.cs` o esquema simultáneamente | Contratos estabilizados, un propietario por issue, PR pequeños y revisión cruzada |
-| SQL Server local no disponible en todos los sistemas | Documentar entorno soportado y conexión a instancia SQL Server accesible; no añadir Docker como requisito tácito |
+| SQL Server local no disponible en todos los sistemas | Documentar entorno soportado y conexión a instancia SQL Server accesible. Docker y Compose están contemplados en el informe como propuesta de despliegue; no se convierten en requisito tácito de las historias sin respaldo del enunciado original |
 
 Si un requisito docente posterior prohíbe la actualización tecnológica, debe registrarse como cambio de alcance y no ocultarse.

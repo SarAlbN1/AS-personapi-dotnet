@@ -26,6 +26,8 @@ Demostrar que una aplicación CRUD puede mantener separadas la presentación, la
 
 ## Fuera del alcance
 
-Autenticación, autorización, microservicios, eventos, colas, gateway, frontend SPA, despliegue productivo y Docker obligatorio. No añadir capacidades ajenas al laboratorio para simular complejidad arquitectónica.
+Autenticación, autorización, microservicios, eventos, colas, gateway, frontend SPA y despliegue productivo. No añadir capacidades ajenas al laboratorio para simular complejidad arquitectónica.
+
+Docker **no** figura en esta lista: es una propuesta de despliegue del equipo, documentada en el [informe](../../informe/main.tex), cuya obligatoriedad depende del enunciado original. Lo que queda fuera es tratarlo como requisito confirmado del docente sin ese respaldo, no la propuesta en sí.
 
 **Diseño aceptado:** monolito en capas con dos interfaces de entrada (HTML/JSON) y un conjunto compartido de servicios y repositorios.

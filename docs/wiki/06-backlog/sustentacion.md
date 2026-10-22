@@ -85,4 +85,6 @@ Cada integrante expone lo que implementó. Los tres deben poder responder sobre 
 
 ## Qué no se demuestra
 
-No hay autenticación, Docker, CI, microservicios, broker ni despliegue en nube: están **fuera del alcance** aprobado en [SRS §2](../01-producto/01-SRS.md#2-alcance-confirmado) y [AD-08](../02-arquitectura/02-SAD-HLD.md#2-decisiones-arquitectónicas-definitivas). Si se preguntan, se responde con la decisión documentada, no improvisando una implementación.
+No hay autenticación, CI, microservicios, broker ni despliegue en nube: están **fuera del alcance** aprobado en [SRS §2](../01-producto/01-SRS.md#2-alcance-confirmado) y [AD-08](../02-arquitectura/02-SAD-HLD.md#2-decisiones-arquitectónicas-definitivas). Si se preguntan, se responde con la decisión documentada, no improvisando una implementación.
+
+Si preguntan por **Docker**: la propuesta de despliegue con Dockerfile y Docker Compose está desarrollada en el informe y se explica desde ahí. Lo que se demuestra en vivo es la ejecución local, que es la que tiene evidencia. No se afirma que los contenedores estén probados si no se ejecutaron.
