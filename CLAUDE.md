@@ -4,15 +4,20 @@ Este repositorio es un **monolito MVC + servicios + DAO + EF Core + SQL Server**
 
 ## Jerarquía
 
-1. SRS: `docs/wiki/01-producto/01-SRS.md` (alcance y criterios).
-2. SAD: `docs/wiki/02-arquitectura/02-SAD-HLD.md` (decisiones y capas).
-3. SDD: `docs/wiki/04-implementacion/03-SDD-LDD.md` (clases, interfaces, vistas y endpoints).
-4. Contratos `docs/wiki/03-contratos/`; reglas `docs/wiki/02-arquitectura/reglas-arquitectonicas.md`.
-5. Proceso `docs/wiki/05-proceso/`; backlog **vivo** en GitHub Projects.
-6. `docs/wiki/06-backlog/` solo contiene método y plantilla: no crear ni asignar issues sin autorización explícita.
-7. `docs/informe/` **deriva** de la wiki; no es fuente de decisiones.
+El orden de autoridad es **enunciado del laboratorio → wiki → este archivo → informe**.
 
-Ante conflictos, no adivinar: documentar el conflicto en issue/PR, proponer la corrección a la fuente propietaria y pedir revisión. La documentación describe el diseño; no afirmar implementación ni pruebas inexistentes.
+0. **Enunciado original del laboratorio** (documento del docente, no versionado en este repositorio): fija los requisitos y entregables académicos. Es la autoridad máxima. Ningún documento de la wiki, de este archivo ni del informe puede añadir, quitar ni reinterpretar un requisito del enunciado. Si una afirmación depende de un dato del enunciado que no está disponible, se deja **condicionada** y se pide el documento; no se convierte una suposición en requisito.
+1. **Wiki** `docs/wiki/`: especificación, arquitectura, diseño, contratos y decisiones aprobadas del equipo, en este orden interno:
+   1. SRS: `docs/wiki/01-producto/01-SRS.md` (alcance y criterios).
+   2. SAD: `docs/wiki/02-arquitectura/02-SAD-HLD.md` (decisiones y capas).
+   3. SDD: `docs/wiki/04-implementacion/03-SDD-LDD.md` (clases, interfaces, vistas y endpoints).
+   4. Contratos `docs/wiki/03-contratos/`; reglas `docs/wiki/02-arquitectura/reglas-arquitectonicas.md`.
+   5. Proceso `docs/wiki/05-proceso/`; backlog **vivo** en GitHub Projects.
+   6. `docs/wiki/06-backlog/` contiene el backlog documentado (15 historias, 6 épicas, priorización, plan de sprints, guion de sustentación, plantilla de issue, `equipo.tsv` y `crear-issues.sh`). Es material **derivado** de SRS, SAD y SDD: no decide arquitectura, alcance ni contratos. El estado del trabajo vive en GitHub Projects. No publicar, crear ni asignar issues sin autorización explícita.
+2. **Este archivo (`CLAUDE.md`)**: instrucciones operativas del asistente, derivadas del enunciado y de la wiki. **No tiene autoridad para crear ni modificar requisitos ni decisiones arquitectónicas**, y no puede imponer reglas que contradigan el enunciado o la wiki. Si choca con alguno de ellos, se corrige este archivo.
+3. **Informe académico** `docs/informe/`: presenta y desarrolla el trabajo; debe ser coherente con el enunciado y con las decisiones vigentes, y no es fuente de decisiones arquitectónicas. **Sus contenidos no se reescriben para resolver una contradicción**: la contradicción se reporta y la corrige quien mantiene el documento propietario. La única intervención admitida sin esa revisión es retirar credenciales o datos sensibles antes de publicar.
+
+Ante conflictos, no adivinar y no editar por iniciativa propia: documentar el conflicto en issue/PR, proponer la corrección a la fuente propietaria y pedir revisión. Esto vale también para el informe y para cualquier documento entregado por una persona del equipo. La documentación describe el diseño; no afirmar implementación ni pruebas inexistentes.
 
 ## Lectura según tarea
 
