@@ -3,6 +3,26 @@ description: Comportamiento que contradice el SRS, el SDD o un contrato aprobado
 title: "[bug] "
 labels: ["bug"]
 body:
+  - type: input
+    id: identificador
+    attributes:
+      label: Identificador interno (LAB-NN)
+      description: >-
+        Se fija al aprobar el backlog en GitHub Projects. Dejar vacío si aún no
+        está asignado; no inventar números.
+      placeholder: LAB-12
+    validations:
+      required: false
+
+  - type: input
+    id: rama
+    attributes:
+      label: Rama prevista
+      description: "Formato `<tipo>/LAB-<NN>-<slug>`, creada desde `main` actualizado."
+      placeholder: fix/LAB-12-conflicto-estudios
+    validations:
+      required: false
+
   - type: textarea
     id: objetivo
     attributes:
@@ -79,3 +99,13 @@ body:
       description: Salida antes y después, o prueba que falla y luego pasa.
     validations:
       required: true
+
+  - type: checkboxes
+    id: proceso
+    attributes:
+      label: Proceso
+      options:
+        - label: El defecto se corrige en la rama de la persona responsable del componente; quien lo reporta no corrige archivos ajenos.
+          required: true
+        - label: La revisión la hace otro de los tres integrantes; estado y sprint viven en GitHub Projects.
+          required: true

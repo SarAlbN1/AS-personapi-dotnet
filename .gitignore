@@ -61,8 +61,9 @@ ScaffoldingReadMe.txt
 *.sqlite
 *.sqlite3
 *.db
-# Proyecto Database First: no se versionan migraciones Code First
-Migrations/
+# Nota: el proyecto es Database First (el DDL de scripts/ es el origen del
+# esquema). No se excluye ninguna carpeta Migrations/: si apareciera, debe
+# verse en el diff y discutirse en el PR, no quedar oculta.
 
 # ----------------------------------------------------------------------
 # Paquetes NuGet

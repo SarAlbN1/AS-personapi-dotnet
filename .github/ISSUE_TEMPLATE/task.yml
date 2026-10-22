@@ -9,6 +9,26 @@ body:
         Para trabajo sin comportamiento nuevo de negocio: configuración, scripts SQL,
         documentación, pruebas o preparación del repositorio.
 
+  - type: input
+    id: identificador
+    attributes:
+      label: Identificador interno (LAB-NN)
+      description: >-
+        Se fija al aprobar el backlog en GitHub Projects. Dejar vacío si aún no
+        está asignado; no inventar números.
+      placeholder: LAB-01
+    validations:
+      required: false
+
+  - type: input
+    id: rama
+    attributes:
+      label: Rama prevista
+      description: "Formato `<tipo>/LAB-<NN>-<slug>`, creada desde `main` actualizado."
+      placeholder: chore/LAB-01-bootstrap-repositorio
+    validations:
+      required: false
+
   - type: textarea
     id: objetivo
     attributes:
@@ -46,6 +66,10 @@ body:
       options:
         - "area:core"
         - "area:database"
+        - "area:personas"
+        - "area:profesiones"
+        - "area:telefonos"
+        - "area:estudios"
         - "area:api"
         - "area:mvc"
         - "area:qa"
@@ -71,3 +95,13 @@ body:
       description: Salida de comandos, enlaces a documentación actualizada o archivos resultantes.
     validations:
       required: true
+
+  - type: checkboxes
+    id: proceso
+    attributes:
+      label: Proceso
+      options:
+        - label: Un responsable, una rama y un PR; la revisión la hace otro de los tres integrantes.
+          required: true
+        - label: Responsable, estado y sprint se fijan en GitHub Projects, no en esta issue.
+          required: true
