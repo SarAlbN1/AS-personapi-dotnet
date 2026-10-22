@@ -136,3 +136,8 @@ Desktop.ini
 *.out
 *.synctex.gz
 *.toc
+
+# ----------------------------------------------------------------------
+# Estado local de herramientas de asistencia (no se versiona)
+# ----------------------------------------------------------------------
+.claude/

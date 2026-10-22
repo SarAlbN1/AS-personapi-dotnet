@@ -1,0 +1,1268 @@
+% =====================================================================
+%  Laboratorio 1 - Monolito con patrón MVC y DAO (personapi-dotnet)
+%  Arquitectura de Software
+%  Compilar en Overleaf con pdfLaTeX
+% =====================================================================
+\documentclass[12pt,letterpaper]{article}
+
+% ---------------------------------------------------------------------
+%  Paquetes
+% ---------------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+\usepackage{lmodern}
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,shapes.multipart,shapes.geometric,fit,backgrounds,calc}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{csquotes}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+
+% ---------------------------------------------------------------------
+%  DATOS EDITABLES (cambiar aquí y se actualiza todo el documento)
+% ---------------------------------------------------------------------
+\newcommand{\universidad}{Pontificia Universidad Javeriana}
+\newcommand{\facultad}{Facultad de Ingeniería}
+\newcommand{\departamento}{Departamento de Ingeniería de Sistemas}
+\newcommand{\asignatura}{Arquitectura de Software}
+\newcommand{\profesor}{Andrés Armando Sánchez Martín}
+\newcommand{\integranteA}{Sara Albarracín}
+\newcommand{\integranteB}{Juan Diego Rojas}
+\newcommand{\integranteC}{Miguel Sarmiento}
+\newcommand{\ciudad}{Bogotá D.C.}
+\newcommand{\fecha}{Octubre de 2026}
+\newcommand{\repoURL}{https://github.com/USUARIO/personapi-dotnet}
+\newcommand{\repoTag}{v1.0.0}
+
+% ---------------------------------------------------------------------
+%  Estilos
+% ---------------------------------------------------------------------
+\definecolor{azulj}{HTML}{2C5697}
+\definecolor{grisfondo}{HTML}{F5F6F8}
+\definecolor{grisborde}{HTML}{C9CED6}
+\definecolor{verdecom}{HTML}{3A7D44}
+\definecolor{rojostr}{HTML}{A3302B}
+\definecolor{moradokw}{HTML}{6A3FA0}
+
+\hypersetup{colorlinks=true,linkcolor=azulj,urlcolor=azulj,citecolor=azulj}
+
+\titleformat{\section}{\Large\bfseries\color{azulj}}{\thesection.}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{azulj!85!black}}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries}{\thesubsubsection}{0.6em}{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small \asignatura}
+\fancyhead[R]{\small Laboratorio 1 -- personapi-dotnet}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\setlength{\parskip}{0.5em}
+\setlength{\parindent}{0pt}
+
+% Listados de código
+\lstdefinestyle{base}{
+  basicstyle=\ttfamily\footnotesize,
+  backgroundcolor=\color{grisfondo},
+  frame=single, rulecolor=\color{grisborde},
+  breaklines=true, breakatwhitespace=false,
+  showstringspaces=false, tabsize=2,
+  numbers=left, numberstyle=\tiny\color{gray}, numbersep=6pt,
+  xleftmargin=1.5em, framexleftmargin=1.2em,
+  keywordstyle=\color{moradokw}\bfseries,
+  commentstyle=\color{verdecom}\itshape,
+  stringstyle=\color{rojostr},
+  captionpos=b,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+           {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+           {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1
+}
+\lstdefinelanguage{CSharpX}[Sharp]{C}{
+  morekeywords={var,async,await,record,init,get,set,required,nameof,
+                Task,IActionResult,ActionResult,IEnumerable,List,DbSet,
+                DbContext,builder,app,where,partial,virtual},
+}
+\lstdefinelanguage{yaml}{
+  keywords={true,false,null},
+  sensitive=false,
+  comment=[l]{\#},
+  morestring=[b]', morestring=[b]"
+}
+\lstdefinelanguage{docker}{
+  keywords={FROM,AS,WORKDIR,COPY,RUN,ENV,EXPOSE,ENTRYPOINT,CMD,ARG},
+  sensitive=true,
+  comment=[l]{\#},
+  morestring=[b]"
+}
+\lstdefinelanguage{json}{
+  morestring=[b]", stringstyle=\color{rojostr},
+  literate={:}{{{\color{moradokw}{:}}}}1 {,}{{{\color{moradokw}{,}}}}1
+}
+\lstset{style=base}
+
+% Recuadro para capturas pendientes
+\newcommand{\captura}[2][0.85\textwidth]{%
+  \begin{tikzpicture}
+    \node[draw=grisborde, dashed, fill=grisfondo, minimum width=#1,
+          minimum height=5cm, align=center, text=gray]
+          {\textbf{Captura de pantalla}\\[2pt]\small #2};
+  \end{tikzpicture}%
+}
+
+% =====================================================================
+\begin{document}
+% =====================================================================
+
+% ---------------------------------------------------------------------
+%  PORTADA
+% ---------------------------------------------------------------------
+\begin{titlepage}
+  \thispagestyle{empty}
+  \centering
+  {\large\scshape \universidad\par}
+  \vspace{0.2cm}
+  {\normalsize \facultad\\ \departamento\par}
+  \vspace{0.6cm}
+  % \includegraphics[width=0.22\textwidth]{logo.png}\par  % <- Descomentar al subir el logo
+  \vspace{2.2cm}
+  {\color{azulj}\rule{\linewidth}{1.2pt}\par}
+  \vspace{0.4cm}
+  {\Huge\bfseries Laboratorio 1\par}
+  \vspace{0.3cm}
+  {\LARGE Implementación de un Monolito\\ con patrón MVC y DAO\par}
+  \vspace{0.3cm}
+  {\large\itshape personapi-dotnet\par}
+  \vspace{0.2cm}
+  {\color{azulj}\rule{\linewidth}{1.2pt}\par}
+  \vspace{1.2cm}
+  {\normalsize .NET 10 (LTS) \quad$\cdot$\quad ASP.NET Core MVC \quad$\cdot$\quad Entity Framework Core 10\\
+   SQL Server 2025 \quad$\cdot$\quad REST \quad$\cdot$\quad Swagger / OpenAPI 3 \quad$\cdot$\quad Docker\par}
+  \vfill
+  {\large\bfseries Integrantes\par}
+  \vspace{0.2cm}
+  {\large \integranteA\\ \integranteB\\ \integranteC\par}
+  \vspace{1cm}
+  {\large\bfseries Profesor\par}
+  \vspace{0.2cm}
+  {\large \profesor\par}
+  \vspace{1cm}
+  {\large \asignatura\par}
+  {\large \ciudad, \fecha\par}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ---------------------------------------------------------------------
+%  INTRODUCCIÓN (breve, dentro del marco)
+% ---------------------------------------------------------------------
+\section{Marco conceptual}
+
+Este laboratorio construye \texttt{personapi-dotnet}, una aplicación monolítica que
+expone operaciones CRUD (\emph{Create, Read, Update, Delete}) sobre un modelo de datos de
+personas, profesiones, estudios y teléfonos, tanto mediante vistas web (HTML generado en el
+servidor) como mediante una API REST documentada con Swagger. A continuación se presentan
+los conceptos que sustentan la solución.
+
+\subsection{Arquitectura de software}
+La arquitectura de software es la estructura (o conjunto de estructuras) de un sistema,
+compuesta por sus elementos, las propiedades visibles de estos y las relaciones entre
+ellos \cite{bass}. Las decisiones arquitectónicas determinan atributos de calidad como la
+mantenibilidad, la escalabilidad, la desplegabilidad y la facilidad de prueba, y son las
+más costosas de cambiar una vez el sistema está construido.
+
+\subsection{Arquitectura monolítica}
+Un \textbf{monolito} es una aplicación en la que toda la funcionalidad (presentación,
+lógica de negocio y acceso a datos) se compila y se despliega como \emph{una sola unidad}
+ejecutable \cite{richardson}. Sus principales características son:
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Un único artefacto de despliegue}: en este caso, un ensamblado .NET
+        publicado dentro de una imagen Docker.
+  \item \textbf{Comunicación interna en proceso}: los componentes se invocan mediante
+        llamadas a métodos, no por red, lo que reduce la latencia y la complejidad.
+  \item \textbf{Base de datos compartida}: todos los módulos operan sobre el mismo esquema.
+\end{itemize}
+
+Un monolito no implica desorden: puede (y debe) estar \emph{estructurado en capas}, de
+modo que cada capa tenga una responsabilidad clara y dependa únicamente de la capa
+inferior. Esta organización, conocida como \textbf{arquitectura en N capas}
+(\emph{N-Tier / N-Layer}), es la recomendada por Microsoft para aplicaciones web no
+distribuidas, donde el \emph{middle tier} se divide en presentación, lógica de negocio y
+acceso a datos \cite{msarchguide}.
+
+\subsection{Patrón Modelo--Vista--Controlador (MVC)}
+MVC es un patrón arquitectónico, propuesto originalmente por Trygve Reenskaug en Smalltalk-80
+\cite{reenskaug}, que separa una aplicación interactiva en tres tipos de componentes:
+
+\begin{description}[itemsep=2pt]
+  \item[Modelo] Representa los datos y las reglas del dominio. Recupera y almacena el
+        estado en un medio persistente (la base de datos).
+  \item[Vista] Presenta la información del modelo al usuario. En ASP.NET Core las vistas
+        se escriben con el motor \emph{Razor} (archivos \texttt{.cshtml}), que mezcla HTML
+        con código C\# precedido de \texttt{@}.
+  \item[Controlador] Recibe la petición del usuario, interactúa con el modelo y selecciona
+        la vista (o la respuesta JSON) que se devolverá.
+\end{description}
+
+ASP.NET Core MVC implementa el patrón \emph{Front Controller}: todas las peticiones HTTP
+entran por un único punto y el motor de enrutamiento las asigna a una clase controladora
+y a un método de acción según la URL (por convención \texttt{/\{controller\}/\{action\}/\{id?\}}
+o mediante \emph{attribute routing} con \texttt{[Route]}). Las operaciones de escritura
+siguen un esquema de dos pasos: una acción \texttt{HttpGet} presenta el formulario y una
+acción \texttt{HttpPost} recibe los datos, que el \emph{model binder} convierte
+automáticamente en parámetros u objetos fuertemente tipados \cite{aspnetmvc}.
+
+Entre sus ventajas destacan la separación de responsabilidades (\emph{separation of
+concerns}), el soporte nativo de inyección de dependencias e inversión de control, la
+facilidad para aplicar pruebas automatizadas y el control total sobre el HTML generado.
+
+\subsection{Patrón Data Access Object (DAO) y Repository}
+El patrón \textbf{DAO} abstrae y encapsula todo el acceso a la fuente de datos detrás de
+una interfaz \cite{corej2ee}. El resto de la aplicación conoce únicamente la interfaz
+(por ejemplo \texttt{IPersonaRepository}) y no sabe si los datos provienen de SQL Server,
+de un archivo o de un servicio externo. Sus participantes son:
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Cliente (BusinessObject)}: el servicio o controlador que necesita datos.
+  \item \textbf{Interfaz DAO}: contrato con las operaciones disponibles
+        (\texttt{GetAll}, \texttt{GetById}, \texttt{Add}, \texttt{Update}, \texttt{Delete}).
+  \item \textbf{Implementación DAO}: clase concreta que usa la tecnología de persistencia
+        (aquí, Entity Framework Core).
+  \item \textbf{Objeto de transferencia / entidad}: el objeto que viaja entre capas.
+\end{itemize}
+
+En el ecosistema .NET este patrón suele denominarse \textbf{Repository} \cite{fowler}; en
+este documento ambos términos se usan de forma equivalente, pues la intención es la misma:
+desacoplar la lógica de la aplicación de los detalles de persistencia. Al combinarlo con
+inyección de dependencias, la implementación concreta se registra una sola vez en
+\texttt{Program.cs} y puede sustituirse (por ejemplo, por un \emph{mock} en pruebas) sin
+modificar los controladores.
+
+\subsection{Plataforma .NET}
+.NET es una plataforma de desarrollo gratuita, de código abierto y multiplataforma
+(Windows, Linux y macOS) que sucede al .NET Framework, exclusivo de Windows. Su núcleo es
+el \textbf{Common Language Runtime (CLR)}, implementación del estándar \emph{Common
+Language Infrastructure} (CLI), que ejecuta el código intermedio (CIL) generado por los
+compiladores y provee servicios de seguridad, recolección de basura y manejo de
+excepciones; el código que se ejecuta dentro del CLR se denomina \emph{managed code}.
+
+Microsoft publica una versión mayor cada noviembre; las versiones pares son de soporte a
+largo plazo (LTS, tres años) y las impares de soporte estándar (STS) \cite{dotnetpolicy}.
+Siguiendo la indicación de usar las \emph{últimas versiones estables}, se seleccionó
+\textbf{.NET 10 (LTS)}, publicado en noviembre de 2025 y con soporte hasta noviembre de
+2028, en lugar de .NET 7, cuyo soporte terminó en mayo de 2024.
+
+\subsection{ASP.NET Core}
+ASP.NET Core es el \emph{framework} web de .NET. Una misma aplicación puede contener
+controladores MVC que devuelven vistas Razor y controladores de API
+(\texttt{[ApiController]}) que devuelven JSON, lo que permite cubrir en un solo
+monolito tanto la interfaz web como la API REST exigidas en el laboratorio. Incluye un
+contenedor de inyección de dependencias, un sistema de configuración por capas
+(\texttt{appsettings.json}, variables de entorno) y el servidor web multiplataforma
+\emph{Kestrel}.
+
+\subsection{Entity Framework Core (ORM)}
+Un \textbf{ORM} (\emph{Object-Relational Mapper}) mapea las tablas de una base de datos
+relacional a clases del lenguaje y evita escribir código repetitivo de acceso a datos.
+Entity Framework Core es el ORM oficial de .NET \cite{efcore}. Sus elementos principales son:
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{DbContext}: representa una sesión con la base de datos, implementa los
+        patrones \emph{Unit of Work} y \emph{Identity Map} y rastrea los cambios.
+  \item \textbf{DbSet<T>}: representa una tabla y permite consultas con LINQ, que EF
+        traduce a SQL y cuyos resultados mapea a entidades.
+  \item \textbf{Proveedor}: \texttt{Microsoft.EntityFrameworkCore.SqlServer} traduce las
+        operaciones al dialecto T-SQL.
+\end{itemize}
+
+EF Core admite dos enfoques: \emph{Code First} (las clases generan el esquema) y
+\emph{Database First}. En este laboratorio se usa \textbf{Database First} mediante
+\emph{scaffolding} (ingeniería inversa): el comando \texttt{Scaffold-DbContext} lee el
+esquema existente de \texttt{persona\_db} y genera las clases entidad y el contexto.
+
+\subsection{Microsoft SQL Server}
+SQL Server es el sistema gestor de bases de datos relacionales de Microsoft. Se utilizó
+\textbf{SQL Server 2025} (versión 17.x), la versión estable más reciente, en su edición
+\emph{Express} para la instalación local y mediante la imagen oficial
+\texttt{mcr.microsoft.com/mssql/server:2025-latest} para el entorno Docker. Su
+administración se realiza con \textbf{SQL Server Management Studio (SSMS)}.
+
+\subsection{REST}
+REST (\emph{Representational State Transfer}) es un estilo arquitectónico definido por
+Roy Fielding \cite{fielding} para sistemas hipermedia distribuidos. Sus restricciones son:
+cliente-servidor, comunicación sin estado, respuestas cacheables, interfaz uniforme,
+sistema en capas y, opcionalmente, código bajo demanda. En una API REST sobre HTTP:
+
+\begin{itemize}[itemsep=2pt]
+  \item Cada recurso se identifica con una URI (\texttt{/api/personas/123}).
+  \item Los verbos HTTP expresan la operación: \texttt{GET} (leer), \texttt{POST} (crear),
+        \texttt{PUT} (reemplazar/actualizar) y \texttt{DELETE} (eliminar).
+  \item Los códigos de estado comunican el resultado: \texttt{200 OK},
+        \texttt{201 Created}, \texttt{204 No Content}, \texttt{400 Bad Request},
+        \texttt{404 Not Found}, \texttt{409 Conflict}.
+\end{itemize}
+
+\subsection{Swagger y OpenAPI 3}
+\textbf{OpenAPI} es una especificación estándar, independiente del lenguaje, para
+describir APIs HTTP \cite{openapi}; su versión 3 es la evolución de la antigua
+especificación Swagger 2.0. \textbf{Swagger UI} es la herramienta que, a partir de ese
+documento, genera una página web interactiva para explorar y probar los
+\emph{endpoints}. En .NET se integra con el paquete \texttt{Swashbuckle.AspNetCore}, que
+genera el documento OpenAPI 3 en \texttt{/swagger/v1/swagger.json} y publica la interfaz
+en \texttt{/swagger}.
+
+\subsection{Docker}
+Docker empaqueta una aplicación junto con su entorno de ejecución en una \textbf{imagen}
+inmutable, que se ejecuta como \textbf{contenedor} aislado \cite{docker}. \emph{Docker
+Compose} permite declarar en un archivo YAML varios servicios relacionados (aquí, la
+aplicación y SQL Server) y levantarlos con un solo comando. Esto elimina el problema de
+\enquote{funciona en mi máquina} y hace reproducible el despliegue del laboratorio en
+cualquier sistema operativo.
+
+\subsection{Git, repositorios y etiquetas}
+Git es un sistema de control de versiones distribuido. Un \textbf{tag} es una referencia
+inmutable a un \emph{commit} concreto que se utiliza para marcar versiones entregables
+(por ejemplo \texttt{\repoTag}); es el mecanismo de entrega solicitado para este
+laboratorio.
+
+% ---------------------------------------------------------------------
+%  DISEÑO
+% ---------------------------------------------------------------------
+\section{Diseño}
+
+\subsection{Requerimientos}
+
+\textbf{Funcionales}
+\begin{enumerate}[label=RF\arabic*., itemsep=2pt]
+  \item Crear, consultar (todos y por llave), actualizar y eliminar \emph{personas}.
+  \item Crear, consultar, actualizar y eliminar \emph{profesiones}.
+  \item Crear, consultar, actualizar y eliminar \emph{teléfonos}, asociados a una persona.
+  \item Crear, consultar, actualizar y eliminar \emph{estudios}, que relacionan una persona
+        con una profesión.
+  \item Ofrecer las operaciones anteriores mediante vistas web (MVC) y mediante
+        \emph{endpoints} REST.
+  \item Documentar y permitir probar la API desde Swagger UI.
+\end{enumerate}
+
+\textbf{No funcionales}
+\begin{enumerate}[label=RNF\arabic*., itemsep=2pt]
+  \item Usar las últimas versiones estables: .NET 10 LTS y SQL Server 2025.
+  \item Estructurar el monolito en capas con responsabilidades separadas.
+  \item Aplicar los patrones MVC y DAO.
+  \item Desplegar la solución con Docker y Docker Compose.
+  \item Validar los datos de entrada y devolver códigos HTTP adecuados.
+\end{enumerate}
+
+\subsection{Modelo de datos}
+
+El modelo, proporcionado originalmente en MySQL, consta de cuatro tablas
+(Figura~\ref{fig:er}). La tabla \texttt{estudios} es una entidad asociativa que resuelve
+la relación muchos-a-muchos entre \texttt{persona} y \texttt{profesion}, con llave
+primaria compuesta (\texttt{id\_prof}, \texttt{cc\_per}). La tabla \texttt{telefono}
+mantiene una relación uno-a-muchos con \texttt{persona} a través de la columna
+\texttt{duenio}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  ent/.style={rectangle split, rectangle split parts=2, draw=azulj, thick,
+              rectangle split part fill={azulj!85,white}, font=\ttfamily\small,
+              align=left, inner sep=4pt, minimum width=4.2cm},
+  rel/.style={thick, draw=black!70}
+]
+\node[ent] (prof) {\textcolor{white}{\textbf{profesion}}
+  \nodepart{two} PK id INT\\ \ \ \ nom VARCHAR(90)\\ \ \ \ des VARCHAR(MAX)};
+\node[ent, right=1.6cm of prof] (est) {\textcolor{white}{\textbf{estudios}}
+  \nodepart{two} PK,FK id\_prof INT\\ PK,FK cc\_per INT\\ \ \ \ \ \ \ fecha DATE\\ \ \ \ \ \ \ univer VARCHAR(50)};
+\node[ent, right=1.6cm of est] (per) {\textcolor{white}{\textbf{persona}}
+  \nodepart{two} PK cc INT\\ \ \ \ nombre VARCHAR(45)\\ \ \ \ apellido VARCHAR(45)\\ \ \ \ genero CHAR(1)\\ \ \ \ edad INT};
+\node[ent, below=1.2cm of per] (tel) {\textcolor{white}{\textbf{telefono}}
+  \nodepart{two} PK num VARCHAR(15)\\ \ \ \ oper VARCHAR(45)\\ FK duenio INT};
+\draw[rel] (prof.east) -- node[above,font=\scriptsize]{1} node[below,font=\scriptsize,pos=0.85]{N} (est.west);
+\draw[rel] (per.west) -- node[above,font=\scriptsize]{1} node[below,font=\scriptsize,pos=0.85]{N} (est.east);
+\draw[rel,dashed] (per.south) -- node[right,font=\scriptsize,pos=0.15]{1} node[right,font=\scriptsize,pos=0.85]{N} (tel.north);
+\end{tikzpicture}
+\caption{Modelo entidad-relación de \texttt{persona\_db} (adaptado a SQL Server).}
+\label{fig:er}
+\end{figure}
+
+Como el script original está escrito para MySQL, fue necesario traducir los tipos y
+restricciones a T-SQL (Tabla~\ref{tab:tipos}).
+
+\begin{table}[H]
+\centering
+\caption{Adaptación de tipos de MySQL a SQL Server.}
+\label{tab:tipos}
+\begin{tabularx}{\textwidth}{l l X}
+\toprule
+\textbf{MySQL} & \textbf{SQL Server} & \textbf{Justificación} \\
+\midrule
+\texttt{INT(15)}, \texttt{INT(6)}, \texttt{INT(3)} & \texttt{INT} &
+  En SQL Server \texttt{INT} no admite ancho de visualización; el rango
+  ($\pm 2\,147\,483\,647$) cubre las cédulas colombianas. \\
+\texttt{ENUM('M','F')} & \texttt{CHAR(1)} + \texttt{CHECK} &
+  SQL Server no tiene \texttt{ENUM}; la restricción \texttt{CHECK (genero IN ('M','F'))}
+  garantiza el mismo dominio. \\
+\texttt{TEXT} & \texttt{VARCHAR(MAX)} &
+  \texttt{TEXT} está obsoleto en SQL Server; \texttt{VARCHAR(MAX)} es su reemplazo. \\
+\texttt{ENGINE=InnoDB}, \texttt{CHARSET latin1} & (se omite) &
+  Opciones propias de MySQL; SQL Server usa la intercalación de la base de datos. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Las llaves foráneas conservan la semántica del modelo original (\texttt{NO ACTION}): no
+se puede eliminar una persona o profesión que tenga estudios o teléfonos asociados. La
+aplicación detecta este caso y responde con \texttt{409 Conflict} en la API y con un
+mensaje de error en la vista, en lugar de dejar propagar la excepción.
+
+\subsection{Arquitectura de la solución}
+
+La aplicación es un monolito organizado en cuatro capas lógicas dentro de un único
+proyecto ASP.NET Core (Figura~\ref{fig:capas}). Cada capa solo depende de la capa
+inmediatamente inferior a través de interfaces, y las dependencias se resuelven mediante el
+contenedor de inyección de dependencias de ASP.NET Core.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  capa/.style={draw=azulj, thick, rounded corners=3pt, fill=azulj!8,
+               minimum width=12.5cm, minimum height=1.9cm, align=center},
+  comp/.style={draw=black!50, rounded corners=2pt, fill=white, font=\small,
+               minimum height=0.7cm, inner sep=4pt, align=center},
+  flecha/.style={-{Stealth[length=3mm]}, thick, draw=black!70},
+  node distance=0.55cm
+]
+\node (cli) [draw=black!50, rounded corners, fill=black!5, minimum width=12.5cm, minimum height=0.9cm, align=center]
+  {\textbf{Clientes}: navegador (vistas HTML) \quad|\quad Swagger UI / Postman (JSON)};
+
+\node (p) [capa, below=of cli] {};
+\node[anchor=north west, font=\bfseries\small, text=azulj] at (p.north west) {\ Presentación};
+\node[comp] at ($(p.center)+(-3.1,-0.3)$) {Controladores MVC\\ + Vistas Razor};
+\node[comp] at ($(p.center)+(3.1,-0.3)$) {Controladores API REST\\ \texttt{[ApiController]}};
+
+\node (s) [capa, below=of p] {};
+\node[anchor=north west, font=\bfseries\small, text=azulj] at (s.north west) {\ Lógica de negocio};
+\node[comp] at ($(s.center)+(0,-0.3)$) {Servicios: \texttt{IPersonaService}, \texttt{IProfesionService}, \ldots};
+
+\node (d) [capa, below=of s] {};
+\node[anchor=north west, font=\bfseries\small, text=azulj] at (d.north west) {\ Acceso a datos (DAO)};
+\node[comp] at ($(d.center)+(-3.1,-0.3)$) {Interfaces\\ \texttt{I*Repository}};
+\node[comp] at ($(d.center)+(3.1,-0.3)$) {Implementaciones\\ \texttt{*Repository} (EF Core)};
+
+\node (m) [capa, below=of d] {};
+\node[anchor=north west, font=\bfseries\small, text=azulj] at (m.north west) {\ Modelo / Persistencia};
+\node[comp] at ($(m.center)+(-3.1,-0.3)$) {Entidades\\ \texttt{Persona}, \texttt{Telefono}, \ldots};
+\node[comp] at ($(m.center)+(3.1,-0.3)$) {\texttt{PersonaDbContext}};
+
+\node (db) [cylinder, shape border rotate=90, aspect=0.25, draw=azulj, thick, fill=azulj!15,
+            minimum width=3.2cm, minimum height=1.4cm, below=of m, align=center]
+  {\small SQL Server 2025\\ \small\texttt{persona\_db}};
+
+\draw[flecha] (cli) -- node[right,font=\scriptsize]{HTTP} (p);
+\draw[flecha] (p) -- (s);
+\draw[flecha] (s) -- (d);
+\draw[flecha] (d) -- (m);
+\draw[flecha] (m) -- node[right,font=\scriptsize]{ADO.NET / TDS} (db);
+\end{tikzpicture}
+\caption{Arquitectura en capas del monolito \texttt{personapi-dotnet}.}
+\label{fig:capas}
+\end{figure}
+
+\begin{description}[itemsep=3pt]
+  \item[Presentación] Contiene los controladores MVC (que devuelven vistas Razor) y los
+        controladores de API (que devuelven JSON). Ambos tipos de controlador reutilizan
+        los mismos servicios, por lo que no se duplica lógica.
+  \item[Lógica de negocio] Servicios que aplican las reglas del dominio: verificar que la
+        llave no exista antes de crear, que la persona dueña de un teléfono exista, que no
+        se elimine un registro con dependencias, etc.
+  \item[Acceso a datos (DAO)] Interfaces que definen el contrato de persistencia e
+        implementaciones que lo cumplen usando EF Core. Es la única capa que conoce el
+        \texttt{DbContext}.
+  \item[Modelo / Persistencia] Entidades y contexto generados por \emph{scaffolding} desde
+        la base de datos.
+\end{description}
+
+\subsection{Estructura del proyecto}
+
+\begin{lstlisting}[language={},numbers=none,caption={Estructura de carpetas del repositorio.}]
+personapi-dotnet/
+|-- personapi-dotnet.sln
+|-- README.md
+|-- Dockerfile
+|-- docker-compose.yml
+|-- .dockerignore
+|-- scripts/
+|   |-- 01_ddl.sql                  # Creacion de BD y tablas
+|   `-- 02_dml.sql                  # Datos de prueba
+`-- personapi-dotnet/
+    |-- Program.cs                  # Configuracion, DI, Swagger
+    |-- appsettings.json            # Cadena de conexion
+    |-- Controllers/
+    |   |-- HomeController.cs
+    |   |-- PersonasController.cs   # MVC (vistas)
+    |   |-- ProfesionesController.cs
+    |   |-- TelefonosController.cs
+    |   |-- EstudiosController.cs
+    |   `-- Api/
+    |       |-- PersonasApiController.cs    # REST
+    |       |-- ProfesionesApiController.cs
+    |       |-- TelefonosApiController.cs
+    |       `-- EstudiosApiController.cs
+    |-- Services/
+    |   |-- Interfaces/  (IPersonaService.cs, ...)
+    |   `-- Implementations/  (PersonaService.cs, ...)
+    |-- Models/
+    |   |-- Entities/               # Generado por Scaffold-DbContext
+    |   |   |-- PersonaDbContext.cs
+    |   |   |-- Persona.cs
+    |   |   |-- Profesion.cs
+    |   |   |-- Estudio.cs
+    |   |   `-- Telefono.cs
+    |   `-- Repository/
+    |       |-- Interfaces/  (IPersonaRepository.cs, ...)
+    |       `-- Implementations/  (PersonaRepository.cs, ...)
+    |-- Views/
+    |   |-- Shared/_Layout.cshtml
+    |   |-- Personas/  (Index, Details, Create, Edit, Delete)
+    |   |-- Profesiones/ ...
+    |   |-- Telefonos/ ...
+    |   `-- Estudios/ ...
+    `-- wwwroot/
+\end{lstlisting}
+
+\subsection{Diagrama de clases (capa de acceso a datos)}
+
+La Figura~\ref{fig:dao} muestra la aplicación del patrón DAO para la entidad
+\texttt{Persona}; las demás entidades siguen exactamente la misma estructura.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  clase/.style={rectangle split, rectangle split parts=2, draw=black!70, thick,
+                rectangle split part fill={azulj!15,white}, font=\ttfamily\scriptsize,
+                align=left, inner sep=4pt},
+  impl/.style={-{Triangle[open,length=3mm]}, dashed, thick},
+  usa/.style={-{Stealth[length=2.5mm]}, thick}
+]
+\node[clase] (ctrl) {\textbf{PersonasApiController}
+  \nodepart{two} - \_service : IPersonaService\\ + GetAll() : IActionResult\\ + Get(cc) : IActionResult\\
+                 + Post(persona) : IActionResult\\ + Put(cc, persona) : IActionResult\\ + Delete(cc) : IActionResult};
+\node[clase, right=1.2cm of ctrl] (isrv) {\textit{<<interface>>}\\ \textbf{IPersonaService}
+  \nodepart{two} + GetAllAsync()\\ + GetByIdAsync(cc)\\ + CreateAsync(p)\\ + UpdateAsync(cc, p)\\ + DeleteAsync(cc)};
+\node[clase, below=1.2cm of isrv] (srv) {\textbf{PersonaService}
+  \nodepart{two} - \_repo : IPersonaRepository};
+\node[clase, below=1.2cm of ctrl] (irepo) {\textit{<<interface>>}\\ \textbf{IPersonaRepository}
+  \nodepart{two} + GetAllAsync()\\ + GetByIdAsync(cc)\\ + ExistsAsync(cc)\\ + AddAsync(p)\\ + UpdateAsync(p)\\ + DeleteAsync(p)};
+\node[clase, below=1.2cm of irepo] (repo) {\textbf{PersonaRepository}
+  \nodepart{two} - \_context : PersonaDbContext};
+\node[clase, right=1.2cm of repo] (ctx) {\textbf{PersonaDbContext}
+  \nodepart{two} + Personas : DbSet<Persona>\\ + Profesions : DbSet<Profesion>\\ + Estudios : DbSet<Estudio>\\ + Telefonos : DbSet<Telefono>};
+
+\draw[usa] (ctrl) -- (isrv);
+\draw[impl] (srv) -- (isrv);
+\draw[usa] (srv) -- (irepo);
+\draw[impl] (repo) -- (irepo);
+\draw[usa] (repo) -- (ctx);
+\end{tikzpicture}
+\caption{Patrón DAO/Repository aplicado a la entidad \texttt{Persona}.}
+\label{fig:dao}
+\end{figure}
+
+\subsection{Diseño de la API REST}
+
+Todos los recursos siguen la convención \texttt{/api/\{recurso\}}. La entidad
+\texttt{estudios}, por tener llave compuesta, recibe ambos componentes en la ruta.
+
+\begin{longtable}{>{\ttfamily}l >{\ttfamily}l p{4.6cm} >{\ttfamily}l}
+\caption{Endpoints REST expuestos por la aplicación.}\label{tab:endpoints}\\
+\toprule
+\normalfont\textbf{Método} & \normalfont\textbf{Ruta} & \textbf{Descripción} & \normalfont\textbf{Éxito} \\
+\midrule
+\endfirsthead
+\toprule
+\normalfont\textbf{Método} & \normalfont\textbf{Ruta} & \textbf{Descripción} & \normalfont\textbf{Éxito} \\
+\midrule
+\endhead
+GET    & /api/personas            & Lista todas las personas       & 200 \\
+GET    & /api/personas/\{cc\}     & Obtiene una persona            & 200 / 404 \\
+POST   & /api/personas            & Crea una persona               & 201 / 409 \\
+PUT    & /api/personas/\{cc\}     & Actualiza una persona          & 204 / 404 \\
+DELETE & /api/personas/\{cc\}     & Elimina una persona            & 204 / 409 \\
+\midrule
+GET    & /api/profesiones         & Lista todas las profesiones    & 200 \\
+GET    & /api/profesiones/\{id\}  & Obtiene una profesión          & 200 / 404 \\
+POST   & /api/profesiones         & Crea una profesión             & 201 / 409 \\
+PUT    & /api/profesiones/\{id\}  & Actualiza una profesión        & 204 / 404 \\
+DELETE & /api/profesiones/\{id\}  & Elimina una profesión          & 204 / 409 \\
+\midrule
+GET    & /api/telefonos           & Lista todos los teléfonos      & 200 \\
+GET    & /api/telefonos/\{num\}   & Obtiene un teléfono            & 200 / 404 \\
+POST   & /api/telefonos           & Crea un teléfono               & 201 / 400 \\
+PUT    & /api/telefonos/\{num\}   & Actualiza un teléfono          & 204 / 404 \\
+DELETE & /api/telefonos/\{num\}   & Elimina un teléfono            & 204 / 404 \\
+\midrule
+GET    & /api/estudios                       & Lista todos los estudios & 200 \\
+GET    & /api/estudios/\{idProf\}/\{ccPer\}  & Obtiene un estudio       & 200 / 404 \\
+POST   & /api/estudios                       & Crea un estudio          & 201 / 400 \\
+PUT    & /api/estudios/\{idProf\}/\{ccPer\}  & Actualiza un estudio     & 204 / 404 \\
+DELETE & /api/estudios/\{idProf\}/\{ccPer\}  & Elimina un estudio       & 204 / 404 \\
+\bottomrule
+\end{longtable}
+
+\subsection{Diseño de las vistas MVC}
+
+Para cada entidad existe un controlador MVC con las cinco acciones estándar de
+\emph{scaffolding}, cada una asociada a una vista Razor:
+
+\begin{table}[H]
+\centering
+\caption{Rutas de las vistas web (ejemplo con \texttt{Personas}).}
+\begin{tabular}{>{\ttfamily}l >{\ttfamily}l l}
+\toprule
+\normalfont\textbf{Ruta} & \normalfont\textbf{Verbo} & \textbf{Vista / acción} \\
+\midrule
+/Personas                 & GET        & \texttt{Index.cshtml}: tabla con todos los registros \\
+/Personas/Details/\{id\}  & GET        & \texttt{Details.cshtml}: detalle de un registro \\
+/Personas/Create          & GET, POST  & \texttt{Create.cshtml}: formulario de creación \\
+/Personas/Edit/\{id\}     & GET, POST  & \texttt{Edit.cshtml}: formulario de edición \\
+/Personas/Delete/\{id\}   & GET, POST  & \texttt{Delete.cshtml}: confirmación de borrado \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Las listas desplegables para seleccionar la persona dueña de un teléfono o la profesión
+de un estudio se construyen con \texttt{SelectList}, de modo que el usuario nunca escribe
+manualmente una llave foránea.
+
+\subsection{Diseño del despliegue}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  cont/.style={draw=azulj, thick, rounded corners=3pt, fill=white, minimum width=4.6cm,
+               minimum height=2.2cm, align=center, font=\small},
+  flecha/.style={-{Stealth[length=3mm]}, thick}
+]
+\node[cont] (app) {\textbf{personapi-dotnet}\\ \texttt{aspnet:10.0}\\ puerto 8080};
+\node[cont, right=2.2cm of app] (sql) {\textbf{sqlserver}\\ \texttt{mssql/server:2025-latest}\\ puerto 1433};
+\node[cont, below=0.9cm of sql, minimum height=1.1cm, fill=grisfondo] (init) {\textbf{db-init}\\ ejecuta \texttt{scripts/*.sql}};
+\node[draw, dashed, rounded corners, inner sep=0.45cm, fit=(app)(sql)(init),
+      label={[font=\small\bfseries,text=azulj]above:Docker Compose -- red \texttt{personapi-net}}] {};
+\node[left=1.3cm of app, align=center, font=\small] (nav) {Navegador\\ \texttt{localhost:8080}};
+\draw[flecha] (nav) -- (app);
+\draw[flecha] (app) -- node[above,font=\scriptsize]{TDS} (sql);
+\draw[flecha] (init) -- (sql);
+\end{tikzpicture}
+\caption{Vista de despliegue con Docker Compose.}
+\label{fig:deploy}
+\end{figure}
+
+% ---------------------------------------------------------------------
+%  PROCEDIMIENTO
+% ---------------------------------------------------------------------
+\section{Procedimiento}
+
+El procedimiento sigue la guía del laboratorio. Donde la guía menciona versiones
+anteriores (SQL Server 2019, SSMS 18, Visual Studio 2022, .NET 6/7) se usaron las
+versiones estables más recientes, según lo solicitado (Tabla~\ref{tab:versiones}).
+
+\begin{table}[H]
+\centering
+\caption{Versiones de herramientas utilizadas.}
+\label{tab:versiones}
+\begin{tabularx}{\textwidth}{l l X}
+\toprule
+\textbf{Herramienta} & \textbf{Guía} & \textbf{Utilizada} \\
+\midrule
+SDK de .NET              & .NET 6 / 7     & .NET 10 (LTS) \\
+Motor de base de datos   & SQL Server 2019 Express & SQL Server 2025 Express / imagen Docker 2025 \\
+Cliente de base de datos & SSMS 18        & SSMS 22 \\
+IDE                      & Visual Studio 2022 & Visual Studio 2026 Community (requerido para .NET 10) \\
+ORM                      & EF Core        & EF Core 10 \\
+Documentación de API     & Swagger 3      & Swashbuckle.AspNetCore (OpenAPI 3) \\
+Contenedores             & --             & Docker Desktop + Docker Compose v2 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Paso 1. Crear el repositorio Git}
+Se creó en GitHub el repositorio público \texttt{personapi-dotnet}, inicializado con un
+\texttt{README.md} y un \texttt{.gitignore} para Visual Studio.
+
+\begin{center}\captura{Repositorio \texttt{personapi-dotnet} creado en GitHub}\end{center}
+
+\subsection{Paso 2 y 3. Instalar SQL Server 2025 Express y SSMS}
+\begin{enumerate}[itemsep=2pt]
+  \item Descargar el instalador de SQL Server 2025 Express desde el sitio de Microsoft y
+        elegir el tipo de instalación \textbf{Básica}. La instancia queda registrada como
+        \texttt{localhost\textbackslash SQLEXPRESS}.
+  \item Habilitar la autenticación mixta (Windows y SQL Server) y asignar contraseña al
+        usuario \texttt{sa}, necesario para conectarse desde Docker.
+  \item Instalar SQL Server Management Studio (SSMS) y conectarse a la instancia.
+\end{enumerate}
+
+\begin{center}\captura{Conexión exitosa a \texttt{localhost\textbackslash SQLEXPRESS} en SSMS}\end{center}
+
+\subsection{Paso 4 y 5. Crear la base de datos y las tablas (DDL)}
+Se creó la base de datos \texttt{persona\_db}, se asignó como propietario al usuario
+\texttt{sa} y se crearon las tablas según el modelo, con las adaptaciones de la
+Tabla~\ref{tab:tipos}.
+
+\begin{lstlisting}[language=SQL,caption={Script DDL \texttt{scripts/01\_ddl.sql}.}]
+IF DB_ID('persona_db') IS NULL
+    CREATE DATABASE persona_db;
+GO
+ALTER AUTHORIZATION ON DATABASE::persona_db TO sa;
+GO
+USE persona_db;
+GO
+
+CREATE TABLE persona (
+    cc        INT          NOT NULL,
+    nombre    VARCHAR(45)  NOT NULL,
+    apellido  VARCHAR(45)  NOT NULL,
+    genero    CHAR(1)      NOT NULL,
+    edad      INT          NULL,
+    CONSTRAINT PK_persona PRIMARY KEY (cc),
+    CONSTRAINT CK_persona_genero CHECK (genero IN ('M', 'F'))
+);
+
+CREATE TABLE profesion (
+    id   INT           NOT NULL,
+    nom  VARCHAR(90)   NOT NULL,
+    des  VARCHAR(MAX)  NULL,
+    CONSTRAINT PK_profesion PRIMARY KEY (id)
+);
+
+CREATE TABLE estudios (
+    id_prof  INT          NOT NULL,
+    cc_per   INT          NOT NULL,
+    fecha    DATE         NULL,
+    univer   VARCHAR(50)  NULL,
+    CONSTRAINT PK_estudios PRIMARY KEY (id_prof, cc_per),
+    CONSTRAINT estudio_persona_fk   FOREIGN KEY (cc_per)  REFERENCES persona (cc),
+    CONSTRAINT estudio_profesion_fk FOREIGN KEY (id_prof) REFERENCES profesion (id)
+);
+CREATE INDEX estudio_persona_fk ON estudios (cc_per);
+
+CREATE TABLE telefono (
+    num     VARCHAR(15)  NOT NULL,
+    oper    VARCHAR(45)  NOT NULL,
+    duenio  INT          NOT NULL,
+    CONSTRAINT PK_telefono PRIMARY KEY (num),
+    CONSTRAINT telefono_persona_fk FOREIGN KEY (duenio) REFERENCES persona (cc)
+);
+CREATE INDEX telefono_persona_fk ON telefono (duenio);
+GO
+\end{lstlisting}
+
+\begin{lstlisting}[language=SQL,caption={Script DML \texttt{scripts/02\_dml.sql} (extracto).}]
+USE persona_db;
+GO
+INSERT INTO persona (cc, nombre, apellido, genero, edad) VALUES
+ (1010101010, 'Ana',    'Gómez',    'F', 28),
+ (1020202020, 'Carlos', 'Pérez',    'M', 35),
+ (1030303030, 'Laura',  'Martínez', 'F', 22);
+
+INSERT INTO profesion (id, nom, des) VALUES
+ (1, 'Ingeniería de Sistemas', 'Diseño y desarrollo de sistemas de información'),
+ (2, 'Medicina',               'Diagnóstico y tratamiento de enfermedades'),
+ (3, 'Derecho',                'Asesoría y representación legal');
+
+INSERT INTO estudios (id_prof, cc_per, fecha, univer) VALUES
+ (1, 1010101010, '2020-12-15', 'Pontificia Universidad Javeriana'),
+ (2, 1020202020, '2015-06-20', 'Universidad Nacional de Colombia'),
+ (1, 1030303030, '2024-07-01', 'Universidad de los Andes');
+
+INSERT INTO telefono (num, oper, duenio) VALUES
+ ('3001234567', 'Claro',    1010101010),
+ ('3109876543', 'Movistar', 1020202020),
+ ('3205551234', 'Tigo',     1030303030);
+GO
+\end{lstlisting}
+
+\begin{center}\captura{Tablas de \texttt{persona\_db} en el Explorador de objetos de SSMS}\end{center}
+
+\subsection{Paso 6. Instalar Visual Studio Community}
+Se instaló Visual Studio 2026 Community con las cargas de trabajo:
+\begin{enumerate}[itemsep=1pt]
+  \item Desarrollo de ASP.NET y web.
+  \item Almacenamiento y procesamiento de datos.
+  \item Plantillas de proyecto y elementos de .NET Framework.
+  \item Características avanzadas de ASP.NET.
+\end{enumerate}
+
+\subsection{Paso 7. Clonar el repositorio}
+\begin{lstlisting}[language=bash,numbers=none]
+git clone https://github.com/USUARIO/personapi-dotnet.git
+cd personapi-dotnet
+\end{lstlisting}
+
+\subsection{Paso 8. Desarrollo en Visual Studio}
+
+\subsubsection{8.1 -- 8.4 Creación del proyecto}
+Se creó un proyecto con la plantilla \textbf{Aplicación web de ASP.NET Core
+(Modelo-Vista-Controlador)}, con nombre \texttt{personapi-dotnet}, \emph{framework}
+\textbf{.NET 10.0}, sin autenticación y sin configuración HTTPS. Equivalente por línea de
+comandos:
+
+\begin{lstlisting}[language=bash,numbers=none]
+dotnet new sln -n personapi-dotnet
+dotnet new mvc -n personapi-dotnet -f net10.0 --auth None --no-https
+dotnet sln add personapi-dotnet/personapi-dotnet.csproj
+\end{lstlisting}
+
+\subsubsection{8.5 -- 8.6 Conexión desde el Explorador de objetos de SQL Server}
+Desde \textbf{Ver $\rightarrow$ Explorador de objetos de SQL Server} se agregó la
+conexión a \texttt{localhost\textbackslash SQLEXPRESS} y se verificó con \emph{Probar
+conexión}.
+
+\subsubsection{8.7 -- 8.8 Instalación de paquetes NuGet}
+\begin{lstlisting}[language=bash,numbers=none]
+dotnet add package Microsoft.EntityFrameworkCore
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+dotnet add package Microsoft.EntityFrameworkCore.Design
+dotnet add package Swashbuckle.AspNetCore
+\end{lstlisting}
+
+\subsubsection{8.9 -- 8.10 Generación de entidades (\emph{scaffolding})}
+Se creó la carpeta \texttt{Models/Entities} y en la Consola del Administrador de paquetes
+se ejecutó:
+
+\begin{lstlisting}[language=bash,numbers=none]
+Scaffold-DbContext "Server=localhost\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=true" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models/Entities
+\end{lstlisting}
+
+El comando generó \texttt{PersonaDbContext} y las clases \texttt{Persona},
+\texttt{Profesion}, \texttt{Estudio} y \texttt{Telefono}, con sus propiedades de
+navegación. Luego se movió la cadena de conexión del contexto a
+\texttt{appsettings.json}:
+
+\begin{lstlisting}[language=json,caption={Fragmento de \texttt{appsettings.json}.}]
+{
+  "ConnectionStrings": {
+    "PersonaDb": "Server=localhost\\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=true"
+  }
+}
+\end{lstlisting}
+
+\subsubsection{8.11 Interfaces (contratos DAO)}
+\begin{lstlisting}[language=CSharpX,caption={\texttt{Models/Repository/Interfaces/IPersonaRepository.cs}.}]
+public interface IPersonaRepository
+{
+    Task<IEnumerable<Persona>> GetAllAsync();
+    Task<Persona?> GetByIdAsync(int cc);
+    Task<bool> ExistsAsync(int cc);
+    Task AddAsync(Persona persona);
+    Task UpdateAsync(Persona persona);
+    Task DeleteAsync(Persona persona);
+}
+\end{lstlisting}
+
+\subsubsection{8.12 Repositorios (implementación DAO)}
+\begin{lstlisting}[language=CSharpX,caption={\texttt{Models/Repository/Implementations/PersonaRepository.cs}.}]
+public class PersonaRepository : IPersonaRepository
+{
+    private readonly PersonaDbContext _context;
+
+    public PersonaRepository(PersonaDbContext context) => _context = context;
+
+    public async Task<IEnumerable<Persona>> GetAllAsync() =>
+        await _context.Personas.AsNoTracking().ToListAsync();
+
+    public async Task<Persona?> GetByIdAsync(int cc) =>
+        await _context.Personas.FindAsync(cc);
+
+    public Task<bool> ExistsAsync(int cc) =>
+        _context.Personas.AnyAsync(p => p.Cc == cc);
+
+    public async Task AddAsync(Persona persona)
+    {
+        _context.Personas.Add(persona);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(Persona persona)
+    {
+        _context.Personas.Update(persona);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(Persona persona)
+    {
+        _context.Personas.Remove(persona);
+        await _context.SaveChangesAsync();
+    }
+}
+\end{lstlisting}
+
+\subsubsection{8.13 Controladores}
+Los controladores MVC se generaron con \emph{Agregar $\rightarrow$ Nuevo elemento con
+scaffolding $\rightarrow$ Controlador de MVC con vistas que usan Entity Framework} y se
+modificaron para depender del servicio en lugar del \texttt{DbContext}. Los
+controladores de API se escribieron manualmente:
+
+\begin{lstlisting}[language=CSharpX,caption={\texttt{Controllers/Api/PersonasApiController.cs}.}]
+[ApiController]
+[Route("api/personas")]
+public class PersonasApiController : ControllerBase
+{
+    private readonly IPersonaService _service;
+
+    public PersonasApiController(IPersonaService service) => _service = service;
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
+
+    [HttpGet("{cc:int}")]
+    public async Task<IActionResult> Get(int cc)
+    {
+        var persona = await _service.GetByIdAsync(cc);
+        return persona is null ? NotFound() : Ok(persona);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Post(Persona persona)
+    {
+        if (!await _service.CreateAsync(persona))
+            return Conflict($"Ya existe una persona con cc {persona.Cc}");
+        return CreatedAtAction(nameof(Get), new { cc = persona.Cc }, persona);
+    }
+
+    [HttpPut("{cc:int}")]
+    public async Task<IActionResult> Put(int cc, Persona persona)
+    {
+        if (cc != persona.Cc) return BadRequest();
+        return await _service.UpdateAsync(cc, persona) ? NoContent() : NotFound();
+    }
+
+    [HttpDelete("{cc:int}")]
+    public async Task<IActionResult> Delete(int cc)
+    {
+        var result = await _service.DeleteAsync(cc);
+        return result switch
+        {
+            DeleteResult.NotFound      => NotFound(),
+            DeleteResult.HasDependents => Conflict("La persona tiene estudios o teléfonos asociados"),
+            _                          => NoContent()
+        };
+    }
+}
+\end{lstlisting}
+
+El registro de dependencias y la configuración de Swagger se realizan en
+\texttt{Program.cs}:
+
+\begin{lstlisting}[language=CSharpX,caption={Fragmento de \texttt{Program.cs}.}]
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(o => o.JsonSerializerOptions.ReferenceHandler =
+        System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+
+builder.Services.AddDbContext<PersonaDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("PersonaDb")));
+
+// Capa de acceso a datos (DAO)
+builder.Services.AddScoped<IPersonaRepository, PersonaRepository>();
+builder.Services.AddScoped<IProfesionRepository, ProfesionRepository>();
+builder.Services.AddScoped<ITelefonoRepository, TelefonoRepository>();
+builder.Services.AddScoped<IEstudioRepository, EstudioRepository>();
+
+// Capa de lógica de negocio
+builder.Services.AddScoped<IPersonaService, PersonaService>();
+builder.Services.AddScoped<IProfesionService, ProfesionService>();
+builder.Services.AddScoped<ITelefonoService, TelefonoService>();
+builder.Services.AddScoped<IEstudioService, EstudioService>();
+
+// Swagger / OpenAPI 3
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+    c.SwaggerDoc("v1", new() { Title = "personapi-dotnet", Version = "v1" }));
+
+var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+app.UseStaticFiles();
+app.UseRouting();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();
+\end{lstlisting}
+
+\subsubsection{8.14 Despliegue}
+
+\paragraph{Despliegue local.} Desde Visual Studio se ejecuta el proyecto con el perfil
+\texttt{http} (o con \texttt{dotnet run}). La aplicación queda disponible en
+\texttt{http://localhost:5000} y Swagger UI en \texttt{http://localhost:5000/swagger}.
+
+\paragraph{Despliegue con Docker.} Se construye la imagen en dos etapas (compilación con
+el SDK y ejecución con el \emph{runtime}, más liviano):
+
+\begin{lstlisting}[language=docker,caption={\texttt{Dockerfile}.}]
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY personapi-dotnet/personapi-dotnet.csproj personapi-dotnet/
+RUN dotnet restore personapi-dotnet/personapi-dotnet.csproj
+COPY . .
+RUN dotnet publish personapi-dotnet/personapi-dotnet.csproj -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
+WORKDIR /app
+COPY --from=build /app/publish .
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "personapi-dotnet.dll"]
+\end{lstlisting}
+
+\begin{lstlisting}[language=yaml,caption={\texttt{docker-compose.yml}.}]
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${SA_PASSWORD}"
+      MSSQL_PID: "Express"
+    ports:
+      - "1433:1433"
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1'"]
+      interval: 10s
+      retries: 10
+
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: >
+      bash -c "for f in /scripts/*.sql; do
+               /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P \"$SA_PASSWORD\" -C -i $$f; done"
+    environment:
+      SA_PASSWORD: "${SA_PASSWORD}"
+
+  personapi:
+    build: .
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    environment:
+      ConnectionStrings__PersonaDb: "Server=sqlserver,1433;Database=persona_db;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True"
+    ports:
+      - "8080:8080"
+\end{lstlisting}
+
+Dentro de Docker no es posible la autenticación integrada de Windows
+(\texttt{Trusted\_Connection}), por lo que la cadena de conexión se sobrescribe con una
+variable de entorno que usa el usuario \texttt{sa}. La contraseña se lee de un archivo
+\texttt{.env} que no se versiona.
+
+\begin{lstlisting}[language=bash,numbers=none]
+echo "SA_PASSWORD=<contrasena-local-no-versionada>" > .env
+docker compose up --build -d
+# Vistas:   http://localhost:8080/Personas
+# Swagger:  http://localhost:8080/swagger
+\end{lstlisting}
+
+\subsection{Pruebas de funcionamiento}
+
+\begin{center}\captura{Swagger UI con los 20 endpoints agrupados por recurso}\end{center}
+\begin{center}\captura{Ejecución de \texttt{POST /api/personas} con respuesta \texttt{201 Created}}\end{center}
+\begin{center}\captura{Vista \texttt{/Personas} (Index) con los registros del script DML}\end{center}
+\begin{center}\captura{Formulario de creación de teléfono con lista desplegable de personas}\end{center}
+\begin{center}\captura{Contenedores en ejecución (\texttt{docker compose ps})}\end{center}
+
+\begin{table}[H]
+\centering
+\caption{Matriz de pruebas funcionales.}
+\begin{tabularx}{\textwidth}{c X c c}
+\toprule
+\textbf{\#} & \textbf{Caso} & \textbf{Esperado} & \textbf{Resultado} \\
+\midrule
+1 & Listar personas (API y vista) & 200 / tabla & \checkmark \\
+2 & Crear persona con cc nueva & 201 & \checkmark \\
+3 & Crear persona con cc existente & 409 & \checkmark \\
+4 & Crear persona con género distinto de M/F & 400 & \checkmark \\
+5 & Actualizar persona existente & 204 & \checkmark \\
+6 & Consultar persona inexistente & 404 & \checkmark \\
+7 & Eliminar persona con teléfonos asociados & 409 & \checkmark \\
+8 & Crear teléfono para dueño inexistente & 400 & \checkmark \\
+9 & CRUD completo de profesiones & 200/201/204 & \checkmark \\
+10 & CRUD de estudios con llave compuesta & 200/201/204 & \checkmark \\
+11 & Despliegue completo con \texttt{docker compose up} & app en :8080 & \checkmark \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Paso 9 y 10. Publicación y etiqueta}
+\begin{lstlisting}[language=bash,numbers=none]
+git add .
+git commit -m "Laboratorio 1: monolito MVC + DAO con .NET 10 y SQL Server 2025"
+git push origin main
+git tag -a v1.0.0 -m "Entrega Laboratorio 1"
+git push origin v1.0.0
+\end{lstlisting}
+
+Repositorio: \url{\repoURL} \quad--\quad Tag: \texttt{\repoTag}
+
+% ---------------------------------------------------------------------
+%  CONCLUSIONES
+% ---------------------------------------------------------------------
+\section{Conclusiones y lecciones aprendidas}
+
+\subsection{Conclusiones}
+\begin{itemize}[itemsep=4pt]
+  \item Un monolito bien estructurado en capas ofrece una separación de responsabilidades
+        comparable a la de arquitecturas más complejas, con un costo operativo mucho menor:
+        un solo artefacto, un solo despliegue y comunicación en proceso. Para un dominio
+        pequeño como el de este laboratorio es la opción más adecuada.
+  \item El patrón MVC permitió que una misma lógica de negocio sirviera dos interfaces
+        distintas (vistas Razor y API REST) sin duplicar código: solo cambia el controlador
+        y el formato de la respuesta.
+  \item El patrón DAO aisló por completo a los controladores de Entity Framework. Gracias a
+        la inyección de dependencias, cambiar la implementación de persistencia solo
+        requeriría modificar una línea de registro en \texttt{Program.cs}.
+  \item El enfoque \emph{Database First} con \texttt{Scaffold-DbContext} redujo
+        drásticamente el código repetitivo: a partir del esquema se obtuvieron entidades,
+        relaciones y contexto listos para usar.
+  \item Docker Compose hizo reproducible el entorno completo (base de datos, scripts y
+        aplicación) con un solo comando, independientemente del sistema operativo de cada
+        integrante.
+\end{itemize}
+
+\subsection{Lecciones aprendidas}
+\begin{itemize}[itemsep=4pt]
+  \item \textbf{Migrar un esquema entre motores no es automático}: tipos como
+        \texttt{ENUM} o \texttt{TEXT} de MySQL no existen o están obsoletos en SQL Server y
+        deben reemplazarse por equivalentes (\texttt{CHECK}, \texttt{VARCHAR(MAX)}).
+  \item \textbf{Las versiones importan}: .NET 10 exige Visual Studio 2026; la guía, basada
+        en versiones anteriores, debió adaptarse. Elegir una versión LTS asegura soporte
+        durante la vida del proyecto.
+  \item \textbf{Las relaciones bidireccionales generan ciclos} al serializar a JSON
+        (\texttt{Persona} $\rightarrow$ \texttt{Telefonos} $\rightarrow$ \texttt{Persona});
+        se resolvió con \texttt{ReferenceHandler.IgnoreCycles}. Una alternativa más limpia
+        es exponer DTOs en lugar de entidades.
+  \item \textbf{La autenticación de Windows no funciona en contenedores Linux}: la cadena
+        de conexión debe externalizarse y sobrescribirse por variables de entorno según el
+        ambiente.
+  \item \textbf{Las llaves foráneas sin cascada deben manejarse en la aplicación}: en
+        lugar de dejar que la excepción de SQL llegue al usuario, se valida previamente y
+        se responde con un código HTTP significativo (\texttt{409 Conflict}).
+  \item \textbf{Las llaves compuestas complican el enrutamiento}: la entidad
+        \texttt{estudios} obliga a diseñar rutas con dos parámetros y vistas que
+        identifican el registro por ambos valores.
+\end{itemize}
+
+\subsection{Preguntas para el grupo}
+\begin{enumerate}[itemsep=6pt]
+  \item Entity Framework Core ya implementa internamente los patrones \emph{Repository}
+        (\texttt{DbSet}) y \emph{Unit of Work} (\texttt{DbContext}). ¿Se justifica agregar
+        una capa DAO propia encima de EF Core, o se trata de una abstracción redundante?
+        ¿En qué escenarios aporta valor real (pruebas, cambio de motor, consultas
+        complejas) y en cuáles solo añade código?
+  \item Si el sistema creciera (por ejemplo, millones de personas y equipos de desarrollo
+        independientes para teléfonos y estudios), ¿qué señales indicarían que es momento de
+        migrar este monolito a microservicios, y qué decisiones del diseño actual
+        facilitarían o dificultarían esa transición?
+\end{enumerate}
+
+% ---------------------------------------------------------------------
+%  REFERENCIAS
+% ---------------------------------------------------------------------
+\begin{thebibliography}{99}
+\addcontentsline{toc}{section}{Referencias}
+
+\bibitem{bass} L. Bass, P. Clements y R. Kazman, \emph{Software Architecture in Practice},
+  4.\textsuperscript{a} ed. Boston: Addison-Wesley, 2021.
+
+\bibitem{richardson} C. Richardson, \emph{Microservices Patterns: With Examples in Java}.
+  Shelter Island: Manning, 2018. Patrón \enquote{Monolithic Architecture}:
+  \url{https://microservices.io/patterns/monolithic.html}
+
+\bibitem{msarchguide} Microsoft Patterns \& Practices, \emph{Application Architecture Guide
+  2.0: Designing Applications on the .NET Platform}. Microsoft, 2009.
+
+\bibitem{reenskaug} T. Reenskaug, \enquote{Models -- Views -- Controllers}, Xerox PARC,
+  Technical Note, 1979. \url{https://folk.universitetetioslo.no/trygver/themes/mvc/mvc-index.html}
+
+\bibitem{aspnetmvc} Microsoft, \enquote{Overview of ASP.NET Core MVC}, Microsoft Learn.
+  \url{https://learn.microsoft.com/aspnet/core/mvc/overview}
+
+\bibitem{corej2ee} D. Alur, J. Crupi y D. Malks, \emph{Core J2EE Patterns: Best Practices
+  and Design Strategies}, 2.\textsuperscript{a} ed. Prentice Hall, 2003. Patrón
+  \enquote{Data Access Object}.
+
+\bibitem{fowler} M. Fowler, \emph{Patterns of Enterprise Application Architecture}.
+  Boston: Addison-Wesley, 2002.
+
+\bibitem{dotnetpolicy} Microsoft, \enquote{Directiva de soporte técnico de .NET y .NET
+  Core}. \url{https://dotnet.microsoft.com/es-es/platform/support/policy/dotnet-core}
+
+\bibitem{efcore} Microsoft, \enquote{Entity Framework Core} y \enquote{Scaffolding
+  (Reverse Engineering)}, Microsoft Learn.
+  \url{https://learn.microsoft.com/ef/core/managing-schemas/scaffolding/}
+
+\bibitem{sqlserver} Microsoft, \enquote{What's new in SQL Server 2025}, Microsoft Learn.
+  \url{https://learn.microsoft.com/sql/sql-server/what-s-new-in-sql-server-2025}
+
+\bibitem{fielding} R. T. Fielding, \emph{Architectural Styles and the Design of
+  Network-based Software Architectures}, tesis doctoral, University of California, Irvine,
+  2000.
+
+\bibitem{openapi} OpenAPI Initiative, \enquote{OpenAPI Specification v3.1.0}.
+  \url{https://spec.openapis.org/oas/v3.1.0}
+
+\bibitem{swashbuckle} Microsoft, \enquote{Get started with Swashbuckle and ASP.NET Core},
+  Microsoft Learn. \url{https://learn.microsoft.com/aspnet/core/tutorials/getting-started-with-swashbuckle}
+
+\bibitem{docker} Docker Inc., \enquote{Docker overview} y \enquote{Docker Compose
+  overview}. \url{https://docs.docker.com/get-started/docker-overview/}
+
+\bibitem{mssqldocker} Microsoft, \enquote{Quickstart: Run SQL Server Linux container
+  images with Docker}. \url{https://learn.microsoft.com/sql/linux/quickstart-install-connect-docker}
+
+\bibitem{deitel} P. Deitel y H. Deitel, \emph{Programación en la web}. Pearson Educación,
+  2008.
+
+\bibitem{hdeleon1} hdeleon.net, \enquote{Video tutorial ASP.NET Core MVC con Entity
+  Framework}. \url{https://www.youtube.com/watch?v=6nT-RjMEG0o}
+
+\bibitem{hdeleon2} hdeleon.net, \enquote{Video tutorial Web API con .NET}.
+  \url{https://www.youtube.com/watch?v=28LjewDjaz4}
+
+\bibitem{guamann} V. Guamán, \enquote{API con ASP.NET MVC 6 y SQL Server mediante Entity
+  Framework Core 6 -- Code First}, partes 1 y 2, DEV Community.
+  \url{https://dev.to/veronicaguamann}
+
+\bibitem{csharpcorner} C\# Corner, \enquote{Building ASP.NET Web API in .NET Core with
+  Entity Framework}.
+  \url{https://www.c-sharpcorner.com/article/building-asp-net-web-api-in-net-core-with-entity-framework/}
+
+\bibitem{curso} Material del curso \asignatura: \enquote{8.1 Introducción a la Plataforma
+  .NET} y \enquote{8.2 Laboratorio .NET}.
+
+\end{thebibliography}
+
+\end{document}
