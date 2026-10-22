@@ -11,7 +11,7 @@ Como [actor], quiero [capacidad] para [resultado].
 - Requisito SRS: `RF-XX` / `RNF-XX`
 - Decisión SAD: `AD-XX`
 - Diseño o contrato: enlace a página wiki/SDD
-- Módulo: [Core/Database/Personas/...]
+- Módulo: [Base / Datos / Personas / Profesiones / Telefonos / Estudios / Pruebas / Entrega]
 - Sprint: [1/2]
 - Responsable / revisor: [personas]
 

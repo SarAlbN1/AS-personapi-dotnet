@@ -14,6 +14,7 @@ Esta sección define el **alcance, el reparto y los criterios** del backlog de P
 | [plan-de-sprints.md](plan-de-sprints.md) | Reparto por sprint e integrante, objetivos, entregables, dependencias y acuerdos sobre archivos compartidos |
 | [priorizacion.md](priorizacion.md) | Significado de P0/P1, secuencia de implementación y ajustes hechos a la propuesta inicial |
 | [sustentacion.md](sustentacion.md) | Guion de demostración: arquitectura, funcionalidad, persistencia, errores y entrega |
+| [equipo.tsv](equipo.tsv) | Mapeo de los marcadores `A`/`B`/`C` del plan de sprints al usuario real de GitHub; es lo único que `crear-issues.sh` usa para asignar una issue |
 | [plantilla-issue.md](plantilla-issue.md) | Estructura obligatoria al crear la issue real |
 | [crear-issues.sh](crear-issues.sh) | Creación reproducible de labels, milestones e issues desde el TSV, con `dry-run` por defecto |
 
@@ -28,7 +29,7 @@ Esta sección define el **alcance, el reparto y los criterios** del backlog de P
 | [EP-04 · Estudios](epicas/EP-04-estudios.md) | CRUD dual de `estudios`, clave compuesta `(id_prof, cc_per)` | HU-011, HU-013 | 9 |
 | [EP-05 · Integración y entrega](epicas/EP-05-integracion-y-entrega.md) | OpenAPI 3 y Swagger, verificación integral y entrega con `v1.0.0` | HU-009, HU-014, HU-015 | 12 |
 
-**Total: 15 historias · 58 puntos · 2 sprints · 3 integrantes.** Los responsables son temporales (`A`, `B`, `C`) hasta que el equipo asigne los usuarios reales de GitHub; en los documentos no se inventan nombres ni cuentas.
+**Total: 15 historias · 58 puntos · 2 sprints · 3 integrantes.** Los responsables se escriben como marcadores `A`, `B`, `C` en [backlog.tsv](backlog.tsv) y se traducen a cuentas reales en [equipo.tsv](equipo.tsv): tres columnas (`marcador`, `nombre`, `github`) que `crear-issues.sh` lee para añadir `--assignee`. Una fila con la columna `github` vacía crea la issue **sin asignar** y el script lo advierte; no se inventan cuentas ni se reparten responsabilidades en los documentos. Completar los usuarios que falten es requisito previo a publicar las issues, no a aprobar el backlog.
 
 ## Alcance del backlog
 
@@ -39,7 +40,9 @@ Cubre lo exigido por el laboratorio y nada más:
 - **Validaciones:** identificadores duplicados, campos obligatorios, identificadores inexistentes, referencias inválidas, restricciones de eliminación, integridad referencial, códigos HTTP y errores visibles en Razor.
 - **Integración y entrega:** Swagger/OpenAPI 3, pruebas CRUD por entidad, pruebas de persistencia real, pruebas de relaciones, demostración E2E, README verificado, revisión arquitectónica, tag `v1.0.0` y material académico.
 
-Queda **fuera**, conforme a [SRS §2](../01-producto/01-SRS.md#2-alcance-confirmado) y [AD-08](../02-arquitectura/02-SAD-HLD.md#2-decisiones-arquitectónicas-definitivas): autenticación, Docker, CI, microservicios, broker, gateway y nube. Ninguna historia los introduce.
+Queda **fuera**, conforme a [SRS §2](../01-producto/01-SRS.md#2-alcance-confirmado) y [AD-08](../02-arquitectura/02-SAD-HLD.md#2-decisiones-arquitectónicas-definitivas): autenticación, CI, microservicios, broker, gateway y nube. Ninguna historia los introduce.
+
+**Docker** es un caso aparte: se conserva como propuesta de despliegue del equipo en el [informe](../../informe/main.tex), pero **ninguna de las 15 historias lo toma como criterio de aceptación**, porque los criterios se verifican con ejecución local. Si el enunciado original lo exige como entregable, se resuelve en la etapa de entrega sin alterar el reparto de historias ni los puntos.
 
 ## Reglas de gestión
 
@@ -68,7 +71,7 @@ Queda **fuera**, conforme a [SRS §2](../01-producto/01-SRS.md#2-alcance-confirm
 
 **Etiquetas** (familias ya acordadas en [issues, etiquetas y milestones](../05-proceso/issues-etiquetas-y-milestones.md)): `area:repo`, `area:core`, `area:database`, `area:personas`, `area:profesiones`, `area:telefonos`, `area:estudios`, `area:api`, `area:mvc`, `area:qa`, `area:testing`, `area:docs`, `priority:P0`, `priority:P1`. No se añade más taxonomía: con 15 issues, el módulo y la prioridad ya son campos del Project.
 
-> **Conflicto documental pendiente de acuerdo.** [bootstrap-repositorio.md](../05-proceso/bootstrap-repositorio.md) y la [plantilla de issue](plantilla-issue.md) nombran el campo `Module` como `Core, Database, Personas, Profesiones, Telefonos, Estudios, API, QA, Deploy`. Este backlog usa el conjunto `Base, Datos, Personas, Profesiones, Telefonos, Estudios, Pruebas, Entrega`, que es el aprobado para la planificación. Son dos nomenclaturas del mismo alcance; **no se resuelve en silencio**: se unifica en el PR que apruebe este backlog, actualizando la página dueña de la decisión de proceso. Las etiquetas `area:*` no cambian.
+> **Taxonomía `Module` unificada.** El campo usa un único conjunto de ocho valores: `Base`, `Datos`, `Personas`, `Profesiones`, `Telefonos`, `Estudios`, `Pruebas`, `Entrega`, idéntico a la columna `modulo` de [backlog.tsv](backlog.tsv) y replicado en [bootstrap-repositorio.md](../05-proceso/bootstrap-repositorio.md) y en la [plantilla de issue](plantilla-issue.md). Es un campo de GitHub Projects, no una etiqueta: las etiquetas `area:*` siguen siendo la dimensión transversal (`area:api`, `area:mvc`, `area:docs`) y no cambian. Sin acentos, para que el valor del campo, la etiqueta y el TSV coincidan carácter a carácter.
 
 ## Publicación en GitHub
 
@@ -82,4 +85,4 @@ Queda **fuera**, conforme a [SRS §2](../01-producto/01-SRS.md#2-alcance-confirm
 ./docs/wiki/06-backlog/crear-issues.sh --repo OWNER/personapi-dotnet --apply
 ```
 
-El script valida el TSV (15 filas, IDs únicos, reparto 6/9, 2+3 por integrante), crea las etiquetas y los milestones que falten, **omite** las issues cuyo `HU-###` ya exista en el repositorio y las asocia a su milestone y etiquetas. No crea el Project ni mueve tarjetas de estado: la incorporación al tablero y la asignación de personas se hacen en GitHub, donde vive el estado. Sin `--apply` no ejecuta ninguna acción de escritura.
+El script valida el TSV (15 filas, IDs únicos, reparto 6/9, 2+3 por integrante, `modulo` dentro de la taxonomía `Module`), resuelve los responsables con [equipo.tsv](equipo.tsv), crea las etiquetas y los milestones que falten, **omite** las issues cuyo `HU-###` ya exista en el repositorio y las asocia a su milestone y etiquetas. No crea el Project ni mueve tarjetas de estado: la incorporación al tablero y la asignación de personas se hacen en GitHub, donde vive el estado. Sin `--apply` no ejecuta ninguna acción de escritura.

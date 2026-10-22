@@ -5,6 +5,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TSV="$SCRIPT_DIR/backlog.tsv"
+EQUIPO="$SCRIPT_DIR/equipo.tsv"
 REPO=""
 APPLY=0
 
@@ -15,9 +16,12 @@ Uso: crear-issues.sh --repo OWNER/REPO [--apply] [--tsv RUTA]
   --repo    Repositorio destino, por ejemplo OWNER/personapi-dotnet (obligatorio).
   --apply   Ejecuta la creacion real. Sin este indicador solo simula (dry-run).
   --tsv     Ruta alternativa al TSV (por defecto backlog.tsv junto al script).
+  --equipo  Ruta alternativa al mapeo marcador -> usuario de GitHub (por defecto equipo.tsv).
 
 Requiere gh autenticado con permiso de escritura sobre el repositorio.
-No crea el GitHub Project ni asigna personas: el estado se gestiona en el tablero.
+Los marcadores A/B/C se traducen con equipo.tsv. Si una fila de equipo.tsv no tiene
+usuario de GitHub, la issue se crea SIN asignar y el script lo advierte: no se inventan
+cuentas. No crea el GitHub Project: el estado se gestiona en el tablero.
 USAGE
 }
 
@@ -26,6 +30,7 @@ while [[ $# -gt 0 ]]; do
     --repo) REPO="${2:-}"; shift 2 ;;
     --apply) APPLY=1; shift ;;
     --tsv) TSV="${2:-}"; shift 2 ;;
+    --equipo) EQUIPO="${2:-}"; shift 2 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "Argumento no reconocido: $1" >&2; usage; exit 2 ;;
   esac
@@ -55,6 +60,7 @@ awk -F'\t' '
     if ($6 != "P0" && $6 != "P1") { printf "ERROR: %s prioridad invalida: %s\n", $1, $6; bad=1 }
     if ($7 !~ /^[0-9]+$/) { printf "ERROR: %s puntos no numericos: %s\n", $1, $7; bad=1 }
     if ($8 !~ /^[ABC]$/) { printf "ERROR: %s responsable invalido: %s\n", $1, $8; bad=1 }
+    if ($5 !~ /^(Base|Datos|Personas|Profesiones|Telefonos|Estudios|Pruebas|Entrega)$/) { printf "ERROR: %s modulo fuera de la taxonomia Module: %s\n", $1, $5; bad=1 }
     if ($3 !~ /^EP-0[0-5]$/) { printf "ERROR: %s epica invalida: %s\n", $1, $3; bad=1 }
     if ($13 == "") { printf "ERROR: %s sin criterios de aceptacion\n", $1; bad=1 }
     sprint[$4]++; porpersona[$8"-"$4]++; issues[$8]++; puntos[$8]+=$7; total+=$7
@@ -141,6 +147,38 @@ for ms in "Sprint 1" "Sprint 2"; do
   fi
 done
 
+# ---------- 3b. Mapeo de responsables ----------
+# bash 3.2 (macOS) no tiene arrays asociativos: una variable por marcador.
+GH_USER_A=""; GH_USER_B=""; GH_USER_C=""
+gh_user_de() { # $1 = marcador A|B|C
+  case "$1" in
+    A) printf '%s' "$GH_USER_A" ;;
+    B) printf '%s' "$GH_USER_B" ;;
+    C) printf '%s' "$GH_USER_C" ;;
+  esac
+}
+if [[ -f "$EQUIPO" ]]; then
+  echo
+  echo "== Responsables ($EQUIPO) =="
+  while IFS=$'\t' read -r marcador nombre usuario; do
+    [[ "$marcador" == "marcador" || -z "$marcador" ]] && continue
+    usuario="$(printf '%s' "${usuario:-}" | tr -d '\r\n ')"
+    case "$marcador" in
+      A) GH_USER_A="$usuario" ;;
+      B) GH_USER_B="$usuario" ;;
+      C) GH_USER_C="$usuario" ;;
+      *) echo "  AVISO: marcador no reconocido en $EQUIPO: $marcador"; continue ;;
+    esac
+    if [[ -n "$usuario" ]]; then
+      echo "  $marcador = $nombre -> @$usuario"
+    else
+      echo "  $marcador = $nombre -> SIN usuario de GitHub: sus issues se crearan sin asignar"
+    fi
+  done < "$EQUIPO"
+else
+  echo "  AVISO: no existe $EQUIPO; las issues se crearan sin asignar"
+fi
+
 # ---------- 4. Issues ----------
 echo
 echo "== Issues =="
@@ -173,7 +211,12 @@ while IFS=$'\t' read -r id titulo epica sprint modulo prioridad puntos responsab
     echo "| Modulo | $modulo |"
     echo "| Prioridad | $prioridad |"
     echo "| Puntos | $puntos |"
-    echo "| Responsable | Integrante $responsable (pendiente de asignar al usuario real) |"
+    resp_gh="$(gh_user_de "$responsable")"
+    if [[ -n "$resp_gh" ]]; then
+      echo "| Responsable | @$resp_gh (integrante $responsable del plan de sprints) |"
+    else
+      echo "| Responsable | Integrante $responsable (pendiente de asignar al usuario real) |"
+    fi
     echo
     echo "## Criterios de aceptacion"
     echo
@@ -203,14 +246,16 @@ while IFS=$'\t' read -r id titulo epica sprint modulo prioridad puntos responsab
   } > "$cuerpo_file"
 
   echo "  crear: $id - $titulo"
+  asignado="$(gh_user_de "$responsable")"
   if [[ $APPLY -eq 1 ]]; then
     gh issue create --repo "$REPO" \
       --title "$id · $titulo" \
       --body-file "$cuerpo_file" \
       --milestone "Sprint $sprint" \
+      ${asignado:+--assignee "$asignado"} \
       $(printf -- '--label %s ' ${labels//,/ })
   else
-    echo "    [dry-run] gh issue create --repo $REPO --title \"$id · $titulo\" --milestone \"Sprint $sprint\" --label ${labels}"
+    echo "    [dry-run] gh issue create --repo $REPO --title \"$id · $titulo\" --milestone \"Sprint $sprint\" --label ${labels}${asignado:+ --assignee $asignado}"
     echo "    [dry-run] cuerpo: $(wc -l < "$cuerpo_file" | tr -d ' ') lineas"
   fi
   rm -f "$cuerpo_file"
@@ -223,5 +268,6 @@ echo "  issues a crear: $creadas | omitidas por duplicado: $omitidas"
 if [[ $APPLY -eq 0 ]]; then
   echo "  No se ejecuto ninguna escritura. Repite con --apply cuando el equipo apruebe el backlog."
 fi
-echo "  Paso manual posterior: añadir las issues al Project 'PersonAPI - Laboratorio MVC DAO',"
-echo "  fijar los campos Sprint/Module/Priority/Points y asignar los integrantes reales."
+echo "  Paso manual posterior: añadir las issues al Project 'PersonAPI - Laboratorio MVC DAO' y"
+echo "  fijar los campos Sprint/Module/Priority/Points (Module: Base, Datos, Personas, Profesiones,"
+echo "  Telefonos, Estudios, Pruebas, Entrega). La asignacion de personas sale de equipo.tsv."

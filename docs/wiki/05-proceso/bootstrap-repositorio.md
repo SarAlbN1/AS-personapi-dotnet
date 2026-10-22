@@ -29,7 +29,7 @@ Si el repositorio ya existe, **no** repetir `git init` ni `gh repo create`: clon
 - Colaboradores: invitar a los otros dos con sus nombres de usuario reales.
 - `main`: PR obligatorio, al menos una revisión cruzada, squash merge, sin force-push.
 - Milestones `Sprint 1` y `Sprint 2`.
-- GitHub Project: `PersonAPI - Laboratorio MVC DAO`; Status = Backlog, In Progress, In Review, Blocked, Done; Sprint = 1/2; Module = Core, Database, Personas, Profesiones, Telefonos, Estudios, API, QA, Deploy; Assignee = integrante real.
+- GitHub Project: `PersonAPI - Laboratorio MVC DAO`; Status = Backlog, In Progress, In Review, Blocked, Done; Sprint = 1/2; Module = Base, Datos, Personas, Profesiones, Telefonos, Estudios, Pruebas, Entrega (taxonomía única, idéntica a la columna `modulo` de [backlog.tsv](../06-backlog/backlog.tsv) y a [Projects](../06-backlog/README.md#configuración-de-github-projects)); Assignee = integrante real.
 - Issues: crear las 15 **solo al aprobar el backlog arquitectónico**; no reutilizar números de otro proyecto.
 
 ## Verificación
