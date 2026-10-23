@@ -8,7 +8,7 @@
 
 **Decisiones aplicadas:** [AD-01, AD-04, AD-05, AD-06, AD-07, AD-09, AD-10](../../02-arquitectura/02-SAD-HLD.md#2-decisiones-arquitectónicas-definitivas).
 
-**Componentes afectados:** `personapi-dotnet.sln`, `Program.cs`, `appsettings.json`, `scripts/01_ddl.sql`, `scripts/02_dml.sql`, `04-Persistencia/Entities/`, `03-AccesoDatos/Repository/`, `01-Presentacion/Views/Shared/`, `01-Presentacion/wwwroot/`.
+**Componentes afectados:** `personapi-dotnet.sln`, `Program.cs`, `appsettings.json`, `scripts/01_ddl.sql`, `scripts/02_dml.sql`, `Back/04-Persistencia/Entities/`, `Back/03-AccesoDatos/Repository/`, `Front/Views/Shared/`, `Front/wwwroot/`.
 
 **Historias:** HU-001, HU-002, HU-003, HU-006 · **14 puntos**
 
@@ -28,11 +28,11 @@ Disponer de la solución, el árbol de carpetas por capas y el arranque web con 
 - Árbol de carpetas de [SDD §1](../../04-implementacion/03-SDD-LDD.md#1-dependencias-y-organización-de-código) y [estructura del repositorio](../../04-implementacion/estructura-del-repositorio.md), con carpetas vacías marcadas por `.gitkeep`.
 - `Program.cs`: `AddControllersWithViews`, `AddSwaggerGen`, `UseSwagger`, `UseSwaggerUI`, `MapControllers` y `MapControllerRoute`.
 - **Obligatorio por la numeración de capas:** `Views/` y `wwwroot/` viven bajo
-  `01-Presentacion/` y quedan fuera de las rutas que ASP.NET Core busca por defecto.
+  `Back/01-Borde/` y quedan fuera de las rutas que ASP.NET Core busca por defecto.
   Sin configurarlo, las vistas fallan con 500 y los estáticos con 404. `Program.cs` debe
-  fijar `WebApplicationOptions.WebRootPath = "01-Presentacion/wwwroot"` y los
-  `RazorViewEngineOptions.ViewLocationFormats` hacia `/01-Presentacion/Views/{1}/{0}.cshtml`
-  y `/01-Presentacion/Views/Shared/{0}.cshtml`. Fragmentos en
+  fijar `WebApplicationOptions.WebRootPath = "Front/wwwroot"` y los
+  `RazorViewEngineOptions.ViewLocationFormats` hacia `/Front/Views/{1}/{0}.cshtml`
+  y `/Front/Views/Shared/{0}.cshtml`. Fragmentos en
   [`personapi-dotnet/README.md`](../../../../personapi-dotnet/README.md).
 - `appsettings.json` con `ConnectionStrings:PersonaDb` sin credenciales; User Secrets documentado. `.gitignore` para `bin/`, `obj/`, `.vs/` y secretos.
 - **Proyecto de pruebas** añadido al `.sln` (vacío). No contiene pruebas todavía: existe para que cada historia posterior añada las suyas sin inventar estructura, y para que `dotnet test` sea ejecutable desde el Sprint 1. Las pruebas de integración y E2E las construye HU-014 sobre este proyecto.
@@ -100,9 +100,9 @@ DoD común + esquema verificado contra SQL Server real y las cuatro pruebas nega
 Generar las entidades y el contexto desde el esquema existente y publicar los contratos DAO con sus implementaciones EF Core, para que los cuatro módulos trabajen en paralelo sobre la misma persistencia sin tocar archivos centrales entre sí.
 
 ### Alcance técnico
-- `dotnet ef dbcontext scaffold` con `--context PersonaDbContext --output-dir 04-Persistencia/Entities --no-onconfiguring`, según [SDD §3](../../04-implementacion/03-SDD-LDD.md#3-ddl-y-database-first).
+- `dotnet ef dbcontext scaffold` con `--context PersonaDbContext --output-dir Back/04-Persistencia/Entities --no-onconfiguring`, según [SDD §3](../../04-implementacion/03-SDD-LDD.md#3-ddl-y-database-first).
 - Cuatro interfaces `I*Repository` con las firmas asíncronas de [SDD §2](../../04-implementacion/03-SDD-LDD.md#2-contratos-de-aplicación-y-dao); la de estudios usa `(int idProf, int ccPer)`.
-- Cuatro implementaciones EF Core en `03-AccesoDatos/Repository/Implementations` sin reglas de negocio: solo acceso a datos.
+- Cuatro implementaciones EF Core en `Back/03-AccesoDatos/Repository/Implementations` sin reglas de negocio: solo acceso a datos.
 - Registro DI de `PersonaDbContext` y de los cuatro repositorios con ciclo `scoped`.
 - **Acuerdo de archivos compartidos:** esta historia es la única que registra repositorios en `Program.cs`; cada historia de API añade después **solo** la línea DI de su propio servicio. Así se cumple el criterio de no editar simultáneamente los mismos archivos centrales.
 - **No incluye:** servicios de dominio, DTOs ni controladores.
@@ -110,11 +110,11 @@ Generar las entidades y el contexto desde el esquema existente y publicar los co
 ### Criterios de aceptación
 1. El comando de scaffold queda documentado y reproducible; las entidades y `PersonaDbContext` corresponden al DDL, con clave compuesta real en `estudios` y sin identificador artificial (AK-03).
 2. Existen las cuatro interfaces DAO con las firmas de SDD §2 y la clave compuesta para estudios.
-3. Las cuatro implementaciones residen en `03-AccesoDatos/Repository/Implementations` y son el único lugar que referencia `PersonaDbContext`.
+3. Las cuatro implementaciones residen en `Back/03-AccesoDatos/Repository/Implementations` y son el único lugar que referencia `PersonaDbContext`.
 4. `PersonaDbContext` y los cuatro repositorios quedan registrados como `scoped` y la solución compila.
 5. Una comprobación de integración lee filas reales de `persona_db` a través de cada repositorio.
 
-**Evidencia mínima:** log de scaffold, salida de `dotnet build`, resultado de la lectura por repositorio y evidencia de que `01-Presentacion/Controllers/` no referencia `DbContext`.
+**Evidencia mínima:** log de scaffold, salida de `dotnet build`, resultado de la lectura por repositorio y evidencia de que `Back/01-Borde/Controllers/` no referencia `DbContext`.
 
 ### Dependencias
 **HU-001** (proyecto donde generar el modelo) y **HU-002** (esquema desde el cual generarlo). Ambas son bloqueos técnicos reales de Database First.
@@ -135,7 +135,7 @@ DoD común + persistencia verificada contra SQL Server real y revisión explíci
 Entregar el layout, la navegación y la convención de mensajes de error de las vistas Razor, para que los cuatro CRUD web se construyan sin duplicar presentación ni inventar cada uno su manejo de errores.
 
 ### Alcance técnico
-- `01-Presentacion/Views/Shared/_Layout.cshtml`, `_ValidationScriptsPartial`, navegación a los cuatro módulos y página inicial del monolito.
+- `Front/Views/Shared/_Layout.cshtml`, `_ValidationScriptsPartial`, navegación a los cuatro módulos y página inicial del monolito.
 - Partial o convención reutilizable para traducir los resultados `ValidationError`, `NotFound` y `Conflict` de los servicios ([SDD §2](../../04-implementacion/03-SDD-LDD.md#2-contratos-de-aplicación-y-dao)) a mensajes Razor visibles, conservando el estado del formulario, conforme a [validaciones y errores](../../03-contratos/validaciones-y-errores.md).
 - Convención de antiforgery en formularios POST y base de ViewModels.
 - **No incluye:** vistas de personas, profesiones, teléfonos ni estudios.

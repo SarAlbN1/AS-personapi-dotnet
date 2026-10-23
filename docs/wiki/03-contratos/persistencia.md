@@ -28,7 +28,7 @@ La llave de `estudios` es **compuesta**; no se introduce un identificador artifi
 - `scripts/02_dml.sql`: datos mínimos de demostración reproducibles.
 - En SQL Server, adaptar `ENUM` a `CHAR(1)+CHECK` y `TEXT` a `VARCHAR(MAX)`; `INT(n)` de MySQL pasa a `INT`.
 - Definir scripts ejecutables en orden DDL → DML, sin credenciales embebidas.
-- **Database First:** `Scaffold-DbContext` genera `04-Persistencia/Entities/*` y `PersonaDbContext` a partir del esquema existente; se mantiene un único contexto por aplicación.
+- **Database First:** `Scaffold-DbContext` genera `Back/04-Persistencia/Entities/*` y `PersonaDbContext` a partir del esquema existente; se mantiene un único contexto por aplicación.
 - Al modificar columnas o restricciones: actualizar script, regenerar/reconciliar modelos y adaptar DAO, servicios, DTO, pruebas y documentación juntos.
 
 ## Invariantes comprobables

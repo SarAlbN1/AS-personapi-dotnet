@@ -9,7 +9,7 @@
 - Una clase por responsabilidad, inyección de dependencias en constructor y registros `Scoped` para servicios/DAO/DbContext.
 - Controladores MVC y API llaman a los mismos `I*Service`. Solo los DAO conocen `PersonaDbContext`.
 - DTO o ViewModel para entradas y salidas, evitando referencias circulares y exposición accidental de propiedades de navegación.
-- Entidades de `04-Persistencia/Entities` provienen de Database First; no editar manualmente código regenerable para implementar reglas de negocio.
+- Entidades de `Back/04-Persistencia/Entities` provienen de Database First; no editar manualmente código regenerable para implementar reglas de negocio.
 
 ## HTTP y MVC
 

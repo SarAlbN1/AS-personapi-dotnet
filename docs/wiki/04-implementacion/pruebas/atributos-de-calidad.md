@@ -21,7 +21,7 @@ Se completa en la misma ejecución que llena la tabla; mientras esté en blanco,
 
 | Atributo | Criterio de la página de calidad | Cómo se comprueba | Valor observado | Veredicto |
 |---|---|---|---|---|
-| Mantenibilidad | Ningún controlador MVC/API accede a `PersonaDbContext`; toda operación pasa por servicio y DAO | Revisión de `01-Presentacion/Controllers/` y `01-Presentacion/ControllersApi/`: ningún `using` ni dependencia del contexto, ninguna consulta EF Core | Pendiente | Pendiente |
+| Mantenibilidad | Ningún controlador MVC/API accede a `PersonaDbContext`; toda operación pasa por servicio y DAO | Revisión de `Back/01-Borde/Controllers/` y `Back/01-Borde/ControllersApi/`: ningún `using` ni dependencia del contexto, ninguna consulta EF Core | Pendiente | Pendiente |
 | Correctitud | Datos inválidos o referencias inexistentes no se persisten | `POST /api/telefonos` con `duenio` inexistente y `POST /api/estudios` con FK inexistente; consulta posterior de la tabla | Pendiente | Pendiente |
 | Consistencia | Crear por MVC y consultar por API devuelve el mismo registro | Crear persona en `Personas/Create`, leer `GET /api/personas/{cc}` y comparar con la fila de `persona` | Pendiente | Pendiente |
 | Integridad | Borrar persona con teléfono o estudio no pierde relacionados | `DELETE /api/personas/{cc}` con dependencias: se espera `409` y las filas dependientes intactas | Pendiente | Pendiente |

@@ -8,7 +8,7 @@
 
 **Decisiones aplicadas:** AD-02, AD-03, AD-05, AD-06, AD-10; [regla arquitectónica 11](../../02-arquitectura/reglas-arquitectonicas.md).
 
-**Componentes afectados:** `01-Presentacion/Dtos/`, `01-Presentacion/ViewModels/`, `IEstudioService` / `EstudioService`, `01-Presentacion/ControllersApi/EstudiosApiController`, `01-Presentacion/Controllers/EstudiosController`, `01-Presentacion/Views/Estudios/`.
+**Componentes afectados:** `Back/01-Borde/Dtos/`, `Front/ViewModels/`, `IEstudioService` / `EstudioService`, `Back/01-Borde/ControllersApi/EstudiosApiController`, `Back/01-Borde/Controllers/EstudiosController`, `Front/Views/Estudios/`.
 
 **Historias:** HU-011, HU-013 (ambas Sprint 2) · **9 puntos**
 

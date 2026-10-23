@@ -45,12 +45,12 @@ dotnet test
 ## Verificación arquitectónica
 
 - [ ] Se respetan las capas MVC → Service → DAO; ninguna capa salta a la siguiente.
-- [ ] Ningún controlador (MVC o API) usa `PersonaDbContext` ni SQL directo; EF Core queda en `03-AccesoDatos/Repository`.
+- [ ] Ningún controlador (MVC o API) usa `PersonaDbContext` ni SQL directo; EF Core queda en `Back/03-AccesoDatos/Repository`.
 - [ ] Servicios dependen de interfaces DAO, no de implementaciones.
 - [ ] Rutas, verbos y códigos de estado coinciden con `docs/wiki/03-contratos/api-rest.md`.
 - [ ] No se exponen entidades EF con navegaciones como contrato HTTP; se usan DTO o ViewModels.
 - [ ] Integridad de datos: PK, FK y CHECK del DDL se respetan; sin borrado en cascada de personas o profesiones con dependencias; conflictos devuelven `409`.
-- [ ] Database First intacto: el DDL de `scripts/` sigue siendo el origen del esquema, sin migraciones Code First y sin editar a mano el código regenerable de `04-Persistencia/Entities`.
+- [ ] Database First intacto: el DDL de `scripts/` sigue siendo el origen del esquema, sin migraciones Code First y sin editar a mano el código regenerable de `Back/04-Persistencia/Entities`.
 - [ ] Sin secretos en el diff: ninguna contraseña, token, certificado privado, cadena de conexión con credenciales ni archivo `.env`.
 - [ ] Sin archivos generados ni dependencias fuera del alcance aprobado (ni Kafka, microservicios, API Gateway, autenticación o PostgreSQL).
 - [ ] El cambio se limita al alcance de la issue; sin refactores ni archivos de otras personas.

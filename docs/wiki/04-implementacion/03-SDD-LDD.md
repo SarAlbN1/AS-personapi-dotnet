@@ -26,37 +26,49 @@ personapi-dotnet/
     ├── Program.cs
     ├── appsettings.json
     ├── README.md                     # mapa de capas
-    ├── 01-Presentacion/              # CAPA 1 · borde HTTP + front
-    │   ├── Controllers/
-    │   │   ├── PersonasController.cs
-    │   │   ├── ProfesionesController.cs
-    │   │   ├── TelefonosController.cs
-    │   │   └── EstudiosController.cs
-    │   ├── ControllersApi/
-    │   │   ├── PersonasApiController.cs
-    │   │   ├── ProfesionesApiController.cs
-    │   │   ├── TelefonosApiController.cs
-    │   │   └── EstudiosApiController.cs
-    │   ├── Views/                    # front · Razor
+    ├── Front/                        # lo que ve el navegador · Razor server-side
+    │   ├── Views/
     │   │   ├── Shared/
     │   │   ├── Personas/
     │   │   ├── Profesiones/
     │   │   ├── Telefonos/
     │   │   └── Estudios/
-    │   ├── wwwroot/                  # front · estáticos
-    │   ├── ViewModels/
-    │   └── Dtos/
-    ├── 02-Aplicacion/                # CAPA 2 · reglas de negocio
-    │   └── Services/
-    │       ├── Interfaces/
-    │       └── Implementations/
-    ├── 03-AccesoDatos/               # CAPA 3 · DAO, único sitio con EF Core
-    │   └── Repository/
-    │       ├── Interfaces/
-    │       └── Implementations/
-    └── 04-Persistencia/              # CAPA 4 · Database First
-        └── Entities/                 # Scaffolded + PersonaDbContext
+    │   ├── wwwroot/                  #   CSS, JS, imágenes
+    │   └── ViewModels/               #   contrato de Razor
+    └── Back/                         # lógica · cuatro capas
+        ├── 01-Borde/                 # CAPA 1 · único sitio que habla HTTP
+        │   ├── Controllers/
+        │   │   ├── PersonasController.cs
+        │   │   ├── ProfesionesController.cs
+        │   │   ├── TelefonosController.cs
+        │   │   └── EstudiosController.cs
+        │   ├── ControllersApi/
+        │   │   ├── PersonasApiController.cs
+        │   │   ├── ProfesionesApiController.cs
+        │   │   ├── TelefonosApiController.cs
+        │   │   └── EstudiosApiController.cs
+        │   └── Dtos/                 #   contrato de REST
+        ├── 02-Aplicacion/            # CAPA 2 · reglas de negocio
+        │   └── Services/
+        │       ├── Interfaces/
+        │       └── Implementations/
+        ├── 03-AccesoDatos/           # CAPA 3 · DAO, único sitio con EF Core
+        │   └── Repository/
+        │       ├── Interfaces/
+        │       └── Implementations/
+        └── 04-Persistencia/          # CAPA 4 · Database First
+            └── Entities/             #   Scaffolded + PersonaDbContext
 ```
+
+El árbol separa `Front/` de `Back/`. Dentro de `Back/` las carpetas están numeradas
+por capa: una capa solo llama a la de número inmediatamente superior y **saltar capas
+está prohibido**. Los controladores son **back**: no contienen HTML, entregan un
+ViewModel en memoria a `Front/Views/`. `Front/` y `Back/` son carpetas, no despliegues:
+sigue siendo un solo `.csproj` y un solo artefacto. Cada carpeta lleva su `README.md`
+con reglas y prohibiciones. El árbol exige configurar `WebRootPath` y
+`ViewLocationFormats` en `Program.cs`, y scaffolding con
+`--output-dir Back/04-Persistencia/Entities`; ver
+[estructura del repositorio](estructura-del-repositorio.md).
 
 Las carpetas de primer nivel del proyecto están numeradas por capa: una capa solo
 llama a la de número inmediatamente superior y **saltar capas está prohibido**. Cada
@@ -98,7 +110,7 @@ dotnet add personapi-dotnet/personapi-dotnet.csproj package Swashbuckle.AspNetCo
 
 **Scaffolding** (con conexión integrada y `dotnet ef` alineado con EF Core 10):
 ```bash
-dotnet ef dbcontext scaffold "Server=localhost\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer --context PersonaDbContext --output-dir 04-Persistencia/Entities --no-onconfiguring
+dotnet ef dbcontext scaffold "Server=localhost\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=True" Microsoft.EntityFrameworkCore.SqlServer --context PersonaDbContext --output-dir Back/04-Persistencia/Entities --no-onconfiguring
 ```
 
 La conexión se define en `ConnectionStrings:PersonaDb` mediante configuración de desarrollo o User Secrets; nunca incluir contraseña real en `appsettings.json` versionado.
