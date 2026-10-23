@@ -1,0 +1,64 @@
+# .gitattributes · personapi-dotnet
+# Normaliza texto en el repositorio y protege binarios de cualquier conversión.
+
+# Por defecto Git decide y guarda LF en el repositorio.
+* text=auto
+
+# ----------------------------------------------------------------------
+# Código y configuración: LF en el repositorio
+# ----------------------------------------------------------------------
+*.cs        text diff=csharp
+*.cshtml    text
+*.razor     text
+*.csproj    text eol=crlf
+*.sln       text eol=crlf
+*.slnx      text eol=crlf
+*.props     text
+*.targets   text
+*.config    text
+*.json      text
+*.yml       text
+*.yaml      text
+*.md        text
+*.sql       text
+*.css       text
+*.js        text
+*.html      text
+*.tex       text
+*.gitignore text
+*.gitattributes text
+*.editorconfig  text
+
+# ----------------------------------------------------------------------
+# Scripts: terminación propia de cada plataforma
+# ----------------------------------------------------------------------
+*.sh        text eol=lf
+*.ps1       text eol=crlf
+*.cmd       text eol=crlf
+*.bat       text eol=crlf
+
+# ----------------------------------------------------------------------
+# Binarios: sin normalización ni diff textual
+# ----------------------------------------------------------------------
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.ico       binary
+*.svg       binary
+*.pdf       binary
+*.pptx      binary
+*.docx      binary
+*.xlsx      binary
+*.zip       binary
+*.gz        binary
+*.dll       binary
+*.exe       binary
+*.pdb       binary
+*.snk       binary
+*.woff      binary
+*.woff2     binary
+*.ttf       binary
+*.bak       binary
+*.mdf       binary
+*.ldf       binary

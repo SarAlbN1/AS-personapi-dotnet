@@ -1,0 +1,111 @@
+name: Defecto
+description: Comportamiento que contradice el SRS, el SDD o un contrato aprobado.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: input
+    id: identificador
+    attributes:
+      label: Identificador interno (LAB-NN)
+      description: >-
+        Se fija al aprobar el backlog en GitHub Projects. Dejar vacío si aún no
+        está asignado; no inventar números.
+      placeholder: LAB-12
+    validations:
+      required: false
+
+  - type: input
+    id: rama
+    attributes:
+      label: Rama prevista
+      description: "Formato `<tipo>/LAB-<NN>-<slug>`, creada desde `main` actualizado."
+      placeholder: fix/LAB-12-conflicto-estudios
+    validations:
+      required: false
+
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: Qué comportamiento correcto debe quedar restablecido.
+    validations:
+      required: true
+
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripción del defecto
+      value: |
+        Pasos para reproducir:
+        1.
+        2.
+
+        Resultado obtenido:
+
+        Resultado esperado (según contrato o SDD):
+    validations:
+      required: true
+
+  - type: textarea
+    id: alcance
+    attributes:
+      label: Alcance de la corrección
+      description: Hasta dónde llega el arreglo; qué se deja para otra issue.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área / componente afectado
+      multiple: true
+      options:
+        - "area:core"
+        - "area:database"
+        - "area:personas"
+        - "area:profesiones"
+        - "area:telefonos"
+        - "area:estudios"
+        - "area:api"
+        - "area:mvc"
+        - "area:qa"
+        - "area:docs"
+        - "area:repo"
+    validations:
+      required: true
+
+  - type: input
+    id: contrato
+    attributes:
+      label: Requisito o contrato incumplido
+      description: Enlace o referencia al documento que define el comportamiento esperado.
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      value: |
+        - [ ] El caso reproducido ya no falla.
+        - [ ] Existe prueba o verificación que cubre el caso.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidencia
+    attributes:
+      label: Evidencia esperada
+      description: Salida antes y después, o prueba que falla y luego pasa.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: proceso
+    attributes:
+      label: Proceso
+      options:
+        - label: El defecto se corrige en la rama de la persona responsable del componente; quien lo reporta no corrige archivos ajenos.
+          required: true
+        - label: La revisión la hace otro de los tres integrantes; estado y sprint viven en GitHub Projects.
+          required: true
