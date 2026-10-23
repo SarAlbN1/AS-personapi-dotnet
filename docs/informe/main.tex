@@ -513,37 +513,43 @@ personapi-dotnet/
 `-- personapi-dotnet/
     |-- Program.cs                  # Configuracion, DI, Swagger
     |-- appsettings.json            # Cadena de conexion
-    |-- Controllers/
-    |   |-- HomeController.cs
-    |   |-- PersonasController.cs   # MVC (vistas)
-    |   |-- ProfesionesController.cs
-    |   |-- TelefonosController.cs
-    |   |-- EstudiosController.cs
-    |   `-- Api/
-    |       |-- PersonasApiController.cs    # REST
-    |       |-- ProfesionesApiController.cs
-    |       |-- TelefonosApiController.cs
-    |       `-- EstudiosApiController.cs
-    |-- Services/
-    |   |-- Interfaces/  (IPersonaService.cs, ...)
-    |   `-- Implementations/  (PersonaService.cs, ...)
-    |-- Models/
-    |   |-- Entities/               # Generado por Scaffold-DbContext
-    |   |   |-- PersonaDbContext.cs
-    |   |   |-- Persona.cs
-    |   |   |-- Profesion.cs
-    |   |   |-- Estudio.cs
-    |   |   `-- Telefono.cs
+    |-- README.md                   # Mapa de capas
+    |-- 01-Presentacion/            # CAPA 1: borde HTTP y front
+    |   |-- Controllers/            #   MVC (vistas)
+    |   |   |-- HomeController.cs
+    |   |   |-- PersonasController.cs
+    |   |   |-- ProfesionesController.cs
+    |   |   |-- TelefonosController.cs
+    |   |   `-- EstudiosController.cs
+    |   |-- ControllersApi/         #   REST /api/*
+    |   |   |-- PersonasApiController.cs
+    |   |   |-- ProfesionesApiController.cs
+    |   |   |-- TelefonosApiController.cs
+    |   |   `-- EstudiosApiController.cs
+    |   |-- Views/                  #   FRONT: Razor
+    |   |   |-- Shared/_Layout.cshtml
+    |   |   |-- Personas/  (Index, Details, Create, Edit, Delete)
+    |   |   |-- Profesiones/ ...
+    |   |   |-- Telefonos/ ...
+    |   |   `-- Estudios/ ...
+    |   |-- wwwroot/                #   FRONT: CSS, JS, imagenes
+    |   |-- ViewModels/  (contrato de Razor)
+    |   `-- Dtos/        (contrato de REST)
+    |-- 02-Aplicacion/              # CAPA 2: reglas de negocio
+    |   `-- Services/
+    |       |-- Interfaces/  (IPersonaService.cs, ...)
+    |       `-- Implementations/  (PersonaService.cs, ...)
+    |-- 03-AccesoDatos/             # CAPA 3: DAO, unico sitio con EF Core
     |   `-- Repository/
     |       |-- Interfaces/  (IPersonaRepository.cs, ...)
     |       `-- Implementations/  (PersonaRepository.cs, ...)
-    |-- Views/
-    |   |-- Shared/_Layout.cshtml
-    |   |-- Personas/  (Index, Details, Create, Edit, Delete)
-    |   |-- Profesiones/ ...
-    |   |-- Telefonos/ ...
-    |   `-- Estudios/ ...
-    `-- wwwroot/
+    `-- 04-Persistencia/            # CAPA 4: Database First
+        `-- Entities/               # Generado por Scaffold-DbContext
+            |-- PersonaDbContext.cs
+            |-- Persona.cs
+            |-- Profesion.cs
+            |-- Estudio.cs
+            `-- Telefono.cs
 \end{lstlisting}
 
 \subsection{Diagrama de clases (capa de acceso a datos)}
@@ -843,11 +849,11 @@ dotnet add package Swashbuckle.AspNetCore
 \end{lstlisting}
 
 \subsubsection{8.9 -- 8.10 Generación de entidades (\emph{scaffolding})}
-Se creó la carpeta \texttt{Models/Entities} y en la Consola del Administrador de paquetes
+Se creó la carpeta \texttt{04-Persistencia/Entities} y en la Consola del Administrador de paquetes
 se ejecutó:
 
 \begin{lstlisting}[language=bash,numbers=none]
-Scaffold-DbContext "Server=localhost\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=true" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models/Entities
+Scaffold-DbContext "Server=localhost\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=true" Microsoft.EntityFrameworkCore.SqlServer -OutputDir 04-Persistencia/Entities
 \end{lstlisting}
 
 El comando generó \texttt{PersonaDbContext} y las clases \texttt{Persona},
@@ -864,7 +870,7 @@ navegación. Luego se movió la cadena de conexión del contexto a
 \end{lstlisting}
 
 \subsubsection{8.11 Interfaces (contratos DAO)}
-\begin{lstlisting}[language=CSharpX,caption={\texttt{Models/Repository/Interfaces/IPersonaRepository.cs}.}]
+\begin{lstlisting}[language=CSharpX,caption={\texttt{03-AccesoDatos/Repository/Interfaces/IPersonaRepository.cs}.}]
 public interface IPersonaRepository
 {
     Task<IEnumerable<Persona>> GetAllAsync();
@@ -877,7 +883,7 @@ public interface IPersonaRepository
 \end{lstlisting}
 
 \subsubsection{8.12 Repositorios (implementación DAO)}
-\begin{lstlisting}[language=CSharpX,caption={\texttt{Models/Repository/Implementations/PersonaRepository.cs}.}]
+\begin{lstlisting}[language=CSharpX,caption={\texttt{03-AccesoDatos/Repository/Implementations/PersonaRepository.cs}.}]
 public class PersonaRepository : IPersonaRepository
 {
     private readonly PersonaDbContext _context;
@@ -919,7 +925,7 @@ scaffolding $\rightarrow$ Controlador de MVC con vistas que usan Entity Framewor
 modificaron para depender del servicio en lugar del \texttt{DbContext}. Los
 controladores de API se escribieron manualmente:
 
-\begin{lstlisting}[language=CSharpX,caption={\texttt{Controllers/Api/PersonasApiController.cs}.}]
+\begin{lstlisting}[language=CSharpX,caption={\texttt{01-Presentacion/ControllersApi/PersonasApiController.cs}.}]
 [ApiController]
 [Route("api/personas")]
 public class PersonasApiController : ControllerBase
