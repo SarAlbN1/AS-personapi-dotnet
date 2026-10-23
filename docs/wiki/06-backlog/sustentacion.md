@@ -19,7 +19,7 @@ Se explica el flujo con el [SAD §4](../02-arquitectura/02-SAD-HLD.md#4-vista-l�
 
 1. `PersonasApiController` y `PersonasController` dependen de `IPersonaService`: dos presentaciones, una lógica (AD-02, AD-03).
 2. `PersonaService` depende de `IPersonaRepository`, no de EF Core (AD-04).
-3. Solo `Models/Repository/Implementations` referencia `PersonaDbContext`: se muestra la búsqueda que lo comprueba (AK-01).
+3. Solo `03-AccesoDatos/Repository/Implementations` referencia `PersonaDbContext`: se muestra la búsqueda que lo comprueba (AK-01).
 4. `estudios` se mapea con clave compuesta, sin identificador artificial (AK-03).
 5. DTOs y ViewModels evitan exponer entidades con navegaciones (AD-10).
 

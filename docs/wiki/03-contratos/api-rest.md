@@ -2,7 +2,7 @@
 
 [← Contratos](README.md) · [SDD/LDD](../04-implementacion/03-SDD-LDD.md)
 
-**Responsabilidad:** dentro del monolito ASP.NET Core, los controladores `Controllers/Api` atienden JSON y delegan siempre en `I*Service`. Ruta base `/api`; la aplicación también expone vistas Razor por MVC. OpenAPI 3 + Swagger UI describe y permite probar las operaciones. Esta página es la especificación del contrato previsto, **no evidencia de API ya implementada**.
+**Responsabilidad:** dentro del monolito ASP.NET Core, los controladores `01-Presentacion/ControllersApi` atienden JSON y delegan siempre en `I*Service`. Ruta base `/api`; la aplicación también expone vistas Razor por MVC. OpenAPI 3 + Swagger UI describe y permite probar las operaciones. Esta página es la especificación del contrato previsto, **no evidencia de API ya implementada**.
 
 ## Operaciones obligatorias (20)
 

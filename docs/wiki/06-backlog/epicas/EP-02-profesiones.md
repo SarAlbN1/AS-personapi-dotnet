@@ -8,7 +8,7 @@
 
 **Decisiones aplicadas:** AD-02, AD-03, AD-06, AD-10.
 
-**Componentes afectados:** `Models/Dtos/`, `Models/ViewModels/`, `IProfesionService` / `ProfesionService`, `Controllers/Api/ProfesionesApiController`, `Controllers/ProfesionesController`, `Views/Profesiones/`.
+**Componentes afectados:** `01-Presentacion/Dtos/`, `01-Presentacion/ViewModels/`, `IProfesionService` / `ProfesionService`, `01-Presentacion/ControllersApi/ProfesionesApiController`, `01-Presentacion/Controllers/ProfesionesController`, `01-Presentacion/Views/Profesiones/`.
 
 **Historias:** HU-005 (Sprint 1), HU-008 (Sprint 2) · **7 puntos**
 

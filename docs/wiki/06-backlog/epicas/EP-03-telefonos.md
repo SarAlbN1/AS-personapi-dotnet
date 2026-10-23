@@ -8,7 +8,7 @@
 
 **Decisiones aplicadas:** AD-02, AD-03, AD-06 (FK sin cascada), AD-10.
 
-**Componentes afectados:** `Models/Dtos/`, `Models/ViewModels/`, `ITelefonoService` / `TelefonoService`, `Controllers/Api/TelefonosApiController`, `Controllers/TelefonosController`, `Views/Telefonos/`.
+**Componentes afectados:** `01-Presentacion/Dtos/`, `01-Presentacion/ViewModels/`, `ITelefonoService` / `TelefonoService`, `01-Presentacion/ControllersApi/TelefonosApiController`, `01-Presentacion/Controllers/TelefonosController`, `01-Presentacion/Views/Telefonos/`.
 
 **Historias:** HU-010, HU-012 (ambas Sprint 2) · **7 puntos**
 

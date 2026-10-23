@@ -29,7 +29,7 @@ dotnet run --project personapi-dotnet/personapi-dotnet.csproj
 
 ## Database First
 
-Generar entidades en `Models/Entities` desde un esquema SQL existente. El ejemplo de comando debe adaptarse a la instancia real y a la configuración local; no pegar contraseñas en la shell ni en el repositorio. Regenerar tras cambios de DDL controlados.
+Generar entidades en `04-Persistencia/Entities` desde un esquema SQL existente. El ejemplo de comando debe adaptarse a la instancia real y a la configuración local; no pegar contraseñas en la shell ni en el repositorio. Regenerar tras cambios de DDL controlados.
 
 **No fingir ejecución:** los pasos y rutas deben actualizarse con los comandos reales y evidencia del equipo durante el desarrollo.
 

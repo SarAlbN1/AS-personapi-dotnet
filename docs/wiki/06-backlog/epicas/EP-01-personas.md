@@ -8,7 +8,7 @@
 
 **Decisiones aplicadas:** AD-02 (controladores separados), AD-03 (servicio por entidad), AD-10 (DTO y ViewModel), AD-06 (`NO ACTION` y `409`).
 
-**Componentes afectados:** `Models/Dtos/`, `Models/ViewModels/`, `Services/Interfaces/IPersonaService`, `Services/Implementations/PersonaService`, `Controllers/Api/PersonasApiController`, `Controllers/PersonasController`, `Views/Personas/`.
+**Componentes afectados:** `01-Presentacion/Dtos/`, `01-Presentacion/ViewModels/`, `02-Aplicacion/Services/Interfaces/IPersonaService`, `02-Aplicacion/Services/Implementations/PersonaService`, `01-Presentacion/ControllersApi/PersonasApiController`, `01-Presentacion/Controllers/PersonasController`, `01-Presentacion/Views/Personas/`.
 
 **Historias:** HU-004 (Sprint 1), HU-007 (Sprint 2) · **9 puntos**
 

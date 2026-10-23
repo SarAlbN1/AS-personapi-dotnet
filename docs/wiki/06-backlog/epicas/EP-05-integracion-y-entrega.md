@@ -60,7 +60,7 @@ Ejecutar y registrar la verificación de los dos canales, la integridad real de 
 ### Alcance técnico
 - Pirámide de [pruebas.md](../../04-implementacion/pruebas.md): reglas de servicio con DAOs controlables, integración contra SQL Server real, comprobación de los 20 endpoints, de las 20 acciones web y de los escenarios E2E.
 - Escenarios 1 a 7 de [SRS §10](../../01-producto/01-SRS.md#10-escenarios-mínimos-de-aceptación), incluido el borrado bloqueado y la limpieza ordenada de dependientes.
-- Comprobación arquitectónica automatizable: ningún archivo fuera de `Models/Repository/Implementations` referencia `PersonaDbContext`.
+- Comprobación arquitectónica automatizable: ningún archivo fuera de `03-AccesoDatos/Repository/Implementations` referencia `PersonaDbContext`.
 - Actualización de [runbook-demo.md](../../04-implementacion/runbook-demo.md) con el recorrido realmente ejecutado.
 - Construcción de las pruebas sobre el proyecto de pruebas creado en HU-001; no se crea una estructura de pruebas paralela.
 - **No incluye:** corregir defectos de módulos ajenos. Se reportan como issue o comentario según [CLAUDE.md](../../../../CLAUDE.md) y el [proceso](../../05-proceso/pull-requests-y-releases.md); el responsable del módulo los corrige en su rama, regla de propiedad que se aplica durante toda la historia aunque no sea un criterio de aceptación.
