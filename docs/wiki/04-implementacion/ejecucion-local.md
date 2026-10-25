@@ -27,6 +27,8 @@ dotnet run --project personapi-dotnet/personapi-dotnet.csproj
 6. Usar la URL que muestre Kestrel; abrir la aplicación MVC y `/swagger` sobre ese mismo origen.
 7. Comprobar CRUD de las cuatro entidades y persistencia en `persona_db`.
 
+**Estado verificado (HU-001, SDK 10.0.402):** los pasos 4 a 6 se ejecutaron sin base de datos: `dotnet build` y `dotnet test` en verde, `/` responde 200, los estáticos 200 y `/swagger/v1/swagger.json` devuelve `"openapi": "3.0.4"` sin operaciones. Los pasos 2, 3 y 7 dependen de `persona_db` y los verifican HU-002 y HU-003.
+
 ## Database First
 
 Generar entidades en `Back/04-Persistencia/Entities` desde un esquema SQL existente. El ejemplo de comando debe adaptarse a la instancia real y a la configuración local; no pegar contraseñas en la shell ni en el repositorio. Regenerar tras cambios de DDL controlados.

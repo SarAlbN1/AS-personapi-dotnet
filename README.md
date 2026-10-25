@@ -4,7 +4,7 @@ Aplicación monolítica ASP.NET Core MVC + servicios + DAO/Repository para gesti
 
 **Stack adoptado:** .NET 10 LTS, ASP.NET Core MVC 10, EF Core 10, SQL Server 2025 Express, SSMS 22, Visual Studio 2026 Community, REST/JSON, OpenAPI 3. Se modernizan las versiones de la guía original por decisión del equipo, manteniendo los requisitos funcionales y los patrones solicitados ([versiones](docs/wiki/04-implementacion/versiones.md)).
 
-> Este repositorio contiene, por ahora, **documentación de diseño**: no afirma implementación, pruebas ni despliegues ejecutados.
+> Estado real: la solución arranca y compila (HU-001). El esquema `persona_db`, las entidades EF Core, los servicios, los CRUD y los 20 endpoints REST **están diseñados y aún no implementados**; este repositorio no afirma pruebas con base de datos ni despliegues ejecutados.
 
 ## Arquitectura
 
@@ -51,7 +51,22 @@ Un único artefacto desplegable. MVC y REST son dos interfaces HTTP del mismo pr
 
 ## Ejecución
 
-Consultar [configuración y ejecución local](docs/wiki/04-implementacion/ejecucion-local.md) y el [runbook de la demo](docs/wiki/04-implementacion/runbook-demo.md). Los pasos son una **guía prevista** y se actualizarán con los comandos y la evidencia reales al implementar.
+```bash
+dotnet build
+dotnet test
+dotnet run --project personapi-dotnet/personapi-dotnet.csproj
+```
+
+La aplicación responde en la URL que publique Kestrel: `/` para las vistas MVC y `/swagger` para la interfaz de la API. La cadena de conexión se lee de `ConnectionStrings:PersonaDb` y **no se versiona**: se define por User Secrets o variable de entorno.
+
+```bash
+dotnet user-secrets init --project personapi-dotnet/personapi-dotnet.csproj
+dotnet user-secrets set "ConnectionStrings:PersonaDb" "<cadena-local>" --project personapi-dotnet/personapi-dotnet.csproj
+# alternativa equivalente sin User Secrets
+export ConnectionStrings__PersonaDb="<cadena-local>"
+```
+
+Detalle en [configuración y ejecución local](docs/wiki/04-implementacion/ejecucion-local.md) y el [runbook de la demo](docs/wiki/04-implementacion/runbook-demo.md). Los pasos que dependen de `persona_db` siguen siendo una **guía prevista** hasta que HU-002 y HU-003 los verifiquen.
 
 ## Trabajo en equipo
 
