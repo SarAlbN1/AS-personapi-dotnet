@@ -122,8 +122,20 @@ dotnet ef dbcontext scaffold "<cadena-local-sin-credenciales>" \
   --context PersonaDbContext --output-dir Back/04-Persistencia/Entities --no-onconfiguring
 ```
 
-**Sin verificar.** No existe `Program.cs` ni `.csproj` todavía; estos fragmentos están
-documentados, no ejecutados. La comprobación corresponde a la issue de arranque.
+**Verificado en HU-001** (SDK 10.0.402, `ASPNETCORE_ENVIRONMENT=Development`): con esta
+configuración `/` responde 200 con la vista de `Front/Views/`, `/css/site.css` responde
+200 desde `Front/wwwroot/` y `/swagger/v1/swagger.json` devuelve `"openapi": "3.0.4"`.
+
+Dos consecuencias adicionales del árbol, también comprobadas:
+
+- **Estáticos con `app.UseStaticFiles()`, no con `app.MapStaticAssets()`.** El manifiesto
+  de `MapStaticAssets` se genera en compilación a partir de `./wwwroot`, carpeta que aquí
+  no existe; `WebRootPath` solo actúa en ejecución. Con `MapStaticAssets` los estáticos
+  quedan en 404.
+- **Los namespaces no siguen el nombre de carpeta.** `01-Borde` y `04-Persistencia` no son
+  identificadores válidos de C#, así que el código usa `personapi_dotnet.Back.Borde.*`,
+  `personapi_dotnet.Back.Persistencia.*` y `personapi_dotnet.Front.ViewModels`. La carpeta
+  conserva su número; solo cambia el namespace.
 
 ## Fuentes
 

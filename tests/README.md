@@ -7,8 +7,11 @@ Ubicación prevista para los proyectos de prueba automatizada de PersonAPI.
 | `Unit/` | Reglas de servicio (duplicados, FK, conflictos) con DAO dobles. Niveles 1 de [pruebas.md](../docs/wiki/04-implementacion/pruebas.md). |
 | `Integration/` | Restricciones reales de SQL Server y recorrido de API. Niveles 2 y 3 de `pruebas.md`. |
 
-**Estado: sin proyectos.** No se crean `.csproj` de prueba en el bootstrap; corresponden a
-su propia issue, junto con su registro en `personapi-dotnet.sln`.
+**Estado:** `Unit/personapi-dotnet.Tests.Unit/` existe desde HU-001, registrado en
+`personapi-dotnet.sln`, con xUnit y `Microsoft.AspNetCore.Mvc.Testing`. Contiene las
+comprobaciones de arranque (vistas, estáticos y documento OpenAPI 3); las pruebas de
+reglas de servicio las añade cada historia en este mismo proyecto. `Integration/` sigue
+sin proyecto: corresponde a HU-014, que necesita `persona_db` real.
 
 ## Discrepancia documental abierta
 
