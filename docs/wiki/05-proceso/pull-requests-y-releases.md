@@ -44,6 +44,13 @@ Esta sección es la **fuente única** de la política de integración. El resto 
 8. Prohibido deshabilitar o modificar las reglas de protección de GitHub sin acuerdo explícito del equipo.
 9. **Que GitHub muestre `MERGEABLE` o `CLEAN` no es una aprobación.** Significa solo que no hay conflictos de merge.
 10. Cada historia se implementa en su propia rama y se integra con **squash merge**.
+11. **Aprobación registrada por un agente.** Un asistente automatizado puede registrar la aprobación con la cuenta del revisor **solo** si se cumplen todas estas condiciones:
+    1. El revisor la pide expresamente, para ese PR concreto, después de conocer el resultado de la revisión.
+    2. La cuenta que aprueba no es la del autor del PR (la regla 3 no cambia).
+    3. Antes de aprobar, el agente verificó el último commit del PR (compilación, pruebas y criterios de aceptación) y publicó sus hallazgos en el PR, sin observaciones bloqueantes abiertas.
+    4. El agente no escribió ni modificó el contenido de ese PR.
+
+    La aprobación cuenta como del revisor, que responde por ella como si la hubiera registrado él. Integrar el PR sigue siendo decisión de una persona.
 
 ### Procedimiento por historia
 

@@ -58,8 +58,8 @@ Ante conflictos, no adivinar y no editar por iniciativa propia: documentar el co
 `main` está protegida en GitHub. Antes de modificar archivos, leer [CONTRIBUTING](CONTRIBUTING.md) y la [política de integración](docs/wiki/05-proceso/pull-requests-y-releases.md#protección-de-main-y-revisión-cruzada-obligatoria), que es la fuente única de estas reglas.
 
 - **No escribir en `main`.** Ningún commit ni push directo, ni siquiera para un cambio trivial: se trabaja en rama y se integra por PR.
-- **No aprobar un PR propio ni uno escrito por un agente.** La aprobación la da una persona distinta del autor, con permiso de escritura.
-- **No fusionar sin una aprobación humana externa válida** registrada en el PR. Que GitHub indique `MERGEABLE`, `CLEAN` o ausencia de conflictos **no** es una aprobación, y no se presenta como tal en ningún informe.
+- **No aprobar un PR propio ni uno que el mismo agente haya escrito o modificado.** La aprobación es de una persona distinta del autor, con permiso de escritura. El agente solo puede registrarla con la cuenta de ese revisor cuando este se lo pide expresamente para ese PR, tras verificar el último commit y publicar los hallazgos en el PR, según la [regla 11 de la política de integración](docs/wiki/05-proceso/pull-requests-y-releases.md#reglas-de-integración).
+- **No fusionar sin una aprobación válida de otro integrante** registrada en el PR. Que GitHub indique `MERGEABLE`, `CLEAN` o ausencia de conflictos **no** es una aprobación, y no se presenta como tal en ningún informe.
 - **No usar permisos administrativos para eludir las protecciones**, ni activar auto-merge, ni hacer force-push, ni borrar `main`.
 - **No deshabilitar, relajar ni convertir a Ruleset** las reglas de protección de GitHub sin autorización expresa del equipo.
 - **No sobrescribir ramas, commits ni worktrees de otros integrantes**, ni reescribir historia publicada.
