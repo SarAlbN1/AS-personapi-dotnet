@@ -20,12 +20,30 @@ Modelo de datos generado desde la base. Fondo del flujo.
 
 ## Comando de scaffolding
 
+Desde `personapi-dotnet/`, con `persona_db` creada desde [`scripts/`](../../../scripts/README.md)
+y `dotnet-ef` alineado con EF Core 10:
+
 ```bash
-dotnet ef dbcontext scaffold "<cadena-local-sin-credenciales>" \
+dotnet ef dbcontext scaffold "Server=localhost\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=True" \
   Microsoft.EntityFrameworkCore.SqlServer \
-  --context PersonaDbContext --output-dir Back/04-Persistencia/Entities --no-onconfiguring
+  --context PersonaDbContext --output-dir Back/04-Persistencia/Entities \
+  --namespace personapi_dotnet.Back.Persistencia.Entities --no-onconfiguring
 ```
 
-**Sin ejecutar.** No hay base creada ni entidades generadas; corresponde a su issue.
+La cadena usa autenticación integrada; si la instancia es otra, se cambia solo
+`Server`, sin escribir contraseñas en la shell ni en el repositorio.
+
+- `--namespace` es obligatorio: sin él, el namespace se deriva de la carpeta
+  (`...Back.04-Persistencia.Entities`), no es un identificador válido y no compila.
+- `--no-onconfiguring` evita que la cadena quede escrita en `PersonaDbContext`; la
+  conexión la aporta `Program.cs` desde `ConnectionStrings:PersonaDb`.
+- Los archivos generados no se editan a mano: un cambio de esquema se regenera con
+  `--force` tras modificar el DDL.
+
+**Ejecutado en HU-003** (EF Core 10.0.14, SQL Server 2025 Express): genera `Persona`,
+`Profesion`, `Telefono`, `Estudio` y `PersonaDbContext`. `Estudio` usa la clave compuesta
+`HasKey(e => new { e.IdProf, e.CcPer })`, sin identificador artificial, y las tres FK
+conservan sus nombres del DDL. EF Core no genera el `CHECK` de `genero`: lo garantiza la
+base.
 
 [← 03-AccesoDatos](../03-AccesoDatos/README.md) · [Back](../README.md)
