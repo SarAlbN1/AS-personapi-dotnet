@@ -13,7 +13,7 @@ Los asistentes son apoyo técnico; el integrante asignado sigue siendo responsab
 5. Añadir las pruebas razonables para el cambio y ejecutarlas (no declarar resultados no ejecutados).
 6. Actualizar contratos de REST, persistencia y wiki si corresponde.
 7. Abrir PR con referencia a issue real; **otro integrante** revisa y aprueba.
-8. No marcar `Done` hasta integrar y verificar los criterios.
+8. No marcar `Done` hasta integrar y verificar los criterios. El estado del tablero se mueve según las [transiciones de estado](issues-etiquetas-y-milestones.md#transiciones-de-estado), que el asistente puede aplicar cuando el hecho que las dispara ya ocurrió.
 
 ## Prohibido
 
