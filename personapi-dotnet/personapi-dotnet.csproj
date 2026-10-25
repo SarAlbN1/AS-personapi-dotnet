@@ -21,6 +21,15 @@
   <!-- El bundle de CSS aislado (<ensamblado>.styles.css) lo genera el SDK y lo publica en
        wwwroot/. El web root es Front/wwwroot, así que se copia allí para que _Layout lo
        encuentre tanto en ejecución como en el publicado. -->
+  <!-- En ejecución desde el árbol de fuentes el bundle solo existe en obj/, así que se
+       copia al web root en compilación; .gitignore lo excluye del control de versiones. -->
+  <Target Name="CopiarBundleCssAisladoAlWebRootEnCompilacion" AfterTargets="BundleScopedCssFiles">
+    <Copy SourceFiles="$(_ScopedCssOutputFullPath)"
+          DestinationFolder="$(MSBuildProjectDirectory)\Front\wwwroot"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(_ScopedCssOutputFullPath)')" />
+  </Target>
+
   <Target Name="CopiarBundleCssAisladoAlWebRoot" AfterTargets="Publish">
     <Copy SourceFiles="$(PublishDir)wwwroot\$(TargetName).styles.css"
           DestinationFolder="$(PublishDir)Front\wwwroot"
