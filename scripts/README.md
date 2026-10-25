@@ -12,11 +12,12 @@ Scripts SQL de `persona_db`. Ubicación fijada por el
 ## Ejecución
 
 En orden, DDL y luego DML, desde SSMS (abrir y ejecutar cada archivo) o con `sqlcmd`
-y autenticación integrada:
+y autenticación integrada. Las comillas dobles conservan la barra invertida del nombre de
+instancia en bash, PowerShell y cmd:
 
 ```bash
-sqlcmd -S localhost\SQLEXPRESS -E -C -b -i scripts/01_ddl.sql
-sqlcmd -S localhost\SQLEXPRESS -E -C -b -i scripts/02_dml.sql
+sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i scripts/01_ddl.sql
+sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i scripts/02_dml.sql
 ```
 
 **Reejecución.** Ambos scripts son idempotentes: el DDL crea la base y cada tabla solo

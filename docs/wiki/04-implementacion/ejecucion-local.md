@@ -27,7 +27,7 @@ dotnet run --project personapi-dotnet/personapi-dotnet.csproj
 6. Usar la URL que muestre Kestrel; abrir la aplicación MVC y `/swagger` sobre ese mismo origen.
 7. Comprobar CRUD de las cuatro entidades y persistencia en `persona_db`.
 
-**Estado verificado (HU-001, SDK 10.0.402):** los pasos 4 a 6 se ejecutaron sin base de datos: `dotnet build` y `dotnet test` en verde, `/` responde 200, los estáticos 200 y `/swagger/v1/swagger.json` devuelve `"openapi": "3.0.4"` sin operaciones. Los pasos 2, 3 y 7 dependen de `persona_db` y los verifican HU-002 y HU-003.
+**Estado verificado (HU-001, SDK 10.0.402):** los pasos 4 a 6 se ejecutaron sin base de datos: `dotnet build` y `dotnet test` en verde, `/` responde 200, los estáticos 200 y `/swagger/v1/swagger.json` devuelve `"openapi": "3.0.4"` sin operaciones. El paso 2 está verificado en HU-002 sobre SQL Server 2025 Express, con reejecución y pruebas negativas ([scripts](../../../scripts/README.md)); los pasos 3 y 7 los verifica HU-003.
 
 ## Database First
 
