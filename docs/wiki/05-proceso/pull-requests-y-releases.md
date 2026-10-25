@@ -44,6 +44,22 @@ Esta sección es la **fuente única** de la política de integración. El resto 
 8. Prohibido deshabilitar o modificar las reglas de protección de GitHub sin acuerdo explícito del equipo.
 9. **Que GitHub muestre `MERGEABLE` o `CLEAN` no es una aprobación.** Significa solo que no hay conflictos de merge.
 10. Cada historia se implementa en su propia rama y se integra con **squash merge**.
+11. **Aprobación registrada por un agente.** Un asistente automatizado puede registrar la aprobación con la cuenta del revisor **solo** si se cumplen todas estas condiciones:
+    1. El revisor la pide expresamente, para ese PR concreto, después de conocer el resultado de la revisión.
+    2. La cuenta que aprueba no es la del autor del PR (la regla 3 no cambia).
+    3. Antes de aprobar, el agente ejecutó sobre el último commit del PR las verificaciones que el [DoD](dor-y-dod.md) exige para ese tipo de cambio y publicó sus hallazgos en el PR, y no quedan conversaciones de revisión abiertas.
+    4. Ningún commit del PR fue creado ni subido con la cuenta del revisor, y el agente que aprueba no redactó ni modificó el contenido del PR.
+
+    La aprobación cuenta como del revisor, que responde por ella como si la hubiera registrado él.
+12. **Integración registrada por un agente.** Un asistente automatizado puede fusionar el PR con la cuenta del revisor **solo** si se cumplen todas estas condiciones:
+    1. El revisor lo pide expresamente, para ese PR concreto.
+    2. El PR ya tiene una aprobación válida, vigente sobre el último commit, de una cuenta distinta de la del autor.
+    3. La cuenta que fusiona no es la del autor del PR.
+    4. Se cumplen las reglas 5 a 10: conversaciones resueltas y sin aprobaciones invalidadas por commits nuevos.
+    5. La fusión se hace **solo** con *squash merge* y borrando la rama integrada, como pide la [plantilla de PR](../../../.github/pull_request_template.md): `gh pr merge <número> --squash --delete-branch`. Nunca *merge commit* ni *rebase*, aunque el repositorio los tenga habilitados.
+    6. La fusión no usa permisos administrativos, auto-merge ni ninguna vía que omita la protección de `main`. Si GitHub la rechaza, el agente se detiene e informa.
+
+    La integración cuenta como del revisor, que responde por ella.
 
 ### Procedimiento por historia
 
