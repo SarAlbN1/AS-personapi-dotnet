@@ -39,6 +39,9 @@ app.UseAuthorization();
 app.UseSwagger();
 app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "PersonAPI v1"));
 
+// MapControllers para las rutas por atributos de la API; MapControllerRoute para las vistas MVC.
+app.MapControllers();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

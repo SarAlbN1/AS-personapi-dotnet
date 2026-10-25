@@ -11,4 +11,20 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.1" />
   </ItemGroup>
 
+  <!-- El SDK solo publica por convención lo que cuelga de <proyecto>/wwwroot. Aquí el web
+       root es Front/wwwroot, así que se declara como contenido para que dotnet publish lo
+       copie; sin esto el publicado queda sin estáticos. -->
+  <ItemGroup>
+    <Content Include="Front\wwwroot\**" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- El bundle de CSS aislado (<ensamblado>.styles.css) lo genera el SDK y lo publica en
+       wwwroot/. El web root es Front/wwwroot, así que se copia allí para que _Layout lo
+       encuentre tanto en ejecución como en el publicado. -->
+  <Target Name="CopiarBundleCssAisladoAlWebRoot" AfterTargets="Publish">
+    <Copy SourceFiles="$(PublishDir)wwwroot\$(TargetName).styles.css"
+          DestinationFolder="$(PublishDir)Front\wwwroot"
+          Condition="Exists('$(PublishDir)wwwroot\$(TargetName).styles.css')" />
+  </Target>
+
 </Project>
