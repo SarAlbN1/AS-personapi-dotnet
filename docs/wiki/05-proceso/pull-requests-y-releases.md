@@ -50,7 +50,15 @@ Esta sección es la **fuente única** de la política de integración. El resto 
     3. Antes de aprobar, el agente verificó el último commit del PR (compilación, pruebas y criterios de aceptación) y publicó sus hallazgos en el PR, sin observaciones bloqueantes abiertas.
     4. El agente no escribió ni modificó el contenido de ese PR.
 
-    La aprobación cuenta como del revisor, que responde por ella como si la hubiera registrado él. Integrar el PR sigue siendo decisión de una persona.
+    La aprobación cuenta como del revisor, que responde por ella como si la hubiera registrado él.
+12. **Integración registrada por un agente.** Un asistente automatizado puede fusionar el PR con la cuenta del revisor **solo** si se cumplen todas estas condiciones:
+    1. El revisor lo pide expresamente, para ese PR concreto.
+    2. El PR ya tiene una aprobación válida, vigente sobre el último commit, de una cuenta distinta de la del autor.
+    3. La cuenta que fusiona no es la del autor del PR.
+    4. Se cumplen las reglas 5 a 10: conversaciones resueltas, sin aprobaciones invalidadas por commits nuevos y con *squash merge*.
+    5. La fusión no usa permisos administrativos, auto-merge ni ninguna vía que omita la protección de `main`. Si GitHub la rechaza, el agente se detiene e informa.
+
+    La integración cuenta como del revisor, que responde por ella.
 
 ### Procedimiento por historia
 
