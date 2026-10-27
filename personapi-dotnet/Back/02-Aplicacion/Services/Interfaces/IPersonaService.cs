@@ -9,13 +9,13 @@ namespace personapi_dotnet.Back.Aplicacion.Services.Interfaces;
 /// </summary>
 public interface IPersonaService
 {
-    Task<ResultadoServicio<IReadOnlyList<PersonaDto>>> GetAllAsync();
+    Task<IReadOnlyList<PersonaDto>> GetAllAsync();
 
-    Task<ResultadoServicio<PersonaDto>> GetByIdAsync(int cc);
+    Task<ServiceResult<PersonaDto>> GetByIdAsync(int cc);
 
-    Task<ResultadoServicio<PersonaDto>> CreateAsync(PersonaEntradaDto entrada);
+    Task<ServiceResult<PersonaDto>> CreateAsync(PersonaEntradaDto entrada);
 
-    Task<ResultadoServicio> UpdateAsync(int cc, PersonaEntradaDto entrada);
+    Task<ServiceResult> UpdateAsync(int cc, PersonaEntradaDto entrada);
 
-    Task<ResultadoServicio> DeleteAsync(int cc);
+    Task<ServiceResult> DeleteAsync(int cc);
 }

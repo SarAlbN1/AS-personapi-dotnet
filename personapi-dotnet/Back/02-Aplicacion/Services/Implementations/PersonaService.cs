@@ -25,36 +25,31 @@ public class PersonaService : IPersonaService
         _estudios = estudios;
     }
 
-    public async Task<ResultadoServicio<IReadOnlyList<PersonaDto>>> GetAllAsync()
-    {
-        var personas = await _personas.GetAllAsync();
+    public async Task<IReadOnlyList<PersonaDto>> GetAllAsync() =>
+        (await _personas.GetAllAsync()).Select(ADto).ToList();
 
-        return ResultadoServicio<IReadOnlyList<PersonaDto>>.Success(
-            personas.Select(ADto).ToList());
-    }
-
-    public async Task<ResultadoServicio<PersonaDto>> GetByIdAsync(int cc)
+    public async Task<ServiceResult<PersonaDto>> GetByIdAsync(int cc)
     {
         var persona = await _personas.GetByIdAsync(cc);
 
         return persona is null
-            ? ResultadoServicio<PersonaDto>.NotFound($"No existe una persona con cédula {cc}.")
-            : ResultadoServicio<PersonaDto>.Success(ADto(persona));
+            ? ServiceResult<PersonaDto>.NotFound($"No existe una persona con cédula {cc}.")
+            : ServiceResult<PersonaDto>.Success(ADto(persona));
     }
 
-    public async Task<ResultadoServicio<PersonaDto>> CreateAsync(PersonaEntradaDto entrada)
+    public async Task<ServiceResult<PersonaDto>> CreateAsync(PersonaEntradaDto entrada)
     {
         var error = Validar(entrada);
         if (error is not null)
         {
-            return ResultadoServicio<PersonaDto>.ValidationError(error);
+            return ServiceResult<PersonaDto>.ValidationError(error);
         }
 
         // La unicidad final la garantiza la PK: esta comprobación da el 409 con mensaje
         // útil, pero si dos solicitudes compiten manda la restricción de la base.
         if (await _personas.ExistsAsync(entrada.Cc))
         {
-            return ResultadoServicio<PersonaDto>.Conflict(
+            return ServiceResult<PersonaDto>.Conflict(
                 $"Ya existe una persona con cédula {entrada.Cc}.");
         }
 
@@ -69,28 +64,28 @@ public class PersonaService : IPersonaService
 
         await _personas.AddAsync(persona);
 
-        return ResultadoServicio<PersonaDto>.Success(ADto(persona));
+        return ServiceResult<PersonaDto>.Success(ADto(persona));
     }
 
-    public async Task<ResultadoServicio> UpdateAsync(int cc, PersonaEntradaDto entrada)
+    public async Task<ServiceResult> UpdateAsync(int cc, PersonaEntradaDto entrada)
     {
         // El PUT no cambia la identidad del recurso: ruta y cuerpo deben coincidir.
         if (cc != entrada.Cc)
         {
-            return ResultadoServicio.ValidationError(
+            return ServiceResult.ValidationError(
                 $"La cédula de la ruta ({cc}) no coincide con la del cuerpo ({entrada.Cc}).");
         }
 
         var error = Validar(entrada);
         if (error is not null)
         {
-            return ResultadoServicio.ValidationError(error);
+            return ServiceResult.ValidationError(error);
         }
 
         var persona = await _personas.GetByIdAsync(cc);
         if (persona is null)
         {
-            return ResultadoServicio.NotFound($"No existe una persona con cédula {cc}.");
+            return ServiceResult.NotFound($"No existe una persona con cédula {cc}.");
         }
 
         persona.Nombre = entrada.Nombre.Trim();
@@ -100,26 +95,26 @@ public class PersonaService : IPersonaService
 
         await _personas.UpdateAsync(persona);
 
-        return ResultadoServicio.Success();
+        return ServiceResult.Success();
     }
 
-    public async Task<ResultadoServicio> DeleteAsync(int cc)
+    public async Task<ServiceResult> DeleteAsync(int cc)
     {
         var persona = await _personas.GetByIdAsync(cc);
         if (persona is null)
         {
-            return ResultadoServicio.NotFound($"No existe una persona con cédula {cc}.");
+            return ServiceResult.NotFound($"No existe una persona con cédula {cc}.");
         }
 
         var dependencias = await ContarDependencias(cc);
         if (dependencias is not null)
         {
-            return ResultadoServicio.Conflict(dependencias);
+            return ServiceResult.Conflict(dependencias);
         }
 
         await _personas.DeleteAsync(persona);
 
-        return ResultadoServicio.Success();
+        return ServiceResult.Success();
     }
 
     private async Task<string?> ContarDependencias(int cc)

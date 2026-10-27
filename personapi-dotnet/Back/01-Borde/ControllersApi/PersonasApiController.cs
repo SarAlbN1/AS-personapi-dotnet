@@ -20,9 +20,9 @@ public class PersonasApiController : ControllerBase
 
     /// <summary>Listado completo; sin filas devuelve <c>[]</c>.</summary>
     [HttpGet]
-    [ProducesResponseType(typeof(IReadOnlyList<PersonaDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll() =>
-        Traducir(await _personas.GetAllAsync());
+    [ProducesResponseType<IReadOnlyList<PersonaDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<PersonaDto>>> GetAll() =>
+        Ok(await _personas.GetAllAsync());
 
     /// <summary>Detalle por cédula.</summary>
     [HttpGet("{cc:int}")]
@@ -40,12 +40,12 @@ public class PersonasApiController : ControllerBase
     {
         var resultado = await _personas.CreateAsync(entrada);
 
-        if (!resultado.EsExito)
+        if (!resultado.IsSuccess)
         {
             return Traducir(resultado);
         }
 
-        return CreatedAtAction(nameof(GetById), new { cc = resultado.Valor!.Cc }, resultado.Valor);
+        return CreatedAtAction(nameof(GetById), new { cc = resultado.Value!.Cc }, resultado.Value);
     }
 
     /// <summary>Edición completa; la cédula de la ruta manda sobre la identidad.</summary>
@@ -67,16 +67,16 @@ public class PersonasApiController : ControllerBase
     // Un único punto de traducción resultado -> código de estado, para que los cinco
     // métodos no repitan el mapeo. Los errores viajan como ProblemDetails, la forma que
     // ya produce [ApiController] cuando el modelo de entrada es inválido.
-    private IActionResult Traducir(ResultadoServicio resultado) => resultado.Estado switch
+    private IActionResult Traducir(ServiceResult resultado) => resultado.Status switch
     {
         // Solo llegan aquí los resultados sin valor: actualizar y eliminar (204).
-        EstadoResultado.Success => NoContent(),
-        EstadoResultado.NotFound => Problem(detail: resultado.Mensaje, statusCode: StatusCodes.Status404NotFound),
-        EstadoResultado.ValidationError => Problem(detail: resultado.Mensaje, statusCode: StatusCodes.Status400BadRequest),
-        EstadoResultado.Conflict => Problem(detail: resultado.Mensaje, statusCode: StatusCodes.Status409Conflict),
+        ServiceResultStatus.Success => NoContent(),
+        ServiceResultStatus.NotFound => Problem(detail: resultado.Message, statusCode: StatusCodes.Status404NotFound),
+        ServiceResultStatus.ValidationError => Problem(detail: resultado.Message, statusCode: StatusCodes.Status400BadRequest),
+        ServiceResultStatus.Conflict => Problem(detail: resultado.Message, statusCode: StatusCodes.Status409Conflict),
         _ => Problem(statusCode: StatusCodes.Status500InternalServerError)
     };
 
-    private IActionResult Traducir<T>(ResultadoServicio<T> resultado) =>
-        resultado.EsExito ? Ok(resultado.Valor) : Traducir((ResultadoServicio)resultado);
+    private IActionResult Traducir<T>(ServiceResult<T> resultado) =>
+        resultado.IsSuccess ? Ok(resultado.Value) : Traducir((ServiceResult)resultado);
 }
