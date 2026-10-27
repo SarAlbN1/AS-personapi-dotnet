@@ -170,4 +170,46 @@ public class TelefonosApiTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal(HttpStatusCode.NotFound, editado.StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, eliminado.StatusCode);
     }
+
+    [FactConPersonaDb]
+    public async Task Alta_con_numero_no_numerico_devuelve_400_y_no_deja_filas_inalcanzables()
+    {
+        var cliente = _factory.CreateClient();
+
+        // "a/b" devolvía 201 y luego quedaba sin GET ni DELETE posibles: la barra no
+        // pasa por la plantilla de ruta y solo se podía borrar por SQL.
+        var conBarra = await cliente.PostAsJsonAsync("/api/telefonos", Entrada("a/b"));
+        var conLetras = await cliente.PostAsJsonAsync("/api/telefonos", Entrada("300ABC4567"));
+        var conEspacios = await cliente.PostAsJsonAsync("/api/telefonos", Entrada("300 123 4567"));
+
+        Assert.Equal(HttpStatusCode.BadRequest, conBarra.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, conLetras.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, conEspacios.StatusCode);
+
+        var listado = await (await cliente.GetAsync("/api/telefonos")).Content
+            .ReadFromJsonAsync<List<TelefonoDto>>();
+        Assert.DoesNotContain(listado!, t => !t.Num.All(char.IsAsciiDigit));
+    }
+
+    [FactConPersonaDb]
+    public async Task Alta_y_edicion_sin_duenio_devuelven_400_y_no_tocan_la_base()
+    {
+        var cliente = _factory.CreateClient();
+        const string num = "3150000003";
+        var sinDuenio = new { num, oper = "Claro" };
+
+        var creado = await cliente.PostAsJsonAsync("/api/telefonos", sinDuenio);
+        var editado = await cliente.PutAsJsonAsync(
+            $"/api/telefonos/{NumAna}",
+            new { num = NumAna, oper = "Movistar" });
+
+        Assert.Equal(HttpStatusCode.BadRequest, creado.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, editado.StatusCode);
+
+        Assert.Equal(HttpStatusCode.NotFound, (await cliente.GetAsync($"/api/telefonos/{num}")).StatusCode);
+        var ana = await (await cliente.GetAsync($"/api/telefonos/{NumAna}")).Content
+            .ReadFromJsonAsync<TelefonoDto>();
+        Assert.Equal(CcAna, ana!.Duenio);
+        Assert.Equal("Claro", ana.Oper);
+    }
 }

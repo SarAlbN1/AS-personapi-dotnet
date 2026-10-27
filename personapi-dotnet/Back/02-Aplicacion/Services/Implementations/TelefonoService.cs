@@ -50,7 +50,7 @@ public class TelefonoService : ITelefonoService
         {
             Num = num,
             Oper = entrada.Oper.Trim(),
-            Duenio = entrada.Duenio
+            Duenio = entrada.Duenio!.Value
         };
 
         await _telefonos.AddAsync(telefono);
@@ -79,7 +79,7 @@ public class TelefonoService : ITelefonoService
         }
 
         telefono.Oper = entrada.Oper.Trim();
-        telefono.Duenio = entrada.Duenio;
+        telefono.Duenio = entrada.Duenio!.Value;
 
         await _telefonos.UpdateAsync(telefono);
 
@@ -113,13 +113,28 @@ public class TelefonoService : ITelefonoService
             return $"El número (num) admite hasta {NumLongitudMaxima} caracteres.";
         }
 
+        // La clave del recurso viaja en la ruta: un carácter como '/' dejaba la fila
+        // creada pero inalcanzable por GET y DELETE. Se restringe a dígitos, que es lo
+        // que la tabla guarda, sin dejar de ser cadena para conservar los ceros.
+        if (!num.All(char.IsAsciiDigit))
+        {
+            return "El número (num) solo admite dígitos.";
+        }
+
         if (string.IsNullOrWhiteSpace(entrada.Oper))
         {
             return "El operador (oper) es obligatorio.";
         }
 
+        // El borde ya lo rechaza con [Required]; el servicio tampoco acepta el dueño
+        // ausente, porque MVC comparte estos servicios.
+        if (entrada.Duenio is null)
+        {
+            return "El dueño (duenio) es obligatorio.";
+        }
+
         // Referencia inexistente: error de entrada, no recurso ausente (SDD §7).
-        if (!await _personas.ExistsAsync(entrada.Duenio))
+        if (!await _personas.ExistsAsync(entrada.Duenio.Value))
         {
             return $"No existe una persona con cédula {entrada.Duenio} para ser dueña del teléfono.";
         }

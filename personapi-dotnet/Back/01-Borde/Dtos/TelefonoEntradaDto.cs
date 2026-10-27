@@ -9,14 +9,21 @@ namespace personapi_dotnet.Back.Borde.Dtos;
 /// </summary>
 public class TelefonoEntradaDto
 {
+    // Solo dígitos: `num` es la clave del recurso y viaja en la ruta. Un número con
+    // caracteres como '/' se creaba con 201 y después quedaba inalcanzable por GET y
+    // DELETE, porque la barra no pasa por la plantilla de ruta. Sigue siendo cadena
+    // para conservar los ceros iniciales (api-rest.md).
     [Required(AllowEmptyStrings = false)]
     [StringLength(15)]
+    [RegularExpression("^[0-9]+$", ErrorMessage = "El número (num) solo admite dígitos.")]
     public string Num { get; set; } = null!;
 
     [Required(AllowEmptyStrings = false)]
     [StringLength(45)]
     public string Oper { get; set; } = null!;
 
+    // Anulable a propósito, igual que `cc` en personas: con `int` no anulable un cuerpo
+    // sin `duenio` se enlaza como 0 y la validación hablaría de la persona 0.
     [Required]
-    public int Duenio { get; set; }
+    public int? Duenio { get; set; }
 }
