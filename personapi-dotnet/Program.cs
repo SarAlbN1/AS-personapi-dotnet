@@ -36,6 +36,7 @@ builder.Services.AddScoped<IEstudioRepository, EstudioRepository>();
 
 // Servicios de aplicación: una línea por historia de módulo.
 builder.Services.AddScoped<IPersonaService, PersonaService>();
+builder.Services.AddScoped<ITelefonoService, TelefonoService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

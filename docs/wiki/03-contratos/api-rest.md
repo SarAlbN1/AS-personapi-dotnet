@@ -4,7 +4,7 @@
 
 **Responsabilidad:** dentro del monolito ASP.NET Core, los controladores `Back/01-Borde/ControllersApi` atienden JSON y delegan siempre en `I*Service`. Ruta base `/api`; la aplicación también expone vistas Razor por MVC. OpenAPI 3 + Swagger UI describe y permite probar las operaciones.
 
-**Estado de implementación:** las cinco operaciones de personas están implementadas y verificadas contra `persona_db` (HU-004). Los otros tres recursos son todavía especificación del contrato previsto, **no evidencia de API ya implementada**. Los errores viajan como `ProblemDetails`, la forma que ya produce `[ApiController]` para un cuerpo inválido, de modo que la API no añade un estándar de error propio.
+**Estado de implementación:** las cinco operaciones de personas (HU-004) y las cinco de teléfonos (HU-010) están implementadas y verificadas contra `persona_db`. Profesiones y estudios son todavía especificación del contrato previsto, **no evidencia de API ya implementada**. En teléfonos, `num` viaja como cadena también en la ruta, sin restricción numérica, para no perder los ceros iniciales. Los errores viajan como `ProblemDetails`, la forma que ya produce `[ApiController]` para un cuerpo inválido, de modo que la API no añade un estándar de error propio.
 
 ## Operaciones obligatorias (20)
 
