@@ -22,9 +22,11 @@ El tablero refleja el trabajo real, no la intención. Cada transición se aplica
 | `In Review` | `In Progress` o `Backlog` | El PR se cierra sin fusionar, según siga o no en curso el trabajo. |
 | cualquiera | `Blocked` | Una dependencia externa impide avanzar; al desbloquearse vuelve al estado que le corresponda. |
 
-Una issue no pasa a `Done` por tener el PR aprobado, fusionable o sin conflictos: solo cuando está fusionado. `Done` en el tablero no sustituye al [DoD](dor-y-dod.md), que sigue siendo la condición para fusionar.
+El estado es el del **hecho más avanzado que ya ocurrió**, no la suma de los pasos intermedios: si la rama y el PR se crean el mismo día, la issue pasa directamente a `In Review` sin haber estado en `In Progress`. La tabla nombra las transiciones habituales; saltarse una fila porque el hecho posterior ya ocurrió no es un caso que haya que informar.
 
-**Agentes.** Un asistente automatizado puede mover los elementos del tablero entre estos estados cuando el hecho que dispara la transición ya ocurrió, también en issues de otros integrantes, porque reflejar el estado real no es apropiarse del trabajo. No cambia responsable, sprint, módulo, prioridad ni alcance, no crea ni cierra issues, y no mueve a `Done` nada cuyo PR no esté fusionado. Si el estado real no encaja en ninguna transición, lo informa en vez de elegir una.
+Una issue no pasa a `Done` por tener el PR aprobado, fusionable o sin conflictos: solo cuando está fusionado. `Done` en el tablero no sustituye al [DoD](dor-y-dod.md): sus puntos 1 a 9 son la condición para fusionar, y el paso a `Done` es su punto 10.
+
+**Agentes.** Un asistente automatizado puede mover los elementos del tablero entre estos estados cuando el hecho que dispara la transición ya ocurrió, también en issues de otros integrantes, porque reflejar el estado real no es apropiarse del trabajo. No cambia responsable, sprint, módulo, prioridad ni alcance, no crea issues ni las cierra a mano —el cierre automático por `Closes #<número>` al fusionar es parte de la integración, no una acción sobre la issue—, y no mueve a `Done` nada cuyo PR no esté fusionado. Si el estado real no encaja en ninguna transición, lo informa en vez de elegir una.
 
 ## Etiquetas
 
