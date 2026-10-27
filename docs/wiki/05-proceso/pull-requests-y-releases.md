@@ -38,7 +38,7 @@ Esta sección es la **fuente única** de la política de integración. El resto 
 2. Cada PR necesita **al menos una aprobación de otro integrante** con permiso de escritura o superior.
 3. **Nadie aprueba su propio PR.** La revisión del autor no cuenta como aprobación.
 4. La regla aplica a los **tres integrantes, incluidos propietario y administradores**: los permisos administrativos no sirven para omitir la revisión.
-5. Todas las conversaciones de revisión se resuelven antes de integrar.
+5. **Una aprobación válida basta para integrar.** La condición es una aprobación de otro integrante vigente sobre el último commit, y que no quede ningún *Request changes* activo. Las conversaciones de revisión se responden, pero un hilo abierto **no bloquea** la integración: quien considere que una observación debe impedir la fusión lo hace con *Request changes*, no dejando el hilo sin resolver. Al aprobar, el revisor da por atendidas o no bloqueantes las observaciones abiertas.
 6. Si se empujan commits que invalidan una aprobación previa, se solicita **nueva revisión**.
 7. Prohibido el *force-push* para eludir el proceso, y prohibido eliminar la rama `main`.
 8. Prohibido deshabilitar o modificar las reglas de protección de GitHub sin acuerdo explícito del equipo.
@@ -47,7 +47,7 @@ Esta sección es la **fuente única** de la política de integración. El resto 
 11. **Aprobación registrada por un agente.** Un asistente automatizado puede registrar la aprobación con la cuenta del revisor **solo** si se cumplen todas estas condiciones:
     1. El revisor la pide expresamente, para ese PR concreto, después de conocer el resultado de la revisión.
     2. La cuenta que aprueba no es la del autor del PR (la regla 3 no cambia).
-    3. Antes de aprobar, el agente ejecutó sobre el último commit del PR las verificaciones que el [DoD](dor-y-dod.md) exige para ese tipo de cambio y publicó sus hallazgos en el PR, y no quedan conversaciones de revisión abiertas.
+    3. Antes de aprobar, el agente ejecutó sobre el último commit del PR las verificaciones que el [DoD](dor-y-dod.md) exige para ese tipo de cambio y publicó sus hallazgos en el PR.
     4. Ningún commit del PR fue creado ni subido con la cuenta del revisor, y el agente que aprueba no redactó ni modificó el contenido del PR.
 
     La aprobación cuenta como del revisor, que responde por ella como si la hubiera registrado él.
@@ -55,7 +55,7 @@ Esta sección es la **fuente única** de la política de integración. El resto 
     1. El revisor lo pide expresamente, para ese PR concreto.
     2. El PR ya tiene una aprobación válida, vigente sobre el último commit, de una cuenta distinta de la del autor.
     3. La cuenta que fusiona no es la del autor del PR.
-    4. Se cumplen las reglas 5 a 10: conversaciones resueltas y sin aprobaciones invalidadas por commits nuevos.
+    4. Se cumplen las reglas 5 a 10: ningún *Request changes* activo y ninguna aprobación invalidada por commits nuevos.
     5. La fusión se hace **solo** con *squash merge* y borrando la rama integrada, como pide la [plantilla de PR](../../../.github/pull_request_template.md): `gh pr merge <número> --squash --delete-branch`. Nunca *merge commit* ni *rebase*, aunque el repositorio los tenga habilitados.
     6. La fusión no usa permisos administrativos, auto-merge ni ninguna vía que omita la protección de `main`. Si GitHub la rechaza, el agente se detiene e informa.
 
@@ -70,7 +70,7 @@ Esta sección es la **fuente única** de la política de integración. El resto 
 5. Ejecutar las pruebas y verificaciones que exige el [DoD](dor-y-dod.md).
 6. Abrir PR hacia `main` con la [plantilla](../../../.github/pull_request_template.md).
 7. Solicitar revisión a otro integrante.
-8. Atender observaciones y resolver las conversaciones.
+8. Atender las observaciones y responder las conversaciones.
 9. Obtener una aprobación válida (de otra persona).
 10. Integrar con squash merge cuando se cumpla todo lo anterior.
 
@@ -92,6 +92,8 @@ Comprobada sobre `main` el 22 de octubre de 2026 con `gh api repos/{owner}/{repo
 | Bloqueo total de la rama (`lock_branch`) | desactivado, como se quiere |
 | Commits firmados | no exigidos |
 | Comprobaciones de estado obligatorias | ninguna, porque todavía no hay CI |
+
+**Pendiente de aplicar en GitHub:** desde que la regla 5 ya no exige resolver conversaciones, la fila «Resolución de conversaciones antes de integrar» queda como protección a desactivar (*Require conversation resolution before merging*). La desactiva quien administra el repositorio, y esta fila se actualiza con la fecha de esa comprobación. Mientras siga activa, GitHub seguirá exigiendo resolver los hilos.
 
 La integración preferida es **squash and merge**. Si una protección se modifica en GitHub, esta tabla debe actualizarse en el mismo PR que la cambie: no se afirma como activa una protección que no se haya comprobado.
 
