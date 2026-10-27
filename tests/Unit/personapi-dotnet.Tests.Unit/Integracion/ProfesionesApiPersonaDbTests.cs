@@ -105,13 +105,15 @@ public class ProfesionesApiPersonaDbTests : IClassFixture<WebApplicationFactory<
     [FactConPersonaDb]
     public async Task Borrar_profesion_con_estudios_devuelve_409_y_la_base_queda_igual()
     {
-        var estudiosAntes = (await LeerEstudiosAsync()).Count;
+        // Solo los estudios de la profesión 1: otras clases de prueba crean y borran
+        // estudios en paralelo con otras profesiones, y un conteo total sería inestable.
+        var estudiosAntes = (await LeerEstudiosAsync()).Count(e => e.IdProf == 1);
 
         var response = await _client.DeleteAsync("/api/profesiones/1");
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         Assert.NotNull(await LeerDeLaBaseAsync(1));
-        Assert.Equal(estudiosAntes, (await LeerEstudiosAsync()).Count);
+        Assert.Equal(estudiosAntes, (await LeerEstudiosAsync()).Count(e => e.IdProf == 1));
     }
 
     [FactConPersonaDb]
