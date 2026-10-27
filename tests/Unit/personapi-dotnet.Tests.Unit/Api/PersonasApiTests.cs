@@ -160,4 +160,20 @@ public class PersonasApiTests : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal(HttpStatusCode.Conflict, respuesta.StatusCode);
         Assert.Equal(HttpStatusCode.OK, sigueAhi.StatusCode);
     }
+
+    [FactConPersonaDb]
+    public async Task Alta_y_edicion_sin_cedula_devuelven_400_y_no_crean_la_cedula_0()
+    {
+        var cliente = _factory.CreateClient();
+        var sinCc = new { nombre = "Prueba", apellido = "HU004", genero = "M", edad = 30 };
+
+        var creada = await cliente.PostAsJsonAsync("/api/personas", sinCc);
+        var editada = await cliente.PutAsJsonAsync($"/api/personas/{CcAna}", sinCc);
+
+        Assert.Equal(HttpStatusCode.BadRequest, creada.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, editada.StatusCode);
+
+        // El defecto de un int no anulable era 0: la persona 0 no debe existir.
+        Assert.Equal(HttpStatusCode.NotFound, (await cliente.GetAsync("/api/personas/0")).StatusCode);
+    }
 }
