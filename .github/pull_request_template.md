@@ -66,7 +66,7 @@ Revisor solicitado: @<otro-integrante>
 
 - [ ] Revisión solicitada a otro integrante con permiso de escritura; el autor no aprueba ni integra su propio PR.
 - [ ] Revisado contra criterios de aceptación y `docs/wiki/02-arquitectura/reglas-arquitectonicas.md`, no solo estilo.
-- [ ] Conversaciones de revisión resueltas; si llegaron commits nuevos tras la aprobación, se pidió otra.
+- [ ] Observaciones de revisión respondidas; si llegaron commits nuevos tras la aprobación, se pidió otra.
 - [ ] Hay una aprobación válida registrada en el PR. Que GitHub lo marque como fusionable no cuenta como aprobación.
 - [ ] Integración por squash merge, borrando la rama tras integrar; `main` siempre compila.
 
