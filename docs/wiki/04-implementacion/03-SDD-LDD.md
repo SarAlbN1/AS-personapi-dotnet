@@ -78,7 +78,7 @@ con reglas y prohibiciones. El árbol exige configurar `WebRootPath` y
 | Telefono | `ITelefonoRepository`, `TelefonoRepository` | `ITelefonoService`, `TelefonoService` | `TelefonosController`, `TelefonosApiController` |
 | Estudio | `IEstudioRepository`, `EstudioRepository` | `IEstudioService`, `EstudioService` | `EstudiosController`, `EstudiosApiController` |
 
-Contratos DAO asíncronos: `GetAllAsync()`, `GetByIdAsync(key)`, `ExistsAsync(key)`, `AddAsync(entity)`, `UpdateAsync(entity)`, `DeleteAsync(entity)`; para Estudios la clave es `(int idProf, int ccPer)`. Servicios exponen equivalentes con DTOs y resultados discriminados (`Success`, `NotFound`, `ValidationError`, `Conflict`). DAO concentra EF Core; servicio valida lógica de dominio. `DbContext` es scoped por solicitud.
+Contratos DAO asíncronos: `GetAllAsync()`, `GetByIdAsync(key)`, `ExistsAsync(key)`, `AddAsync(entity)`, `UpdateAsync(entity)`, `DeleteAsync(entity)`; para Estudios la clave es `(int idProf, int ccPer)`. Servicios exponen equivalentes con DTOs y resultados discriminados (`Success`, `NotFound`, `ValidationError`, `Conflict`). Ese resultado se materializa en `ResultadoServicio` y `ResultadoServicio<T>` (`Back/02-Aplicacion/Services/`), con `EstadoResultado` como discriminante y un `Mensaje` sin SQL ni trazas: los cuatro servicios lo comparten y `01-Borde` lo traduce a código de estado o a mensaje de vista. DAO concentra EF Core; servicio valida lógica de dominio. `DbContext` es scoped por solicitud.
 
 ## 3. DDL y Database First
 Esquema `persona_db`:

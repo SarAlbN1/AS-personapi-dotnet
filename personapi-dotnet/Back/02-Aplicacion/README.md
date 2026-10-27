@@ -7,6 +7,7 @@ por aquí**.
 |---|---|
 | `Services/Interfaces/` | `IPersonaService`, `IProfesionService`, `ITelefonoService`, `IEstudioService` |
 | `Services/Implementations/` | `PersonaService`, `ProfesionService`, `TelefonoService`, `EstudioService` |
+| `ResultadoServicio.cs` | Resultado discriminado compartido por los cuatro servicios: `Success`, `NotFound`, `ValidationError` y `Conflict` |
 
 ## Reglas
 
