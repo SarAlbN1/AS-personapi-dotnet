@@ -2,16 +2,15 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using personapi_dotnet.Back.Borde.Dtos;
-using personapi_dotnet.Tests.Unit.Integracion;
 
-namespace personapi_dotnet.Tests.Unit.Api;
+namespace personapi_dotnet.Tests.Unit.Integracion;
 
 /// <summary>
 /// Comprobaciones de HU-010: las cinco operaciones de <c>/api/telefonos</c> contra
 /// persona_db real. Los dueños son las personas del DML de HU-002; los teléfonos que
 /// crea la prueba usan números propios y se borran al final.
 /// </summary>
-public class TelefonosApiTests : IClassFixture<WebApplicationFactory<Program>>
+public class TelefonosApiPersonaDbTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private const int CcAna = 1010101010;
     private const int CcInexistente = 777000777;
@@ -19,7 +18,7 @@ public class TelefonosApiTests : IClassFixture<WebApplicationFactory<Program>>
 
     private readonly WebApplicationFactory<Program> _factory;
 
-    public TelefonosApiTests(WebApplicationFactory<Program> factory) => _factory = factory;
+    public TelefonosApiPersonaDbTests(WebApplicationFactory<Program> factory) => _factory = factory;
 
     private static TelefonoEntradaDto Entrada(string num, int duenio = CcAna, string oper = "Claro") =>
         new() { Num = num, Oper = oper, Duenio = duenio };
