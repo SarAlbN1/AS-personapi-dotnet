@@ -10,8 +10,11 @@ namespace personapi_dotnet.Back.Borde.Dtos;
 /// </summary>
 public class PersonaEntradaDto
 {
+    // Anulable a propósito: con `int` no anulable, un cuerpo sin `cc` se enlaza como 0 y
+    // el alta crearía la persona con cédula 0. Con `int?` el valor ausente es null y
+    // [Required] lo rechaza con 400 antes de llegar al servicio.
     [Required]
-    public int Cc { get; set; }
+    public int? Cc { get; set; }
 
     [Required(AllowEmptyStrings = false)]
     [StringLength(45)]

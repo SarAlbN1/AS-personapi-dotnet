@@ -47,15 +47,16 @@ public class PersonaService : IPersonaService
 
         // La unicidad final la garantiza la PK: esta comprobación da el 409 con mensaje
         // útil, pero si dos solicitudes compiten manda la restricción de la base.
-        if (await _personas.ExistsAsync(entrada.Cc))
+        var cc = entrada.Cc!.Value;
+        if (await _personas.ExistsAsync(cc))
         {
             return ServiceResult<PersonaDto>.Conflict(
-                $"Ya existe una persona con cédula {entrada.Cc}.");
+                $"Ya existe una persona con cédula {cc}.");
         }
 
         var persona = new Persona
         {
-            Cc = entrada.Cc,
+            Cc = cc,
             Nombre = entrada.Nombre.Trim(),
             Apellido = entrada.Apellido.Trim(),
             Genero = entrada.Genero.ToUpperInvariant(),
@@ -69,17 +70,17 @@ public class PersonaService : IPersonaService
 
     public async Task<ServiceResult> UpdateAsync(int cc, PersonaEntradaDto entrada)
     {
+        var error = Validar(entrada);
+        if (error is not null)
+        {
+            return ServiceResult.ValidationError(error);
+        }
+
         // El PUT no cambia la identidad del recurso: ruta y cuerpo deben coincidir.
         if (cc != entrada.Cc)
         {
             return ServiceResult.ValidationError(
                 $"La cédula de la ruta ({cc}) no coincide con la del cuerpo ({entrada.Cc}).");
-        }
-
-        var error = Validar(entrada);
-        if (error is not null)
-        {
-            return ServiceResult.ValidationError(error);
         }
 
         var persona = await _personas.GetByIdAsync(cc);
@@ -133,6 +134,13 @@ public class PersonaService : IPersonaService
 
     private static string? Validar(PersonaEntradaDto entrada)
     {
+        // El borde ya lo rechaza con [Required], pero el servicio no depende de eso:
+        // MVC comparte estos servicios y la cédula es la identidad de la fila.
+        if (entrada.Cc is null)
+        {
+            return "La cédula (cc) es obligatoria.";
+        }
+
         if (!GenerosValidos.Contains(entrada.Genero.ToUpperInvariant()))
         {
             return "El género debe ser 'M' o 'F'.";
