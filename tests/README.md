@@ -13,6 +13,13 @@ comprobaciones de arranque (vistas, estáticos y documento OpenAPI 3); las prueb
 reglas de servicio las añade cada historia en este mismo proyecto. `Integration/` sigue
 sin proyecto: corresponde a HU-014, que necesita `persona_db` real.
 
+Desde HU-003, `Integracion/` contiene la lectura de `persona_db` a través de cada
+repositorio (`[FactConPersonaDb]`) y la comprobación del ciclo `scoped`. Toma
+`ConnectionStrings:PersonaDb` de los User Secrets del proyecto web o de la variable
+`ConnectionStrings__PersonaDb`; si no está definida, esas pruebas se **omiten** y el resto
+se ejecuta igual. Se dejan en este proyecto porque HU-014 construye sus pruebas sobre él
+sin crear una estructura paralela.
+
 ## Discrepancia documental abierta
 
 El [SDD](../docs/wiki/04-implementacion/03-SDD-LDD.md) y la

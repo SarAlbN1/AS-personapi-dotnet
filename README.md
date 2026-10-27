@@ -4,7 +4,7 @@ Aplicación monolítica ASP.NET Core MVC + servicios + DAO/Repository para gesti
 
 **Stack adoptado:** .NET 10 LTS, ASP.NET Core MVC 10, EF Core 10, SQL Server 2025 Express, SSMS 22, Visual Studio 2026 Community, REST/JSON, OpenAPI 3. Se modernizan las versiones de la guía original por decisión del equipo, manteniendo los requisitos funcionales y los patrones solicitados ([versiones](docs/wiki/04-implementacion/versiones.md)).
 
-> Estado real: la solución arranca y compila (HU-001) y el esquema `persona_db` se crea con sus restricciones y datos de demostración desde `scripts/` (HU-002). Las entidades EF Core, los servicios, los CRUD y los 20 endpoints REST **están diseñados y aún no implementados**; este repositorio no afirma pruebas de la aplicación contra la base ni despliegues ejecutados.
+> Estado real: la solución arranca y compila (HU-001) y el esquema `persona_db` se crea con sus restricciones y datos de demostración desde `scripts/` (HU-002); las entidades EF Core, `PersonaDbContext` y los cuatro repositorios se generan y leen la base real (HU-003). Los servicios, los CRUD y los 20 endpoints REST **están diseñados y aún no implementados**; este repositorio no afirma despliegues ejecutados.
 
 ## Arquitectura
 
@@ -66,7 +66,7 @@ dotnet user-secrets set "ConnectionStrings:PersonaDb" "<cadena-local>" --project
 export ConnectionStrings__PersonaDb="<cadena-local>"
 ```
 
-Detalle en [configuración y ejecución local](docs/wiki/04-implementacion/ejecucion-local.md) y el [runbook de la demo](docs/wiki/04-implementacion/runbook-demo.md). Los pasos que dependen de `persona_db` siguen siendo una **guía prevista** hasta que HU-003 los verifique; la creación del esquema ya está verificada en HU-002.
+Detalle en [configuración y ejecución local](docs/wiki/04-implementacion/ejecucion-local.md) y el [runbook de la demo](docs/wiki/04-implementacion/runbook-demo.md). La creación del esquema está verificada en HU-002 y la conexión de la aplicación a `persona_db` por `ConnectionStrings:PersonaDb`, en HU-003; los recorridos CRUD siguen siendo una **guía prevista** hasta sus historias.
 
 ## Trabajo en equipo
 

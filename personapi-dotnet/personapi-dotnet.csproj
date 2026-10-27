@@ -5,10 +5,27 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>personapi_dotnet</RootNamespace>
+    <UserSecretsId>f2a2bad8-aff8-4711-a43e-ce575364c212</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.14" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.14">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.1" />
+  </ItemGroup>
+
+  <!-- Microsoft.Data.SqlClient 6.1.7 (dependencia de EF Core SqlServer 10.0.14) arrastra
+       System.Security.Cryptography.Pkcs 9.0.11, con vulnerabilidades conocidas (NU1902 y
+       NU1903). Se fija la versión parcheada de la misma línea .NET 10. -->
+  <ItemGroup>
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
 
   <!-- El SDK solo publica por convención lo que cuelga de <proyecto>/wwwroot. Aquí el web

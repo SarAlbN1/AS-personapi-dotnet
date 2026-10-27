@@ -100,7 +100,7 @@ DoD común + esquema verificado contra SQL Server real y las cuatro pruebas nega
 Generar las entidades y el contexto desde el esquema existente y publicar los contratos DAO con sus implementaciones EF Core, para que los cuatro módulos trabajen en paralelo sobre la misma persistencia sin tocar archivos centrales entre sí.
 
 ### Alcance técnico
-- `dotnet ef dbcontext scaffold` con `--context PersonaDbContext --output-dir Back/04-Persistencia/Entities --no-onconfiguring`, según [SDD §3](../../04-implementacion/03-SDD-LDD.md#3-ddl-y-database-first).
+- `dotnet ef dbcontext scaffold` con `--context PersonaDbContext --output-dir Back/04-Persistencia/Entities --namespace personapi_dotnet.Back.Persistencia.Entities --no-onconfiguring`, según [SDD §3](../../04-implementacion/03-SDD-LDD.md#3-ddl-y-database-first).
 - Cuatro interfaces `I*Repository` con las firmas asíncronas de [SDD §2](../../04-implementacion/03-SDD-LDD.md#2-contratos-de-aplicación-y-dao); la de estudios usa `(int idProf, int ccPer)`.
 - Cuatro implementaciones EF Core en `Back/03-AccesoDatos/Repository/Implementations` sin reglas de negocio: solo acceso a datos.
 - Registro DI de `PersonaDbContext` y de los cuatro repositorios con ciclo `scoped`.

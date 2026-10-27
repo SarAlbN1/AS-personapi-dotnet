@@ -119,8 +119,13 @@ Scaffolding EF Core:
 ```bash
 dotnet ef dbcontext scaffold "<cadena-local-sin-credenciales>" \
   Microsoft.EntityFrameworkCore.SqlServer \
-  --context PersonaDbContext --output-dir Back/04-Persistencia/Entities --no-onconfiguring
+  --context PersonaDbContext --output-dir Back/04-Persistencia/Entities \
+  --namespace personapi_dotnet.Back.Persistencia.Entities --no-onconfiguring
 ```
+
+Sin `--namespace`, EF Core usa el nombre de la carpeta (`...Back.04-Persistencia.Entities`)
+y la solución no compila. Ejecutado en HU-003; detalle en
+[`Back/04-Persistencia`](Back/04-Persistencia/README.md).
 
 **Verificado en HU-001** (SDK 10.0.402, `ASPNETCORE_ENVIRONMENT=Development`): con esta
 configuración `/` responde 200 con la vista de `Front/Views/`, `/css/site.css` responde

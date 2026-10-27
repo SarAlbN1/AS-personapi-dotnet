@@ -1,4 +1,8 @@
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.EntityFrameworkCore;
+using personapi_dotnet.Back.AccesoDatos.Repository.Implementations;
+using personapi_dotnet.Back.AccesoDatos.Repository.Interfaces;
+using personapi_dotnet.Back.Persistencia.Entities;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -15,6 +19,18 @@ builder.Services.Configure<RazorViewEngineOptions>(options =>
     options.ViewLocationFormats.Add("/Front/Views/{1}/{0}" + RazorViewEngine.ViewExtension);
     options.ViewLocationFormats.Add("/Front/Views/Shared/{0}" + RazorViewEngine.ViewExtension);
 });
+
+// La cadena llega por User Secrets o por ConnectionStrings__PersonaDb, nunca desde el repositorio.
+// AddDbContext registra el contexto como scoped: uno por solicitud.
+builder.Services.AddDbContext<PersonaDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("PersonaDb")));
+
+// Único registro de repositorios (acuerdo de archivos compartidos de HU-003). Cada
+// historia de API añade aquí solo la línea de su servicio.
+builder.Services.AddScoped<IPersonaRepository, PersonaRepository>();
+builder.Services.AddScoped<IProfesionRepository, ProfesionRepository>();
+builder.Services.AddScoped<ITelefonoRepository, TelefonoRepository>();
+builder.Services.AddScoped<IEstudioRepository, EstudioRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

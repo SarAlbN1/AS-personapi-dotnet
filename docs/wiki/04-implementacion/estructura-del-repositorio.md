@@ -135,7 +135,9 @@ Obligatorio en `Program.cs`:
 - `WebApplicationOptions.WebRootPath = "Front/wwwroot"`.
 - `RazorViewEngineOptions.ViewLocationFormats` apuntando a
   `/Front/Views/{1}/{0}.cshtml` y `/Front/Views/Shared/{0}.cshtml`.
-- Scaffolding EF Core con `--output-dir Back/04-Persistencia/Entities`.
+- Scaffolding EF Core con `--output-dir Back/04-Persistencia/Entities` y
+  `--namespace personapi_dotnet.Back.Persistencia.Entities`: el namespace derivado de la
+  carpeta (`...Back.04-Persistencia.Entities`) no es válido en C# y no compila.
 
 Detalle y fragmentos en [`personapi-dotnet/README.md`](../../../personapi-dotnet/README.md).
 **Sin verificar:** no existen `Program.cs` ni `.csproj`; la comprobación corresponde a
