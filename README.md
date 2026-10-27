@@ -4,7 +4,7 @@ Aplicación monolítica ASP.NET Core MVC + servicios + DAO/Repository para gesti
 
 **Stack adoptado:** .NET 10 LTS, ASP.NET Core MVC 10, EF Core 10, SQL Server 2025 Express, SSMS 22, Visual Studio 2026 Community, REST/JSON, OpenAPI 3. Se modernizan las versiones de la guía original por decisión del equipo, manteniendo los requisitos funcionales y los patrones solicitados ([versiones](docs/wiki/04-implementacion/versiones.md)).
 
-> Estado real: la solución arranca y compila (HU-001) y el esquema `persona_db` se crea con sus restricciones y datos de demostración desde `scripts/` (HU-002); las entidades EF Core, `PersonaDbContext` y los cuatro repositorios se generan y leen la base real (HU-003). Los servicios, los CRUD y los 20 endpoints REST **están diseñados y aún no implementados**; este repositorio no afirma despliegues ejecutados.
+> Estado real: la solución arranca y compila (HU-001) y el esquema `persona_db` se crea con sus restricciones y datos de demostración desde `scripts/` (HU-002); las entidades EF Core, `PersonaDbContext` y los cuatro repositorios se generan y leen la base real (HU-003). Las cinco operaciones REST de profesiones funcionan contra la base real (HU-005); el resto de servicios, los CRUD web y los demás endpoints REST **están diseñados y aún no implementados**; este repositorio no afirma despliegues ejecutados.
 
 ## Arquitectura
 

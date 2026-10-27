@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.EntityFrameworkCore;
 using personapi_dotnet.Back.AccesoDatos.Repository.Implementations;
 using personapi_dotnet.Back.AccesoDatos.Repository.Interfaces;
+using personapi_dotnet.Back.Aplicacion.Services.Implementations;
+using personapi_dotnet.Back.Aplicacion.Services.Interfaces;
 using personapi_dotnet.Back.Persistencia.Entities;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -31,6 +33,8 @@ builder.Services.AddScoped<IPersonaRepository, PersonaRepository>();
 builder.Services.AddScoped<IProfesionRepository, ProfesionRepository>();
 builder.Services.AddScoped<ITelefonoRepository, TelefonoRepository>();
 builder.Services.AddScoped<IEstudioRepository, EstudioRepository>();
+
+builder.Services.AddScoped<IProfesionService, ProfesionService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
