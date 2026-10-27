@@ -2,23 +2,22 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using personapi_dotnet.Back.Borde.Dtos;
-using personapi_dotnet.Tests.Unit.Integracion;
 
-namespace personapi_dotnet.Tests.Unit.Api;
+namespace personapi_dotnet.Tests.Unit.Integracion;
 
 /// <summary>
 /// Comprobaciones de HU-004: las cinco operaciones de <c>/api/personas</c> contra
 /// persona_db real, con sus casos positivos y negativos. Las filas base son las de
 /// scripts/02_dml.sql; las que crea la prueba usan cédulas propias y se borran al final.
 /// </summary>
-public class PersonasApiTests : IClassFixture<WebApplicationFactory<Program>>
+public class PersonasApiPersonaDbTests : IClassFixture<WebApplicationFactory<Program>>
 {
     private const int CcAna = 1010101010;
     private const int CcInexistente = 777000777;
 
     private readonly WebApplicationFactory<Program> _factory;
 
-    public PersonasApiTests(WebApplicationFactory<Program> factory) => _factory = factory;
+    public PersonasApiPersonaDbTests(WebApplicationFactory<Program> factory) => _factory = factory;
 
     private static PersonaEntradaDto Entrada(int cc, string genero = "M", int? edad = 30) => new()
     {
