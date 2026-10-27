@@ -22,6 +22,61 @@ SPA, no hay segundo despliegue.
 - Los mensajes de error visibles cumplen
   [validaciones y errores](../../docs/wiki/03-contratos/validaciones-y-errores.md).
 
+## Convenciones compartidas (HU-006)
+
+Los cuatro CRUD web usan lo mismo y no inventan cada uno su presentación.
+
+**Layout y navegación.** `Views/Shared/_Layout.cshtml` enlaza Personas, Profesiones,
+Teléfonos y Estudios por ruta (`/Personas`, …) y Swagger. Mientras un módulo no tenga
+controlador, su enlace responde con la vista `Estado` (404):
+
+| Módulo | Historia que lo implementa |
+|---|---|
+| Personas | HU-007 |
+| Profesiones | HU-008 |
+| Teléfonos | HU-012 |
+| Estudios | HU-013 |
+
+**Errores del servicio.** El controlador traduce el `ServiceResult` con
+`this.VistaSiFalla(resultado, modelo)` (`Back/01-Borde/Controllers/ResultadoServicioVistaExtensions.cs`)
+y la vista incluye `<partial name="_MensajesServicio" />` encima del formulario:
+
+| Resultado | Respuesta | Qué ve el usuario |
+|---|---|---|
+| `ValidationError` | misma vista, 400 | el formulario tal como lo envió y el mensaje en un recuadro rojo |
+| `Conflict` | misma vista, 409 | el formulario tal como lo envió y un aviso amarillo |
+| `NotFound` | vista `Estado`, 404 | «No encontrado» con el mensaje del servicio |
+| `Success` | redirección (POST-Redirect-GET) | el destino muestra un aviso verde una sola vez |
+
+```csharp
+[HttpPost]
+public async Task<IActionResult> Create(PersonaFormViewModel modelo)
+{
+    if (!ModelState.IsValid) return View(modelo);     // forma: anotaciones del ViewModel
+    var resultado = await _personas.CreateAsync(...); // dominio: el servicio decide
+    return this.VistaSiFalla(resultado, modelo)
+        ?? this.RedirigirConExito("Persona creada.", nameof(Index));
+}
+```
+
+Los errores de cada campo se pintan con `asp-validation-for` junto al campo; el partial
+solo muestra los de nivel modelo, el conflicto y el éxito. Para un formulario de
+borrado, `modelo` es el ViewModel de la confirmación, y el 409 se muestra sobre ella.
+
+**Antiforgery.** Todo POST, PUT, PATCH o DELETE de un controlador MVC exige el token por
+convención (`AntiforgeryEnVistasConvention`, registrada en `Program.cs`). El tag helper
+`<form method="post">` lo inserta solo: **no** hace falta `[ValidateAntiForgeryToken]` ni
+`@Html.AntiForgeryToken()`. Un POST sin token responde 400 con la vista `Estado`. Los
+controladores `[ApiController]` quedan fuera.
+
+**ViewModels.** Uno por formulario, en `ViewModels/`, con las anotaciones de **forma**
+(obligatorio, longitud) y los mensajes en español. Las reglas de **dominio** (claves
+duplicadas, dependencias, referencias) las decide el servicio y llegan por
+`VistaSiFalla`; no se repiten en el ViewModel.
+
+**Ejemplo.** `/Home/Convenciones` recorre los cuatro resultados con un resultado de
+servicio **simulado**. Es la referencia visual de la convención, no un módulo del dominio.
+
 ## Quién lo alimenta
 
 ```text

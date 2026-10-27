@@ -1,30 +1,49 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - personapi_dotnet</title>
+    <title>@ViewData["Title"] - PersonAPI</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/personapi-dotnet.styles.css" asp-append-version="true" />
 </head>
+@{
+    // Enlaces por ruta y no con asp-controller: el tag helper deja href vacío mientras el
+    // controlador del módulo no exista, y así los enlaces funcionan desde ya.
+    var modulos = new (string Texto, string Controlador)[]
+    {
+        ("Personas", "Personas"),
+        ("Profesiones", "Profesiones"),
+        ("Teléfonos", "Telefonos"),
+        ("Estudios", "Estudios")
+    };
+    var actual = ViewContext.RouteData.Values["controller"] as string;
+}
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">personapi_dotnet</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PersonAPI</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                        aria-expanded="false" aria-label="Mostrar navegación">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                    <ul class="navbar-nav flex-grow-1" data-nav="modulos">
+                        @foreach (var modulo in modulos)
+                        {
+                            var activo = string.Equals(actual, modulo.Controlador, StringComparison.OrdinalIgnoreCase);
+                            <li class="nav-item">
+                                <a class="nav-link @(activo ? "active fw-semibold" : "text-dark")" href="~/@modulo.Controlador"
+                                   aria-current="@(activo ? "page" : null)">@modulo.Texto</a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" href="~/swagger">API (Swagger)</a>
                         </li>
                     </ul>
                 </div>
@@ -39,7 +58,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2026 - personapi_dotnet - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - PersonAPI · Laboratorio 1 de Arquitectura de Software
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

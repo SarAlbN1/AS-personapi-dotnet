@@ -1,0 +1,29 @@
+@model ConvencionesDemoViewModel
+@{
+    ViewData["Title"] = "Convenciones de errores";
+}
+
+<h1 class="h3">Convenciones de errores</h1>
+<p class="text-muted">
+    Página de ejemplo de HU-006. El formulario sigue el mismo flujo que un CRUD real, pero el
+    resultado del servicio es <strong>simulado</strong>: elija uno y envíe para ver cómo se muestra.
+</p>
+
+<partial name="_MensajesServicio" />
+
+<form asp-action="Convenciones" method="post" class="col-md-6">
+    <div class="mb-3">
+        <label asp-for="Nombre" class="form-label"></label>
+        <input asp-for="Nombre" class="form-control" />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Escenario" class="form-label"></label>
+        <select asp-for="Escenario" asp-items="Html.GetEnumSelectList<EscenarioDemo>()" class="form-select"></select>
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
