@@ -141,6 +141,19 @@ public class PersonaService : IPersonaService
             return "La cédula (cc) es obligatoria.";
         }
 
+        // Mismo motivo: por REST [ApiController] corta antes, pero el servicio no puede
+        // reventar con NullReferenceException si HU-007 le pasa un DTO sin revisar
+        // ModelState. Nombre, apellido y género se recortan o se normalizan más abajo.
+        if (string.IsNullOrWhiteSpace(entrada.Nombre) || string.IsNullOrWhiteSpace(entrada.Apellido))
+        {
+            return "El nombre y el apellido son obligatorios.";
+        }
+
+        if (string.IsNullOrWhiteSpace(entrada.Genero))
+        {
+            return "El género (genero) es obligatorio.";
+        }
+
         if (!GenerosValidos.Contains(entrada.Genero.ToUpperInvariant()))
         {
             return "El género debe ser 'M' o 'F'.";
