@@ -64,6 +64,17 @@ public class ProfesionServiceTests
     }
 
     [Fact]
+    public async Task Crear_recorta_el_nombre_y_mide_la_longitud_sin_espacios()
+    {
+        var nom = new string('a', 90);
+
+        var resultado = await _service.CreateAsync(new ProfesionDto { Id = 3, Nom = $"  {nom}  " });
+
+        Assert.Equal(ServiceResultStatus.Success, resultado.Status);
+        Assert.Equal(nom, _profesiones.Filas.Single(p => p.Id == 3).Nom);
+    }
+
+    [Fact]
     public async Task Crear_sin_id_es_error_de_validacion()
     {
         var resultado = await _service.CreateAsync(new ProfesionDto { Id = null, Nom = "Derecho" });
@@ -108,6 +119,24 @@ public class ProfesionServiceTests
 
         Assert.Equal(ServiceResultStatus.ValidationError, resultado.Status);
         Assert.Equal(2, _profesiones.Filas.Count);
+    }
+
+    [Fact]
+    public async Task Editar_sin_id_en_el_cuerpo_es_error_de_validacion()
+    {
+        var resultado = await _service.UpdateAsync(2, new ProfesionDto { Id = null, Nom = "Medicina" });
+
+        Assert.Equal(ServiceResultStatus.ValidationError, resultado.Status);
+        Assert.Equal("El id es obligatorio.", resultado.Message);
+    }
+
+    [Fact]
+    public async Task Editar_recorta_el_nombre()
+    {
+        var resultado = await _service.UpdateAsync(2, new ProfesionDto { Id = 2, Nom = "  Medicina general  " });
+
+        Assert.Equal(ServiceResultStatus.Success, resultado.Status);
+        Assert.Equal("Medicina general", _profesiones.Filas.Single(p => p.Id == 2).Nom);
     }
 
     [Fact]

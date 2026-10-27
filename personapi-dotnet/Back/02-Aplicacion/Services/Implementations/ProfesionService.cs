@@ -34,7 +34,8 @@ public class ProfesionService : IProfesionService
             return ServiceResult<ProfesionDto>.ValidationError("El id es obligatorio.");
         }
 
-        if (ValidarNombre(dto.Nom) is string error)
+        var nom = dto.Nom?.Trim();
+        if (ValidarNombre(nom) is string error)
         {
             return ServiceResult<ProfesionDto>.ValidationError(error);
         }
@@ -44,20 +45,26 @@ public class ProfesionService : IProfesionService
             return ServiceResult<ProfesionDto>.Conflict($"Ya existe una profesión con id {id}.");
         }
 
-        var profesion = new Profesion { Id = id, Nom = dto.Nom!, Des = dto.Des };
+        var profesion = new Profesion { Id = id, Nom = nom!, Des = dto.Des };
         await _profesiones.AddAsync(profesion);
         return ServiceResult<ProfesionDto>.Success(ADto(profesion));
     }
 
     public async Task<ServiceResult> UpdateAsync(int id, ProfesionDto dto)
     {
-        // El PUT no cambia la identidad del recurso (api-rest.md).
-        if (dto.Id != id)
+        if (dto.Id is not int idCuerpo)
         {
-            return ServiceResult.ValidationError($"El id del cuerpo ({dto.Id}) no coincide con el de la ruta ({id}).");
+            return ServiceResult.ValidationError("El id es obligatorio.");
         }
 
-        if (ValidarNombre(dto.Nom) is string error)
+        // El PUT no cambia la identidad del recurso (api-rest.md).
+        if (idCuerpo != id)
+        {
+            return ServiceResult.ValidationError($"El id del cuerpo ({idCuerpo}) no coincide con el de la ruta ({id}).");
+        }
+
+        var nom = dto.Nom?.Trim();
+        if (ValidarNombre(nom) is string error)
         {
             return ServiceResult.ValidationError(error);
         }
@@ -68,7 +75,7 @@ public class ProfesionService : IProfesionService
             return ServiceResult.NotFound(NoExiste(id));
         }
 
-        profesion.Nom = dto.Nom!;
+        profesion.Nom = nom!;
         profesion.Des = dto.Des;
         await _profesiones.UpdateAsync(profesion);
         return ServiceResult.Success();
@@ -96,6 +103,8 @@ public class ProfesionService : IProfesionService
         return ServiceResult.Success();
     }
 
+    // Recibe el nombre ya recortado, como personas y teléfonos: la longitud se mide sin los
+    // espacios de los extremos.
     private static string? ValidarNombre(string? nom)
     {
         if (string.IsNullOrWhiteSpace(nom))
