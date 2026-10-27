@@ -40,7 +40,7 @@ public class TelefonoService : ITelefonoService
             return ServiceResult<TelefonoDto>.ValidationError(error);
         }
 
-        var num = entrada.Num.Trim();
+        var num = entrada.Num;
         if (await _telefonos.ExistsAsync(num))
         {
             return ServiceResult<TelefonoDto>.Conflict($"Ya existe un teléfono con número {num}.");
@@ -60,8 +60,9 @@ public class TelefonoService : ITelefonoService
 
     public async Task<ServiceResult> UpdateAsync(string num, TelefonoEntradaDto entrada)
     {
-        // El número es la identidad del recurso: el PUT no la cambia (api-rest.md).
-        if (!string.Equals(num, entrada.Num?.Trim(), StringComparison.Ordinal))
+        // El número es la identidad del recurso: el PUT no la cambia (api-rest.md). La
+        // comparación es exacta y sin recorte, porque la ruta tampoco se recorta.
+        if (!string.Equals(num, entrada.Num, StringComparison.Ordinal))
         {
             return ServiceResult.ValidationError(
                 $"El número de la ruta ({num}) no coincide con el del cuerpo ({entrada.Num}).");
@@ -102,7 +103,10 @@ public class TelefonoService : ITelefonoService
 
     private async Task<string?> Validar(TelefonoEntradaDto entrada)
     {
-        var num = entrada.Num?.Trim();
+        // `num` es la única cadena que no se recorta: es la clave y viaja en la ruta,
+        // que nadie recorta, así que exigirla exacta deja los dos canales de acuerdo
+        // (api-rest.md). `oper` sí se recorta, como el resto de los textos.
+        var num = entrada.Num;
         if (string.IsNullOrEmpty(num))
         {
             return "El número (num) es obligatorio.";

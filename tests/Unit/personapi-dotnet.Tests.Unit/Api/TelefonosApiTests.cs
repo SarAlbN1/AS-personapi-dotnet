@@ -181,10 +181,14 @@ public class TelefonosApiTests : IClassFixture<WebApplicationFactory<Program>>
         var conBarra = await cliente.PostAsJsonAsync("/api/telefonos", Entrada("a/b"));
         var conLetras = await cliente.PostAsJsonAsync("/api/telefonos", Entrada("300ABC4567"));
         var conEspacios = await cliente.PostAsJsonAsync("/api/telefonos", Entrada("300 123 4567"));
+        // `num` no se recorta: es la clave y la ruta tampoco se recorta.
+        var conEspaciosAlBorde = await cliente.PostAsJsonAsync("/api/telefonos", Entrada(" 0012345 "));
 
         Assert.Equal(HttpStatusCode.BadRequest, conBarra.StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, conLetras.StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, conEspacios.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, conEspaciosAlBorde.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await cliente.GetAsync("/api/telefonos/0012345")).StatusCode);
 
         var listado = await (await cliente.GetAsync("/api/telefonos")).Content
             .ReadFromJsonAsync<List<TelefonoDto>>();
