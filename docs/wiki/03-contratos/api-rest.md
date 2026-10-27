@@ -2,7 +2,9 @@
 
 [← Contratos](README.md) · [SDD/LDD](../04-implementacion/03-SDD-LDD.md)
 
-**Responsabilidad:** dentro del monolito ASP.NET Core, los controladores `Back/01-Borde/ControllersApi` atienden JSON y delegan siempre en `I*Service`. Ruta base `/api`; la aplicación también expone vistas Razor por MVC. OpenAPI 3 + Swagger UI describe y permite probar las operaciones. Esta página es la especificación del contrato previsto, **no evidencia de API ya implementada**.
+**Responsabilidad:** dentro del monolito ASP.NET Core, los controladores `Back/01-Borde/ControllersApi` atienden JSON y delegan siempre en `I*Service`. Ruta base `/api`; la aplicación también expone vistas Razor por MVC. OpenAPI 3 + Swagger UI describe y permite probar las operaciones.
+
+**Estado de implementación:** las cinco operaciones de personas (HU-004) y las cinco de profesiones (HU-005) están implementadas y verificadas contra `persona_db`. Teléfonos y estudios son todavía especificación del contrato previsto, **no evidencia de API ya implementada**. Los errores viajan como `ProblemDetails`, la forma que ya produce `[ApiController]` para un cuerpo inválido, de modo que la API no añade un estándar de error propio.
 
 ## Operaciones obligatorias (20)
 

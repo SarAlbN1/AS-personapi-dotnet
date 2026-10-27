@@ -35,7 +35,7 @@ Las reglas completas y la lista de revisión de PR están en [reglas arquitectó
 4. Nadie edita ni sube cambios a la rama de otra persona ni corrige sus archivos sin acuerdo. Los defectos ajenos se reportan en un comentario o una issue.
 5. PR con `Closes #<número real>`, pruebas, evidencia y enlaces a requisito y decisión arquitectónica.
 6. **Revisión cruzada obligatoria:** el revisor es otro integrante con permiso de escritura; el autor no aprueba ni integra su propio PR, ni usa permisos de administrador para omitir la revisión. Si llegan commits nuevos que invalidan la aprobación, se pide otra.
-7. Antes de integrar: conversaciones resueltas y aprobación válida. Que GitHub muestre el PR como fusionable **no** equivale a estar aprobado.
+7. Antes de integrar: una aprobación válida vigente sobre el último commit y ningún *Request changes* activo; las conversaciones se responden, pero no bloquean. Que GitHub muestre el PR como fusionable **no** equivale a estar aprobado.
 8. Integración con squash merge; `main` siempre debe compilar.
 9. Cualquier desviación del SRS, SAD o SDD se propone y se revisa **antes** de implementarla.
 
