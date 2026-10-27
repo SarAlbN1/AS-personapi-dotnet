@@ -45,7 +45,7 @@ public class ProfesionService : IProfesionService
             return ServiceResult<ProfesionDto>.Conflict($"Ya existe una profesión con id {id}.");
         }
 
-        var profesion = new Profesion { Id = id, Nom = nom!, Des = dto.Des };
+        var profesion = new Profesion { Id = id, Nom = nom!, Des = RecortarDescripcion(dto.Des) };
         await _profesiones.AddAsync(profesion);
         return ServiceResult<ProfesionDto>.Success(ADto(profesion));
     }
@@ -76,7 +76,7 @@ public class ProfesionService : IProfesionService
         }
 
         profesion.Nom = nom!;
-        profesion.Des = dto.Des;
+        profesion.Des = RecortarDescripcion(dto.Des);
         await _profesiones.UpdateAsync(profesion);
         return ServiceResult.Success();
     }
@@ -116,6 +116,10 @@ public class ProfesionService : IProfesionService
             ? $"El nombre (nom) admite hasta {ProfesionDto.NomLongitudMaxima} caracteres."
             : null;
     }
+
+    // des es opcional: recortada, una descripción solo de espacios se guarda como NULL.
+    private static string? RecortarDescripcion(string? des) =>
+        string.IsNullOrWhiteSpace(des) ? null : des.Trim();
 
     private static string NoExiste(int id) => $"No existe una profesión con id {id}.";
 

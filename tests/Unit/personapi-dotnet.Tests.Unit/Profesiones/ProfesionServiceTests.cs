@@ -74,6 +74,17 @@ public class ProfesionServiceTests
         Assert.Equal(nom, _profesiones.Filas.Single(p => p.Id == 3).Nom);
     }
 
+    [Theory]
+    [InlineData("  Diseño de sistemas  ", "Diseño de sistemas")]
+    [InlineData("   ", null)]
+    public async Task Crear_recorta_la_descripcion(string des, string? guardada)
+    {
+        var resultado = await _service.CreateAsync(new ProfesionDto { Id = 3, Nom = "Derecho", Des = des });
+
+        Assert.Equal(ServiceResultStatus.Success, resultado.Status);
+        Assert.Equal(guardada, _profesiones.Filas.Single(p => p.Id == 3).Des);
+    }
+
     [Fact]
     public async Task Crear_sin_id_es_error_de_validacion()
     {
@@ -131,12 +142,14 @@ public class ProfesionServiceTests
     }
 
     [Fact]
-    public async Task Editar_recorta_el_nombre()
+    public async Task Editar_recorta_nombre_y_descripcion()
     {
-        var resultado = await _service.UpdateAsync(2, new ProfesionDto { Id = 2, Nom = "  Medicina general  " });
+        var resultado = await _service.UpdateAsync(2, new ProfesionDto { Id = 2, Nom = "  Medicina general  ", Des = " Salud " });
 
         Assert.Equal(ServiceResultStatus.Success, resultado.Status);
-        Assert.Equal("Medicina general", _profesiones.Filas.Single(p => p.Id == 2).Nom);
+        var fila = _profesiones.Filas.Single(p => p.Id == 2);
+        Assert.Equal("Medicina general", fila.Nom);
+        Assert.Equal("Salud", fila.Des);
     }
 
     [Fact]
