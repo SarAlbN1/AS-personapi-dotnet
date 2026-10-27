@@ -26,16 +26,16 @@ public class PersonasApiController : ControllerBase
 
     /// <summary>Detalle por cédula.</summary>
     [HttpGet("{cc:int}")]
-    [ProducesResponseType(typeof(PersonaDto), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<PersonaDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int cc) =>
         Traducir(await _personas.GetByIdAsync(cc));
 
     /// <summary>Alta. Devuelve <c>201</c> con <c>Location</c> del recurso creado.</summary>
     [HttpPost]
-    [ProducesResponseType(typeof(PersonaDto), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<PersonaDto>(StatusCodes.Status201Created)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create([FromBody] PersonaEntradaDto entrada)
     {
         var resultado = await _personas.CreateAsync(entrada);
@@ -51,16 +51,16 @@ public class PersonasApiController : ControllerBase
     /// <summary>Edición completa; la cédula de la ruta manda sobre la identidad.</summary>
     [HttpPut("{cc:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int cc, [FromBody] PersonaEntradaDto entrada) =>
         Traducir(await _personas.UpdateAsync(cc, entrada));
 
     /// <summary>Baja. Con teléfonos o estudios asociados responde <c>409</c>.</summary>
     [HttpDelete("{cc:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Delete(int cc) =>
         Traducir(await _personas.DeleteAsync(cc));
 
