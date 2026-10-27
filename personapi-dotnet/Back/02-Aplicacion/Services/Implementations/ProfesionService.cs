@@ -7,9 +7,6 @@ namespace personapi_dotnet.Back.Aplicacion.Services.Implementations;
 
 public class ProfesionService : IProfesionService
 {
-    /// <summary>Longitud de profesion.nom en el DDL (VARCHAR(90)).</summary>
-    public const int NomLongitudMaxima = 90;
-
     private readonly IProfesionRepository _profesiones;
     private readonly IEstudioRepository _estudios;
 
@@ -106,8 +103,8 @@ public class ProfesionService : IProfesionService
             return "El nombre (nom) es obligatorio.";
         }
 
-        return nom.Length > NomLongitudMaxima
-            ? $"El nombre (nom) admite hasta {NomLongitudMaxima} caracteres."
+        return nom.Length > ProfesionDto.NomLongitudMaxima
+            ? $"El nombre (nom) admite hasta {ProfesionDto.NomLongitudMaxima} caracteres."
             : null;
     }
 

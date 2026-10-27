@@ -7,7 +7,7 @@ por aquí**.
 |---|---|
 | `Services/Interfaces/` | `IPersonaService`, `IProfesionService`, `ITelefonoService`, `IEstudioService` |
 | `Services/Implementations/` | `PersonaService`, `ProfesionService`, `TelefonoService`, `EstudioService` |
-| `Services/ServiceResult.cs` | Resultados discriminados de SDD §2 (`Success`, `NotFound`, `ValidationError`, `Conflict`), comunes a los cuatro servicios |
+| `ServiceResult.cs` | Resultado discriminado compartido por los cuatro servicios: `Success`, `NotFound`, `ValidationError` y `Conflict` |
 
 ## Reglas
 
