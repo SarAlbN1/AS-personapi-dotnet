@@ -50,7 +50,7 @@ Ante conflictos, no adivinar y no editar por iniciativa propia: documentar el co
 - No editar ni hacer push en ramas de otras personas ni corregir sus archivos sin asignación/acuerdo.
 - Reportar defectos encontrados fuera de la issue propia en comentarios/issue.
 - Antes de `Done`, demostrar pruebas, contratos y criterios; actualizar documentos afectados.
-- GitHub Projects es la fuente de estado; no duplicar el backlog en Markdown.
+- GitHub Projects es la fuente de estado; no duplicar el backlog en Markdown. Mover el tablero es obligatorio y tiene responsable y momento fijos: `In Progress` antes del primer commit, `Done` en el mismo acto de la fusión, y tras fusionar, barrido de las issues que quedan desbloqueadas para sacarlas de `Blocked` ([obligaciones del tablero](docs/wiki/05-proceso/issues-etiquetas-y-milestones.md#obligaciones-de-actualización-del-tablero)).
 - Equipo e identidades reales: [`docs/wiki/06-backlog/equipo.tsv`](docs/wiki/06-backlog/equipo.tsv). Sara (`SarAlbN1`), Juan Diego (`Juandi48`), Miguel (`ma-sarmiento`). No inventar cuentas ni reasignar responsables.
 
 ## Reglas obligatorias para Claude Code y cualquier agente

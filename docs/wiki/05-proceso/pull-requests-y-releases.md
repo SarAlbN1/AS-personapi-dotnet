@@ -61,9 +61,11 @@ Esta sección es la **fuente única** de la política de integración. El resto 
 
     La integración cuenta como del revisor, que responde por ella.
 
+13. **Quien fusiona actualiza el tablero en el mismo acto.** Pasa la issue a `Done` —la fusión y el cambio de estado no se separan— y hace el **barrido de desbloqueo**: revisa qué issues declaraban esa historia como dependencia en [backlog.tsv](../06-backlog/backlog.tsv) y saca de `Blocked` las que ya no tengan ninguna pendiente, avisando a su responsable. Las obligaciones completas, con responsable y momento de cada transición, están en [issues, etiquetas y milestones](issues-etiquetas-y-milestones.md#obligaciones-de-actualización-del-tablero). Un PR fusionado cuyo tablero no se actualizó queda incompleto, y esto aplica igual a un agente que registre la integración por la regla 12.
+
 ### Procedimiento por historia
 
-1. Tomar una HU asignada en GitHub Projects.
+1. Tomar una HU asignada en GitHub Projects y pasarla a `In Progress` antes del primer commit.
 2. Actualizar `main` local desde el remoto (`git switch main && git pull --ff-only`).
 3. Crear la rama de la HU con el formato de [ramas y commits](git-ramas-y-commits.md).
 4. Implementar **solo** su alcance.
@@ -73,6 +75,7 @@ Esta sección es la **fuente única** de la política de integración. El resto 
 8. Atender las observaciones y responder las conversaciones.
 9. Obtener una aprobación válida (de otra persona).
 10. Integrar con squash merge cuando se cumpla todo lo anterior.
+11. Pasar la issue a `Done` en el mismo momento de la fusión y hacer el barrido de desbloqueo de la regla 13, avisando a quien quede desbloqueado.
 
 ### Configuración verificada en GitHub
 

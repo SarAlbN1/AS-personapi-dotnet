@@ -50,7 +50,7 @@ Queda **fuera**, conforme a [SRS §2](../01-producto/01-SRS.md#2-alcance-confirm
 
 1. Una issue = una unidad de trabajo verificable = una rama = un PR.
 2. Cada issue enlaza al menos un `RF-*`/`RNF-*` del SRS, la decisión `AD-*` del SAD y el contrato o sección del SDD que concreta.
-3. Los estados (`Backlog`, `In Progress`, `In Review`, `Blocked`, `Done`) se registran **solo** en GitHub Projects; no se replican en Markdown. No existe `estado.md`.
+3. Los estados (`Backlog`, `In Progress`, `In Review`, `Blocked`, `Done`) se registran **solo** en GitHub Projects; no se replican en Markdown. No existe `estado.md`. Actualizarlos es obligatorio en los momentos que fija [issues, etiquetas y milestones](../05-proceso/issues-etiquetas-y-milestones.md#obligaciones-de-actualización-del-tablero), incluido el barrido de desbloqueo después de cada fusión.
 4. Una issue no entra en ejecución sin cumplir el [DoR](../05-proceso/dor-y-dod.md) ni se cierra sin cumplir el DoD con evidencia.
 5. Las dependencias se declaran solo ante un bloqueo técnico real; se enuncian por ID de historia.
 6. Los defectos hallados fuera de la issue propia se reportan en comentarios o en una issue nueva; no se corrigen en la rama de otra persona.

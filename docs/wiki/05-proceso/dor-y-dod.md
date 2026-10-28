@@ -22,6 +22,6 @@
 7. No hay contraseñas versionadas ni datos sensibles en logs.
 8. Los contratos y las páginas de la wiki afectadas se actualizaron en el mismo PR.
 9. El PR tiene pruebas descritas, evidencia y **aprobación válida de otro integrante**, vigente sobre el último commit; la del autor no cuenta ([política de integración](pull-requests-y-releases.md#protección-de-main-y-revisión-cruzada-obligatoria)).
-10. La rama se integra con squash a `main` y la issue se mueve a `Done` en GitHub Projects.
+10. La rama se integra con squash a `main` y la issue se mueve a `Done` en GitHub Projects **en el mismo acto**; además, quien fusiona revisa qué issues quedaban bloqueadas por esta historia y las saca de `Blocked` ([obligaciones del tablero](issues-etiquetas-y-milestones.md#obligaciones-de-actualización-del-tablero)).
 
 **No equivale a Done:** que compile sin persistir, un endpoint con valores hardcoded, un CRUD sin errores negativos, una UI sin backend real, ni que GitHub indique que el PR es fusionable. CI no es requisito del alcance base; la propuesta de contenedores del informe no es criterio de aceptación de ninguna historia.

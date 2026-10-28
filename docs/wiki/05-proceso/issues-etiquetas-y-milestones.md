@@ -28,6 +28,24 @@ Una issue no pasa a `Done` por tener el PR aprobado, fusionable o sin conflictos
 
 **Agentes.** Un asistente automatizado puede mover los elementos del tablero entre estos estados cuando el hecho que dispara la transición ya ocurrió, también en issues de otros integrantes, porque reflejar el estado real no es apropiarse del trabajo. No cambia responsable, sprint, módulo, prioridad ni alcance, no crea issues ni las cierra a mano —el cierre automático por `Closes #<número>` al fusionar es parte de la integración, no una acción sobre la issue—, y no mueve a `Done` nada cuyo PR no esté fusionado. Si el estado real no encaja en ninguna transición, lo informa en vez de elegir una.
 
+## Obligaciones de actualización del tablero
+
+Mover el tablero **no es opcional ni es tarea de quien pase por ahí**: cada hecho tiene un responsable nombrado y un momento exacto. Un tablero desactualizado hace que el equipo planifique sobre datos falsos, así que estas cuatro obligaciones se cumplen siempre.
+
+| Hecho | Quién lo registra | Cuándo | Resultado en el Project |
+|---|---|---|---|
+| Se empieza la historia | el responsable de la issue | **antes del primer commit** de su rama | `Backlog` → `In Progress` |
+| Se abre el PR con `Closes #<número>` | quien abre el PR | al abrirlo | `In Progress` → `In Review` |
+| El PR se fusiona tras una aprobación válida | **quien fusiona** | en el mismo momento de la fusión, no al final del día | `In Review` → `Done` |
+| La fusión deja sin dependencias a otras issues | **quien fusiona** | inmediatamente después, en la misma sesión | las desbloqueadas salen de `Blocked` |
+
+1. **Al empezar una historia se cambia el estado.** Quien la toma la pasa a `In Progress` antes de su primer commit, para que nadie más la crea libre. Si abre la rama y el PR el mismo día, va directo a `In Review`: el estado es el del hecho más avanzado.
+2. **Al fusionar se pasa a `Done`, obligatoriamente.** La fusión y el cambio de estado son el mismo acto. No se deja para después, no se delega en el autor si fusionó otra persona, y no se da por hecho que el cierre automático de la issue por `Closes #<número>` mueva la tarjeta: cerrar la issue y mover el estado son cosas distintas. Un PR fusionado con su issue fuera de `Done` es trabajo incompleto, no una cuestión de forma.
+3. **Después de fusionar se revisa qué queda desbloqueado.** Quien fusiona consulta la columna `dependencias` de [backlog.tsv](../06-backlog/backlog.tsv), busca las issues que declaraban esa historia como bloqueante y, para cada una que ya no tenga ninguna dependencia pendiente, la saca de `Blocked`: a `Backlog` si nadie la ha empezado, o a `In Progress` si su responsable ya tiene rama. Si quedan otras dependencias sin fusionar, se queda en `Blocked` y se dice cuáles en un comentario de la issue.
+4. **Se avisa a quien se desbloquea.** El barrido anterior se acompaña de un comentario en la issue desbloqueada o un mensaje al responsable: el cambio de columna no sirve si la persona no se entera el mismo día.
+
+Nada de esto se registra en Markdown: el estado vive en el Project ([regla de no duplicar](#convención-de-issues)). Lo que vive en la wiki es esta obligación, no el estado.
+
 ## Etiquetas
 
 Usar etiquetas existentes cuando sirvan (`enhancement`, `bug`, `documentation`) y crear solo las necesarias:
