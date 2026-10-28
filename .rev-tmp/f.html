@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Convenciones de errores - PersonAPI</title>
+    
+    <link rel="stylesheet" href="/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/site.css?v=zeR5PHeeHbxfGkL8WV86OzdoF6UnjuCmnagaocD-cbo" />
+    <link rel="stylesheet" href="/personapi-dotnet.styles.css?v=Sk8VutMzSv35kNE3moqg3mVRn7BwJytSzMyWRjmYB98" />
+</head>
+<body>
+    <header b-u8o7fakhu6>
+        <nav b-u8o7fakhu6 class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div b-u8o7fakhu6 class="container-fluid">
+                <a class="navbar-brand" href="/">PersonAPI</a>
+                <button b-u8o7fakhu6 class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Mostrar navegación">
+                    <span b-u8o7fakhu6 class="navbar-toggler-icon"></span>
+                </button>
+                <div b-u8o7fakhu6 class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul b-u8o7fakhu6 class="navbar-nav flex-grow-1" data-nav="modulos">
+                            <li b-u8o7fakhu6 class="nav-item">
+                                <a class="nav-link text-dark" href="/Personas">Personas</a>
+                            </li>
+                            <li b-u8o7fakhu6 class="nav-item">
+                                <a class="nav-link text-dark" href="/Profesiones">Profesiones</a>
+                            </li>
+                            <li b-u8o7fakhu6 class="nav-item">
+                                <a class="nav-link text-dark" href="/Telefonos">Tel&#xE9;fonos</a>
+                            </li>
+                            <li b-u8o7fakhu6 class="nav-item">
+                                <a class="nav-link text-dark" href="/Estudios">Estudios</a>
+                            </li>
+                    </ul>
+                    <ul b-u8o7fakhu6 class="navbar-nav">
+                        <li b-u8o7fakhu6 class="nav-item">
+                            <a class="nav-link text-dark" href="/swagger">API (Swagger)</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div b-u8o7fakhu6 class="container">
+        <main b-u8o7fakhu6 role="main" class="pb-3">
+            
+<h1 class="h3">Convenciones de errores</h1>
+<p class="text-muted">
+    Página de ejemplo de HU-006. El formulario sigue el mismo flujo que un CRUD real, pero el
+    resultado del servicio es <strong>simulado</strong>: elija uno y envíe para ver cómo se muestra.
+</p>
+
+
+
+
+
+
+<form method="post" class="col-md-6" action="/Home/Convenciones">
+    <div class="mb-3">
+        <label class="form-label" for="Nombre">Nombre</label>
+        <input class="form-control" type="text" data-val="true" data-val-length="El nombre admite hasta 45 caracteres." data-val-length-max="45" data-val-required="El nombre es obligatorio." id="Nombre" maxlength="45" name="Nombre" value="" />
+        <span class="text-danger field-validation-valid" data-valmsg-for="Nombre" data-valmsg-replace="true"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="Escenario">Resultado simulado del servicio</label>
+        <select class="form-select" data-val="true" data-val-required="The Resultado simulado del servicio field is required." id="Escenario" name="Escenario"><option selected="selected" value="0">Success: guarda y redirige</option>
+<option value="1">ValidationError: regla de dominio incumplida</option>
+<option value="2">Conflict: clave duplicada o borrado bloqueado</option>
+<option value="3">NotFound: el registro ya no existe</option>
+</select>
+    </div>
+    <button type="submit" class="btn btn-primary">Enviar</button>
+<input name="__RequestVerificationToken" type="hidden" value="CfDJ8K-mA7xIwp1HkiXCjhPg2Ya8GKRx0jGl4GFzaes98IJNnm4hoQczXmTSPjFwGeEbHItAibwcoetif_5YmpjSa7BuwThv7O3_nR0VXDyqTcJgimQWUy-9L7z16jNgpXpsDd-aSAGsmGGTbvUgINtDDhs" /></form>
+
+
+        </main>
+    </div>
+
+    <footer b-u8o7fakhu6 class="border-top footer text-muted">
+        <div b-u8o7fakhu6 class="container">
+            &copy; 2026 - PersonAPI · Laboratorio 1 de Arquitectura de Software
+        </div>
+    </footer>
+    <script src="/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/site.js?v=y_Ngd8W21UpuCUhEqGbUKDEqFnNfTjAfb24GhJJGUyM"></script>
+    
+    <script src="/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+
+
+</body>
+</html>
