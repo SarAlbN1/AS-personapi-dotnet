@@ -30,7 +30,7 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
     model {
         usuario = person "Usuario del laboratorio" "Consulta y mantiene personas, profesiones, teléfonos y estudios desde el navegador." "Persona"
 
-        clienteRest = softwareSystem "Cliente REST" "Swagger UI y Postman: consumen el canal JSON para probar y evaluar el contrato." "Externo"
+        clienteRest = softwareSystem "Navegador con Swagger UI, o Postman" "Consume el canal JSON para probar y evaluar el contrato. Swagger UI se sirve desde la propia aplicación; aquí representa a quien la usa." "Externo"
 
         personapi = softwareSystem "PersonAPI" "Gestiona las cuatro entidades del dominio por dos canales —vistas Razor y API REST— sobre una sola base de datos." {
 
@@ -147,18 +147,18 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
         # ===== Despliegue declarado en el informe (docker-compose.yml) ==========
         deploymentEnvironment "Docker Compose" {
             equipo = deploymentNode "Equipo del laboratorio" "Donde se ejecuta la demostración" "macOS o Windows con Docker Desktop" {
-                motor = deploymentNode "Docker Engine · red personapi-net" "Los tres servicios comparten una red interna" "Docker Compose v2" {
+                motor = deploymentNode "Docker Engine · red personapi-net" "Los tres servicios comparten una red interna" "Docker Compose" {
                     nodoApp = deploymentNode "personapi" "Publica el puerto 8080 del host" "mcr.microsoft.com/dotnet/aspnet:10.0" {
                         containerInstance personapi.web
                     }
                     nodoSql = deploymentNode "sqlserver" "Publica el puerto 1433; los datos viven en el volumen sqldata" "mcr.microsoft.com/mssql/server:2025-latest" {
                         containerInstance personapi.db
                     }
-                    init = infrastructureNode "db-init" "Ejecuta 01_ddl.sql y después 02_dml.sql con sqlcmd y termina; la aplicación arranca cuando este servicio acaba bien." "mssql-tools18"
+                    init = infrastructureNode "db-init" "Ejecuta 01_ddl.sql y después 02_dml.sql con el sqlcmd de /opt/mssql-tools18 y termina; la aplicación arranca cuando este servicio acaba bien." "mcr.microsoft.com/mssql/server:2025-latest"
                 }
             }
 
-            init -> nodoSql "Crea el esquema y carga los datos de demostración" "TDS 1433"
+            equipo.motor.init -> equipo.motor.nodoSql "Crea el esquema y carga los datos de demostración" "TDS 1433"
         }
     }
 
@@ -235,5 +235,9 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
                 color #000000
             }
         }
+    }
+
+    configuration {
+        scope softwaresystem
     }
 }

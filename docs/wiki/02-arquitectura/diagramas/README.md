@@ -40,17 +40,43 @@ sustentación, mientras `c4-c3-componentes` es la que va al informe.
 contenido de `personapi-c4.dsl` y elegir la vista en el selector. Exportar cada diagrama
 como PNG.
 
-**CLI (reproducible).** Con la [CLI de Structurizr](https://docs.structurizr.com/cli):
+**Reproducible, con Docker.** `structurizr-cli` **no** exporta PNG —sus formatos son
+`plantuml`, `mermaid`, `json`, `static`…— y la imagen `structurizr/cli` está
+descontinuada: hoy solo imprime el aviso de migración y termina sin hacer nada. El camino
+que funciona es validar con la imagen `structurizr/structurizr`, exportar a PlantUML y
+convertir a PNG con PlantUML:
 
 ```bash
-structurizr-cli export -workspace docs/wiki/02-arquitectura/diagramas/personapi-c4.dsl \
-  -format png -output docs/informe/diagramas
+# 1. Validar el modelo (falla si hay un identificador fuera de alcance)
+docker run --rm -v "$PWD/docs/wiki/02-arquitectura/diagramas:/w" \
+  structurizr/structurizr validate -workspace /w/personapi-c4.dsl
+
+# 2. Exportar a PlantUML
+docker run --rm -v "$PWD/docs/wiki/02-arquitectura/diagramas:/w" \
+  structurizr/structurizr export -workspace /w/personapi-c4.dsl \
+  -format plantuml/structurizr -output /w/puml
+
+# 3. Convertir a PNG
+docker run --rm --user root \
+  -v "$PWD/docs/wiki/02-arquitectura/diagramas/puml:/data" \
+  -v "$PWD/docs/informe/diagramas:/out" -w /data plantuml/plantuml \
+  -tpng -charset UTF-8 -o /out \
+  structurizr-c4-c1-contexto.puml structurizr-c4-c2-contenedores.puml structurizr-c4-c3-componentes.puml
 ```
+
+La carpeta intermedia `puml/` es material temporal y no se versiona.
 
 ### Nombres de archivo que espera el informe
 
 `docs/informe/main.tex`, en la sección «Modelo C4», referencia exactamente estos tres
-archivos; si el exportador añade prefijos, se renombran:
+archivos. El exportador antepone `structurizr-`, así que hay que renombrarlos:
+
+```bash
+cd docs/informe/diagramas
+for v in c4-c1-contexto c4-c2-contenedores c4-c3-componentes; do
+  mv "structurizr-$v.png" "$v.png"
+done
+```
 
 ```text
 docs/informe/diagramas/c4-c1-contexto.png
@@ -60,6 +86,20 @@ docs/informe/diagramas/c4-c3-componentes.png
 
 Mientras un archivo no exista, el informe pinta el marco de «pendiente» en su lugar y
 compila igual, así que la ausencia se ve en el PDF en vez de pasar inadvertida.
+
+## Imágenes generadas
+
+Exportadas con los comandos de arriba y versionadas junto al informe, que es quien las
+incluye:
+
+| Vista | Imagen |
+|---|---|
+| Contexto | [`c4-c1-contexto.png`](../../../informe/diagramas/c4-c1-contexto.png) |
+| Contenedores | [`c4-c2-contenedores.png`](../../../informe/diagramas/c4-c2-contenedores.png) |
+| Componentes | [`c4-c3-componentes.png`](../../../informe/diagramas/c4-c3-componentes.png) |
+| Despliegue | [`c4-despliegue.png`](../../../informe/diagramas/c4-despliegue.png) |
+
+Se regeneran desde el `.dsl` cada vez que el modelo cambie; no se editan a mano.
 
 ## Lo que el modelo garantiza
 
