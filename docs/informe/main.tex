@@ -1160,6 +1160,91 @@ winget install --id Git.Git -e --source winget --accept-package-agreements --acc
 \caption{Paso M1: \texttt{winget install} de Git; Git ya estaba instalado y \texttt{winget} canceló la reinstalación.}
 \end{figure}
 
+\paragraph{Asistente gráfico de Git.} Quien prefiera el instalador descargado de la web pasa por las páginas siguientes. En todas se deja la opción que viene marcada y se pulsa \emph{Next}; las que importan para este proyecto son la del PATH, que debe quedar en \emph{Git from the command line and also from 3rd-party software} para que PowerShell y Visual Studio encuentren \texttt{git}, y la de finales de línea, \emph{Checkout Windows-style, commit Unix-style line endings}. Las capturas son del instalador 2.56.0.3 que descarga \texttt{winget} en la fecha de verificación; las páginas y sus valores por defecto son los mismos que en la 2.53. Notas sobre el equipo de verificación:
+\begin{itemize}[itemsep=2pt]
+  \item Como Git ya estaba instalado, el asistente reutiliza la carpeta de la instalación existente y no muestra la página de carpeta de destino; en un equipo limpio aparece antes de la de componentes.
+  \item Con Git instalado, la casilla \emph{Only show new options} viene marcada y salta directo a la instalación; para recorrer todas las páginas hay que desmarcarla en la primera.
+  \item El recorrido se canceló en la última página, antes de pulsar \emph{Install}, así que la instalación existente no cambió.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c01-git-licencia.png}{Licencia GNU GPL v2 del instalador de Git}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c02-git-componentes.png}{Selección de componentes de Git}
+\end{minipage}
+\caption{Paso M1, asistente de Git: licencia y componentes.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c03-git-editor.png}{Editor por defecto de Git (Vim)}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c04-git-rama.png}{Nombre de la rama inicial (Let Git decide)}
+\end{minipage}
+\caption{Paso M1, asistente de Git: editor por defecto y nombre de la rama inicial.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c05-git-path.png}{PATH: Git desde la línea de comandos y software de terceros}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c06-git-ssh.png}{Cliente SSH: OpenSSH incluido}
+\end{minipage}
+\caption{Paso M1, asistente de Git: PATH (opción recomendada) y cliente SSH.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c07-git-https.png}{HTTPS con Windows Secure Channel}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c08-git-finales-linea.png}{Finales de línea: checkout Windows, commit Unix}
+\end{minipage}
+\caption{Paso M1, asistente de Git: biblioteca HTTPS y conversión de finales de línea.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c09-git-terminal.png}{Terminal de Git Bash: MinTTY}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c10-git-pull.png}{Comportamiento de git pull: Merge}
+\end{minipage}
+\caption{Paso M1, asistente de Git: terminal de Git Bash y comportamiento de \texttt{git pull}.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c11-git-credenciales.png}{Gestor de credenciales: Git Credential Manager}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m1-c12-git-extras.png}{Opciones extra: caché del sistema de archivos}
+\end{minipage}
+\caption{Paso M1, asistente de Git: gestor de credenciales y opciones extra.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.6\textwidth]{figuras/manual/m1-c13-git-archivos-en-uso.png}{Lista de procesos bash que usan archivos de Git}
+\caption{Paso M1, asistente de Git: al reinstalar o actualizar, el asistente pide cerrar las terminales de Git Bash abiertas antes de \emph{Install}. En un equipo limpio esta página no aparece.}
+\end{figure}
+
 \subsubsection{Paso M2. Instalar el SDK de .NET 10}
 \begin{enumerate}[itemsep=2pt]
   \item Descargar el \textbf{SDK} (no solo el \emph{runtime}) de .NET 10 para Windows x64
@@ -2019,7 +2104,8 @@ las del Visual Studio Installer, el CRUD por Swagger, los recursos de Docker y d
 fallos reproducidos. En los pasos de instalación (M1 a M6), \texttt{winget install} se
 ejecutó de verdad sobre herramientas que ya estaban instaladas, así que las capturas
 muestran cómo detecta la versión existente y cancela la reinstalación; las pantallas
-de Modificar del Visual Studio Installer se cerraron sin cambios. Ninguna captura
+de Modificar del Visual Studio Installer se cerraron sin cambios, y el asistente gráfico
+de Git se recorrió con los valores por defecto y se canceló antes de \emph{Install}. Ninguna captura
 muestra la contraseña de \texttt{sa}.
 
 \textbf{Pendiente:} la ejecución de los pasos M1 a M6 en un equipo sin ninguna de las
