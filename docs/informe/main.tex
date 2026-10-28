@@ -1280,6 +1280,14 @@ winget install --id Microsoft.DotNet.SDK.10 -e --source winget --accept-package-
 \caption{Paso M2: \texttt{winget install} del SDK de .NET 10 y \texttt{dotnet --list-sdks}.}
 \end{figure}
 
+\paragraph{Asistente gráfico.} El instalador del SDK (el mismo que descarga \texttt{winget}, versión 10.0.403 en la fecha de verificación) tiene una sola página: la descripción del SDK y los términos que se aceptan al pulsar \emph{Instalar}. La instalación pide permiso de administrador y no tiene opciones. En el equipo de verificación se cerró con \emph{Cerrar} sin instalar, y \texttt{dotnet --list-sdks} siguió mostrando solo la 10.0.402.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.6\textwidth]{figuras/manual/m2-c-dotnet-instalador.png}{Instalador del SDK de .NET 10.0.403 con los botones Instalar y Cerrar}
+\caption{Paso M2: asistente del SDK de .NET 10; se cerró sin instalar.}
+\end{figure}
+
 \subsubsection{Paso M3. Instalar SQL Server 2025 Express (camino A)}
 \begin{enumerate}[itemsep=2pt]
   \item Descargar SQL Server 2025 Express desde
@@ -1321,6 +1329,33 @@ En el equipo de verificación no se ejecutó \texttt{winget install} para SQL Se
 \centering
 \imagenOPendiente[0.85\textwidth]{figuras/manual/m3-a-sql-search.png}{paquetes de SQL Server 2025 en \texttt{winget}; el camino A usa la edición Express}
 \caption{Paso M3: paquetes de SQL Server 2025 en \texttt{winget}; el camino A usa la edición Express.}
+\end{figure}
+
+\paragraph{Asistente gráfico.} El instalador de SQL Server 2025 Express pide permiso de administrador al abrirse y ofrece tres tipos de instalación. Para este proyecto basta \textbf{Basic}, que instala el motor con la configuración por defecto y crea la instancia \texttt{SQLEXPRESS}. Si el idioma de Windows y el formato regional no coinciden, como en el equipo de verificación (es-MX y es-ES), avisa que continuará en inglés: se responde \emph{Yes}. Después vienen la licencia (\emph{Accept}) y la carpeta de instalación, con el espacio necesario y el tamaño de la descarga; \emph{Install} descarga unos 730~MB e instala. En el equipo de verificación el recorrido se cerró en esa última página, antes de \emph{Install}, porque la instancia ya existía.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m3-b1-sql-tipo.png}{Tipos de instalación: Basic, Custom y Download Media}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m3-b2-sql-idioma.png}{Aviso de idioma: continuar en inglés}
+\end{minipage}
+\caption{Paso M3, asistente de SQL Server 2025 Express: tipo de instalación y aviso de idioma.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m3-b3-sql-licencia.png}{Términos de licencia de SQL Server con el botón Accept}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m3-b4-sql-ubicacion.png}{Carpeta de instalación con espacio requerido y botón Install}
+\end{minipage}
+\caption{Paso M3, asistente de SQL Server 2025 Express: licencia y carpeta de instalación (se cerró antes de \emph{Install}).}
 \end{figure}
 
 \subsubsection{Paso M4. Instalar SSMS 22 y \texttt{sqlcmd} (camino A)}
@@ -1379,6 +1414,50 @@ SSMS 22 se instala y se actualiza con el Visual Studio Installer. Con el botón 
 \caption{Paso M4: Visual Studio Installer, pantalla Modificar de SQL Server Management Studio 22 (se cerró sin cambios).}
 \end{figure}
 
+\paragraph{Asistentes gráficos.} El instalador de SSMS 22 es un arranque del Visual Studio Installer: pide aceptar la licencia con \emph{Continuar}, descarga y prepara el propio instalador y, si SSMS no está instalado, abre la selección de componentes con \emph{Instalar}. En el equipo de verificación, con SSMS 22.11.1 instalado, ofreció la actualización a la 22.11.2, que se cerró sin aceptar; SSMS quedó en la misma versión. \texttt{sqlcmd} se instala con un paquete MSI: con la herramienta ya instalada, el asistente ofrece \emph{Change}, \emph{Repair} o \emph{Remove}; se canceló y el propio asistente confirma que el sistema no se modificó.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m4-d1-ssms-continuar.png}{Visual Studio Installer: antes de empezar, botón Continuar}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m4-d2-ssms-preparar.png}{Visual Studio Installer: descarga e instalación del instalador}
+\end{minipage}
+\caption{Paso M4, instalador de SSMS 22: licencia y preparación del Visual Studio Installer.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m4-d3-ssms-actualizacion.png}{Actualización disponible de SSMS 22 a 22.11.2}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m4-d4-ssms-instalados.png}{Productos instalados en el Visual Studio Installer}
+\end{minipage}
+\caption{Paso M4, instalador de SSMS 22: aviso de actualización (cerrado sin aceptar) y productos instalados.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m4-e1-sqlcmd-bienvenida.png}{Bienvenida del asistente de Sqlcmd Tools}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m4-e2-sqlcmd-mantenimiento.png}{Opciones Change, Repair y Remove de Sqlcmd Tools}
+\end{minipage}
+\caption{Paso M4, asistente MSI de \texttt{sqlcmd}: bienvenida y mantenimiento de una instalación existente.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.6\textwidth]{figuras/manual/m4-e3-sqlcmd-interrumpido.png}{Asistente de Sqlcmd Tools interrumpido sin modificar el sistema}
+\caption{Paso M4, asistente de \texttt{sqlcmd} cancelado: el sistema no se modificó.}
+\end{figure}
+
 \subsubsection{Paso M5. Instalar Visual Studio 2026 Community (opcional)}
 Solo es necesario para abrir y depurar la solución. Desde
 \url{https://visualstudio.microsoft.com/} se instala con las cargas de trabajo
@@ -1426,6 +1505,14 @@ El Visual Studio Installer muestra los productos instalados. Con \textbf{Modific
 \caption{Paso M5: carga Desarrollo de ASP.NET y web marcada y, en el panel derecho, Almacenamiento y procesamiento de datos (se cerró sin cambios).}
 \end{figure}
 
+\paragraph{Asistente gráfico.} El instalador de Visual Studio Community 2026 es el mismo arranque del Visual Studio Installer que el de SSMS: \emph{Continuar}, preparación y, en un equipo sin Visual Studio, la selección de cargas de trabajo de la figura anterior. Con Visual Studio ya instalado ofreció la actualización de características de octubre de 2026 (18.11.2), que se cerró sin aceptar.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m5-d-vs-actualizacion.png}{Actualización disponible de Visual Studio Community 2026 a 18.11.2}
+\caption{Paso M5, instalador de Visual Studio Community 2026: aviso de actualización (cerrado sin aceptar).}
+\end{figure}
+
 \subsubsection{Paso M6. Instalar Docker Desktop (camino B)}
 \begin{enumerate}[itemsep=2pt]
   \item Descargar Docker Desktop para Windows desde
@@ -1459,6 +1546,21 @@ winget install --id Docker.DockerDesktop -e --source winget --accept-package-agr
 \centering
 \imagenOPendiente[0.85\textwidth]{figuras/manual/m6-a-docker-install.png}{\texttt{winget install} de Docker Desktop}
 \caption{Paso M6: \texttt{winget install} de Docker Desktop.}
+\end{figure}
+
+\paragraph{Asistente gráfico.} El instalador de Docker Desktop (unos 620~MB) pide permiso de administrador y, en un equipo limpio, muestra la página de configuración con la opción \emph{Use WSL 2 instead of Hyper-V}, que debe quedar marcada; \emph{OK} instala y al terminar puede pedir cerrar la sesión de Windows. En el equipo de verificación se lanzó la versión 4.97.0 sobre la 4.93.0 instalada y se canceló: el instalador lo confirma y Docker Engine siguió en la 29.8.1, con los contenedores del proyecto en ejecución.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m6-b1-docker-inicializando.png}{Instalador de Docker Desktop 4.97.0 inicializando}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\centering
+\imagenOPendiente[\linewidth]{figuras/manual/m6-b2-docker-cancelado.png}{Instalación cancelada: Docker Desktop 4.93.0 sigue instalado}
+\end{minipage}
+\caption{Paso M6, instalador de Docker Desktop: inicio y cancelación sin cambios.}
 \end{figure}
 
 \subsubsection{Paso M7. Clonar el repositorio}
@@ -2105,7 +2207,11 @@ fallos reproducidos. En los pasos de instalación (M1 a M6), \texttt{winget inst
 ejecutó de verdad sobre herramientas que ya estaban instaladas, así que las capturas
 muestran cómo detecta la versión existente y cancela la reinstalación; las pantallas
 de Modificar del Visual Studio Installer se cerraron sin cambios, y el asistente gráfico
-de Git se recorrió con los valores por defecto y se canceló antes de \emph{Install}. Ninguna captura
+de Git se recorrió con los valores por defecto y se canceló antes de \emph{Install}. Los
+asistentes de M2 a M6 (SDK de .NET 10.0.403, SQL Server 2025 Express, SSMS 22, \texttt{sqlcmd},
+Visual Studio Community 2026 y Docker Desktop 4.97.0), descargados con \texttt{winget download},
+también se recorrieron y se cerraron o cancelaron antes de instalar; las versiones de la
+tabla de requisitos no cambiaron. Ninguna captura
 muestra la contraseña de \texttt{sa}.
 
 \textbf{Pendiente:} la ejecución de los pasos M1 a M6 en un equipo sin ninguna de las
