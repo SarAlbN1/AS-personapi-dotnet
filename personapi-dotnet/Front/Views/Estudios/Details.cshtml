@@ -1,0 +1,14 @@
+@model EstudioViewModel
+@{
+    ViewData["Title"] = $"Estudio {Model.IdProf} / {Model.CcPer}";
+}
+
+<h1 class="h3">Estudio @Model.IdProf / @Model.CcPer</h1>
+
+<partial name="_MensajesServicio" />
+
+<partial name="_Ficha" model="Model" />
+
+<a class="btn btn-primary" asp-action="Edit" asp-route-idProf="@Model.IdProf" asp-route-ccPer="@Model.CcPer">Editar</a>
+<a class="btn btn-outline-danger" asp-action="Delete" asp-route-idProf="@Model.IdProf" asp-route-ccPer="@Model.CcPer">Eliminar</a>
+<a class="btn btn-link" asp-action="Index">Volver al listado</a>
