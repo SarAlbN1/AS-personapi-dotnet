@@ -102,8 +102,12 @@ public partial class ArquitecturaTests
                 continue;
             }
 
-            Assert.Equal(Servicios(api), Servicios(mvc));
-            _salida.WriteLine($"{entidad}: {mvc.Name} y {api.Name} usan {string.Join(", ", Servicios(mvc).Select(t => t.Name))}.");
+            // El MVC usa los mismos servicios que el API, así que las reglas no se duplican.
+            // Puede recibir otros de solo lectura, como EstudiosController, que llena los
+            // selectores con IProfesionService e IPersonaService.
+            var faltan = Servicios(api).Except(Servicios(mvc)).Select(t => t.Name).ToList();
+            Assert.True(faltan.Count == 0, $"{mvc.Name} no usa {string.Join(", ", faltan)}, que sí usa {api.Name}.");
+            _salida.WriteLine($"{entidad}: {mvc.Name} y {api.Name} usan {string.Join(", ", Servicios(api).Select(t => t.Name))}.");
         }
     }
 
