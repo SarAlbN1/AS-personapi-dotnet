@@ -116,7 +116,7 @@ Verificar la reproducibilidad desde un clon limpio, cerrar la revisión arquitec
 **Evidencia mínima:** log de la instalación desde clon limpio, lista de revisión firmada, verificación de ausencia de secretos y URL del tag.
 
 ### Dependencias
-**HU-009** (conteo de Swagger para el criterio 4 del laboratorio) y **HU-014** (evidencia de verificación). Es la última historia del backlog por definición.
+**HU-009** (conteo de Swagger para el criterio 4 del laboratorio), **HU-014** (evidencia de verificación) y **HU-016 y HU-017**, cuyo resultado —los diagramas C4 y el manual técnico de despliegue— vive en `docs/informe/main.tex`, que esta historia verifica antes de publicar el tag. Es la última historia del backlog por definición.
 
 ### Trazabilidad
 RF-09 · RNF-04, RNF-05 · AK-06, AK-07 · AD-01, AD-08, AD-09 · [entrega.md](../../05-proceso/entrega.md) · [versiones](../../04-implementacion/versiones.md) · criterios de éxito 1, 3, 14, 15.
@@ -151,7 +151,7 @@ Entregar los diagramas C4 de nivel 1 a 3 del monolito, derivados del SAD y del S
 **Evidencia mínima:** fuentes versionadas, imágenes exportadas, enlace desde la wiki y la comprobación elemento por elemento.
 
 ### Dependencias
-**HU-001** (estructura de capas) y **HU-003** (entidades, contexto y contratos DAO reales). Sin dependientes: ninguna historia la consume, tampoco HU-014 ni HU-015, para no retrasar verificación y entrega por material documental.
+**HU-001** (estructura de capas) y **HU-003** (entidades, contexto y contratos DAO reales). No bloquea a HU-014: la verificación no espera material documental. Su dependiente es **HU-015**, porque los diagramas se incluyen en el informe que la entrega verifica.
 
 ### Trazabilidad
 AD-01 · AD-02 · AD-03 · AD-04 · AD-10 · [SAD §5](../../02-arquitectura/02-SAD-HLD.md#5-vista-por-módulos) · [SDD §1, §2](../../04-implementacion/03-SDD-LDD.md) · reglas 1, 2, 3, 6.
@@ -192,7 +192,7 @@ Redactar en `docs/informe/main.tex` el manual técnico de despliegue del monolit
 **Evidencia mínima:** fragmento del informe compilado con el manual y sus capturas, log del despliegue ejecutado en entorno limpio —local y `docker compose up --build -d`— y comprobación de ausencia de credenciales en el texto, en las capturas y en `.env.example`.
 
 ### Dependencias
-**HU-001** (solución ejecutable) y **HU-002** (scripts DDL/DML). Sin dependientes, por la misma razón que HU-016.
+**HU-001** (solución ejecutable) y **HU-002** (scripts DDL/DML). Dependiente: **HU-015**, por la misma razón que HU-016: el manual vive en el informe que la entrega verifica.
 
 ### Trazabilidad
 RF-09 · RNF-04 · RNF-05 · AD-01 · AD-09 · [versiones.md](../../04-implementacion/versiones.md) · [entrega.md](../../05-proceso/entrega.md) · criterios de éxito 1, 3.

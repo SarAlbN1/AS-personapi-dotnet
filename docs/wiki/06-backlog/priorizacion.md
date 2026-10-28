@@ -35,7 +35,7 @@ Solo hay dos niveles, igual que las etiquetas acordadas en [issues, etiquetas y 
 
 ### Por qué los P1 no bloquean
 
-HU-007, HU-008, HU-012 y HU-013 son hojas del grafo: solo HU-014 las consume, y HU-014 es el último punto de convergencia. HU-016 y HU-017 son hojas sin dependientes: ninguna historia las consume, tampoco HU-014 ni HU-015, porque declarar esa dependencia obligaría a que la verificación y la entrega esperaran material documental que no condiciona el funcionamiento del sistema. Su resultado se presenta en la sustentación y en el informe.
+HU-007, HU-008, HU-012 y HU-013 son hojas del grafo: solo HU-014 las consume, y HU-014 es el último punto de convergencia. **HU-016 y HU-017 sí tienen un dependiente: HU-015.** No alimentan HU-014 —la verificación no espera material documental—, pero su resultado entra en lo que se entrega: los diagramas C4 y el manual de despliegue viven en `docs/informe/main.tex`, y HU-015 es quien verifica ese documento y publica el tag. Si la entrega no las esperara, `v1.0.0` podría salir sin el manual que el propio plan de sprints declara como entregable.
 
 **Excepción declarada:** tras reasignar HU-008 y HU-012 al integrante C, **HU-012 depende de HU-010, que es de A**. Es la única dependencia entre responsables distintos del Sprint 2 y queda registrada como tal: si HU-010 se retrasa, C puede avanzar HU-008, HU-009 o HU-014 sin esperar. HU-008 no tiene ese problema: sus dos bloqueantes (HU-005, HU-006) están integrados.
 
@@ -59,7 +59,7 @@ Sprint 2
      HU-012 ── espera HU-010 (única dependencia entre responsables)
 
   HU-007, HU-008, HU-010, HU-011, HU-012, HU-013 ──> HU-014 ──> HU-015
-  HU-016 y HU-017 no alimentan HU-014 ni HU-015: son hojas documentales.
+  HU-016 y HU-017 no alimentan HU-014, pero sí HU-015: su resultado va en el informe.
 ```
 
 1. **Base compartida (HU-001, HU-002).** Las dos únicas historias sin dependencias; arrancan simultáneamente.
@@ -84,7 +84,7 @@ También se separó, en HU-009, la dependencia **de construcción** (HU-004, HU-
 
 Decisión del equipo posterior al backlog inicial, registrada aquí para que el reparto no quede solo en el Project:
 
-1. **Se añaden dos historias documentales.** HU-016 entrega los diagramas C4 de contexto, contenedores y componentes; HU-017 entrega el manual técnico de despliegue dentro de `docs/informe/main.tex`. Ambas son P1: obligatorias, sin dependientes y reordenables dentro del Sprint 2. Ninguna de las dos añade, quita ni reinterpreta un requisito: HU-016 **dibuja** lo que el SAD y el SDD ya deciden y HU-017 **documenta** el despliegue tal como el informe lo declara. Una discrepancia se reporta a la fuente propietaria, no se resuelve en el diagrama ni en el manual.
+1. **Se añaden dos historias documentales.** HU-016 entrega los diagramas C4 de contexto, contenedores y componentes; HU-017 entrega el manual técnico de despliegue dentro de `docs/informe/main.tex`. Ambas son P1: obligatorias y reordenables dentro del Sprint 2, sin bloquear a la verificación; su único dependiente es HU-015, porque lo que producen va en el informe que la entrega verifica. Ninguna de las dos añade, quita ni reinterpreta un requisito: HU-016 **dibuja** lo que el SAD y el SDD ya deciden y HU-017 **documenta** el despliegue tal como el informe lo declara. Una discrepancia se reporta a la fuente propietaria, no se resuelve en el diagrama ni en el manual.
 2. **Responsables.** HU-016 a A (Sara) y HU-017 a B (Juan Diego), que es quien mantiene el `.tex` y por tanto la única persona que puede escribir en él.
 3. **Dos historias pasan a C (Miguel) para sostener la carga.** Se eligieron las dos de **menor prioridad** del grafo: `P1`, 3 puntos y hojas consumidas solo por HU-014 — **HU-008** (de B) y **HU-012** (de A). No se movió HU-010, que está en ejecución, ni ninguna P0.
 4. **Efecto en la carga:** A 19 puntos, B 21, C 26 (antes 19/19/20). C absorbe 6 de los 8 puntos añadidos al equipo porque sus historias restantes son de verificación y documentación, no de código nuevo; los 2 restantes los asume B al pasar HU-017 de 3 a 5 puntos, por los archivos de despliegue con contenedores y las capturas reales del procedimiento.
