@@ -1,0 +1,40 @@
+@*
+    Mensajes de la convención de HU-006. Se incluye una vez, encima del formulario:
+        <partial name="_MensajesServicio" />
+    - Éxito tras redirigir (TempData), una sola vez.
+    - Conflicto del servicio (ViewData), sin perder lo escrito en el formulario.
+    - Errores de validación de nivel modelo: los que devuelve el servicio como
+      ValidationError. Los de cada campo los pinta asp-validation-for junto al campo.
+*@
+@{
+    var exito = TempData[MensajesVista.Exito] as string;
+    var conflicto = ViewData[MensajesVista.Conflicto] as string;
+    var erroresDelModelo = ViewData.ModelState.TryGetValue(string.Empty, out var entrada)
+        ? entrada.Errors.Select(e => e.ErrorMessage).Where(m => !string.IsNullOrWhiteSpace(m)).ToList()
+        : new List<string>();
+}
+
+@if (!string.IsNullOrEmpty(exito))
+{
+    <div class="alert alert-success" role="status" data-mensaje="exito">@exito</div>
+}
+
+@if (!string.IsNullOrEmpty(conflicto))
+{
+    <div class="alert alert-warning" role="alert" data-mensaje="conflicto">
+        <strong>No se pudo completar la operación.</strong> @conflicto
+    </div>
+}
+
+@if (erroresDelModelo.Count > 0)
+{
+    <div class="alert alert-danger" role="alert" data-mensaje="validacion">
+        <strong>Revise los datos.</strong>
+        <ul class="mb-0">
+            @foreach (var error in erroresDelModelo)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    </div>
+}

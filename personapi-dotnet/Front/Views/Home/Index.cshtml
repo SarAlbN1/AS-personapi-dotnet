@@ -1,8 +1,39 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
+    var modulos = new (string Texto, string Controlador, string Descripcion)[]
+    {
+        ("Personas", "Personas", "Cédula, nombre, apellido, género y edad."),
+        ("Profesiones", "Profesiones", "Catálogo de profesiones con su descripción."),
+        ("Teléfonos", "Telefonos", "Números asociados a una persona."),
+        ("Estudios", "Estudios", "Profesiones cursadas por cada persona, con fecha y universidad.")
+    };
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="py-3">
+    <h1 class="display-6">PersonAPI</h1>
+    <p class="lead">
+        Gestión de personas, profesiones, teléfonos y estudios sobre <code>persona_db</code>.
+        Las vistas web y la API REST comparten los mismos servicios.
+    </p>
 </div>
+
+<div class="row row-cols-1 row-cols-md-2 g-3">
+    @foreach (var modulo in modulos)
+    {
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h2 class="h5 card-title">@modulo.Texto</h2>
+                    <p class="card-text">@modulo.Descripcion</p>
+                    <a class="btn btn-outline-primary btn-sm" href="~/@modulo.Controlador">Abrir</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<p class="mt-4 text-muted">
+    La API está documentada en <a href="~/swagger">Swagger UI</a>.
+    La <a asp-controller="Home" asp-action="Convenciones">página de convenciones</a> muestra cómo se
+    presentan los errores de validación y los conflictos.
+</p>
