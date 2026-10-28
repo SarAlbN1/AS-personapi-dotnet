@@ -123,6 +123,16 @@
   \end{tikzpicture}%
 }
 
+% Imagen con espacio reservado: si el archivo existe se inserta; si no, se dibuja el
+% recuadro de \captura con la ruta esperada. Basta con subir la imagen a esa ruta
+% (relativa a main.tex) para que aparezca, sin tocar el texto.
+%   \imagenOPendiente[ancho]{ruta}{descripción}
+\newcommand{\imagenOPendiente}[3][0.85\textwidth]{%
+  \IfFileExists{#2}%
+    {\includegraphics[width=#1,height=0.6\textheight,keepaspectratio]{#2}}%
+    {\captura[#1]{#3\\[2pt]\scriptsize\texttt{\detokenize{#2}}}}%
+}
+
 % =====================================================================
 \begin{document}
 % =====================================================================
@@ -497,6 +507,39 @@ contenedor de inyección de dependencias de ASP.NET Core.
   \item[Modelo / Persistencia] Entidades y contexto generados por \emph{scaffolding} desde
         la base de datos.
 \end{description}
+
+\subsection{Modelo C4}
+
+El modelo C4 describe la misma arquitectura en niveles de detalle creciente. Los tres
+diagramas se derivan del SAD y del SDD de la wiki y se comprueban contra el código del
+repositorio; sus fuentes en texto se versionan en
+\texttt{docs/wiki/02-arquitectura/diagramas/} y las imágenes exportadas se guardan junto
+a este documento, en \texttt{diagramas/}.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.9\textwidth]{diagramas/c4-c1-contexto.png}{Diagrama C4 de nivel 1: contexto}
+\caption{C4 nivel 1 (contexto): el usuario, el monolito \texttt{personapi-dotnet} y
+SQL Server \texttt{persona\_db} como único almacén.}
+\label{fig:c4-contexto}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.9\textwidth]{diagramas/c4-c2-contenedores.png}{Diagrama C4 de nivel 2: contenedores}
+\caption{C4 nivel 2 (contenedores): la aplicación ASP.NET Core MVC 10 como único
+artefacto desplegable, con sus dos canales (vistas Razor y API REST), y la base
+\texttt{persona\_db}.}
+\label{fig:c4-contenedores}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.9\textwidth]{diagramas/c4-c3-componentes.png}{Diagrama C4 de nivel 3: componentes}
+\caption{C4 nivel 3 (componentes) del contenedor web: controladores MVC y API,
+servicios, interfaces DAO e implementaciones EF Core.}
+\label{fig:c4-componentes}
+\end{figure}
 
 \subsection{Estructura del proyecto}
 
@@ -1020,43 +1063,623 @@ app.Run();
 
 \subsubsection{8.14 Despliegue}
 
-\paragraph{Despliegue local.} Desde Visual Studio se ejecuta el proyecto con el perfil
-\texttt{http} (o con \texttt{dotnet run}). La aplicación queda disponible en
-\texttt{http://localhost:5000} y Swagger UI en \texttt{http://localhost:5000/swagger}.
+El proyecto se despliega de dos formas: como proceso local de ASP.NET Core contra
+SQL Server 2025 Express (perfil \texttt{http}, \url{http://localhost:5093}) o con
+Docker Compose (\url{http://localhost:8080}). Los dos caminos, con todos sus pasos
+desde la instalación de las herramientas, se describen en el manual técnico de la
+sección~\ref{sec:manual}.
 
-\paragraph{Despliegue con Docker.} Se construye la imagen en dos etapas (compilación con
-el SDK y ejecución con el \emph{runtime}, más liviano):
+% ---------------------------------------------------------------------
+%  MANUAL TÉCNICO DE DESPLIEGUE (HU-017)
+% ---------------------------------------------------------------------
+\subsection{Manual técnico de despliegue}
+\label{sec:manual}
+
+Este manual permite que cualquier persona, partiendo de un equipo con Windows 10 u 11
+de 64 bits sin las herramientas instaladas, despliegue \texttt{personapi-dotnet} y
+compruebe que funciona, sin consultar a los autores. Cada paso indica qué se hace, el
+comando exacto, el resultado esperado y la captura que lo evidencia.
+
+Hay dos caminos, y ambos parten de los pasos M1 a M7:
+
+\begin{description}[itemsep=2pt]
+  \item[Camino A · ejecución local] La aplicación corre con \texttt{dotnet run} contra
+        la instancia local \texttt{localhost\textbackslash SQLEXPRESS}, con autenticación
+        integrada de Windows. Es el camino con el que se verifican las historias del
+        proyecto (pasos M8 a M11).
+  \item[Camino B · Docker Compose] Un solo comando levanta SQL Server 2025, carga los
+        scripts y publica la aplicación en contenedores. No requiere SQL Server instalado
+        en el equipo (pasos M12 a M16).
+\end{description}
+
+El \texttt{README.md} del repositorio sigue siendo la guía operativa breve; este manual
+la desarrolla paso a paso y no la sustituye. \textbf{Ninguna captura ni comando de este
+manual muestra contraseñas}: la del usuario \texttt{sa} del camino B vive solo en el
+archivo \texttt{.env}, que Git ignora.
+
+\subsubsection{Requisitos y versiones}
+
+\begin{table}[H]
+\centering
+\caption{Herramientas del despliegue y versiones con las que se verificó el manual.}
+\label{tab:manual-versiones}
+\begin{tabularx}{\textwidth}{l l X}
+\toprule
+\textbf{Herramienta} & \textbf{Camino} & \textbf{Versión verificada} \\
+\midrule
+Git                         & A y B & 2.53 (\texttt{git --version}) \\
+SDK de .NET                 & A     & 10.0.402 (\texttt{dotnet --version}); cualquier SDK 10.0.x \\
+SQL Server 2025 Express     & A     & 17.0.1000.7, Express Edition (64-bit) \\
+SSMS                        & A     & SQL Server Management Studio 22 \\
+\texttt{sqlcmd}             & A     & \texttt{sqlcmd} de Microsoft (versión Go) \\
+Visual Studio 2026 Community & A (opcional) & Solo para editar y depurar; no es necesario para desplegar \\
+Docker Desktop              & B     & Docker Engine 29.8.1 y Docker Compose v5.5.1, motor Linux sobre WSL~2 \\
+Imágenes Docker             & B     & \url{mcr.microsoft.com/dotnet/sdk:10.0},
+                                      \url{mcr.microsoft.com/dotnet/aspnet:10.0} y
+                                      \url{mcr.microsoft.com/mssql/server:2025-latest}
+                                      (SQL Server 17.0.5035.5, Express) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Recursos mínimos para el camino B: 4~GB de RAM libres para Docker y unos 5~GB de disco
+para las imágenes. La primera construcción descarga las imágenes y tarda varios
+minutos; las siguientes, segundos.
+
+\subsubsection{Paso M1. Instalar Git}
+\begin{enumerate}[itemsep=2pt]
+  \item Descargar el instalador de \url{https://git-scm.com/downloads} y ejecutarlo con
+        las opciones por defecto.
+  \item Abrir una terminal nueva (PowerShell) y comprobar la instalación:
+\end{enumerate}
+\begin{lstlisting}[language=bash,numbers=none]
+git --version
+# git version 2.53.0.windows.2
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/01-git-version.png}{Terminal con la salida de \texttt{git --version}}
+\caption{Paso M1: Git instalado.}
+\end{figure}
+
+\paragraph{Instalación por terminal (\texttt{winget}).} El mismo paso se puede hacer desde PowerShell con el gestor de paquetes de Windows, que descarga el instalador oficial, comprueba su hash y lo ejecuta. Si la herramienta ya está instalada, \texttt{winget} lo detecta y cancela la reinstalación, como ocurrió en el equipo de verificación:
+
+\begin{lstlisting}[language=bash,numbers=none]
+winget search --id Git.Git --source winget
+winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements
+\end{lstlisting}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m1-a-git-search.png}{\texttt{winget search} encuentra el paquete \texttt{Git.Git}}
+\caption{Paso M1: \texttt{winget search} encuentra el paquete \texttt{Git.Git}.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m1-b-git-install.png}{\texttt{winget install} de Git; Git ya estaba instalado y \texttt{winget} canceló la reinstalación}
+\caption{Paso M1: \texttt{winget install} de Git; Git ya estaba instalado y \texttt{winget} canceló la reinstalación.}
+\end{figure}
+
+\subsubsection{Paso M2. Instalar el SDK de .NET 10}
+\begin{enumerate}[itemsep=2pt]
+  \item Descargar el \textbf{SDK} (no solo el \emph{runtime}) de .NET 10 para Windows x64
+        desde \url{https://dotnet.microsoft.com/download/dotnet/10.0} e instalarlo.
+  \item En una terminal nueva:
+\end{enumerate}
+\begin{lstlisting}[language=bash,numbers=none]
+dotnet --version
+# 10.0.402   (cualquier 10.0.x es valido)
+dotnet --list-sdks
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/02-dotnet-version.png}{Terminal con \texttt{dotnet --version} y \texttt{dotnet --list-sdks}}
+\caption{Paso M2: SDK de .NET 10 instalado.}
+\end{figure}
+
+\paragraph{Instalación por terminal (\texttt{winget}).} El mismo paso se puede hacer desde PowerShell con el gestor de paquetes de Windows, que descarga el instalador oficial, comprueba su hash y lo ejecuta. Si la herramienta ya está instalada, \texttt{winget} lo detecta y cancela la reinstalación, como ocurrió en el equipo de verificación:
+
+\begin{lstlisting}[language=bash,numbers=none]
+winget search --id Microsoft.DotNet.SDK --source winget
+winget install --id Microsoft.DotNet.SDK.10 -e --source winget --accept-package-agreements --accept-source-agreements
+\end{lstlisting}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m2-a-dotnet-search.png}{paquetes del SDK de .NET en \texttt{winget}; se usa \texttt{Microsoft.DotNet.SDK.10}}
+\caption{Paso M2: paquetes del SDK de .NET en \texttt{winget}; se usa \texttt{Microsoft.DotNet.SDK.10}.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m2-b-dotnet-install.png}{\texttt{winget install} del SDK de .NET 10 y \texttt{dotnet --list-sdks}}
+\caption{Paso M2: \texttt{winget install} del SDK de .NET 10 y \texttt{dotnet --list-sdks}.}
+\end{figure}
+
+\subsubsection{Paso M3. Instalar SQL Server 2025 Express (camino A)}
+\begin{enumerate}[itemsep=2pt]
+  \item Descargar SQL Server 2025 Express desde
+        \url{https://www.microsoft.com/sql-server/sql-server-downloads}.
+  \item Ejecutar el instalador y elegir el tipo de instalación \textbf{Básica}. Al
+        terminar, el instalador muestra el nombre de la instancia,
+        \texttt{SQLEXPRESS}, y la cadena de conexión
+        \texttt{localhost\textbackslash SQLEXPRESS}.
+  \item No hace falta crear usuarios ni contraseñas: el camino A usa la autenticación
+        integrada de Windows con el usuario que inició sesión, que el instalador deja
+        como administrador de la instancia.
+  \item Abrir una terminal nueva y comprobar que el servicio de la instancia está en
+        ejecución y que responde con la versión y la edición esperadas (\texttt{sqlcmd}
+        se instala en el paso M4):
+\end{enumerate}
+\begin{lstlisting}[language=bash,numbers=none]
+Get-Service 'MSSQL$SQLEXPRESS' | Format-Table Status, Name, DisplayName -AutoSize
+# Running  MSSQL$SQLEXPRESS  SQL Server (SQLEXPRESS)
+sqlcmd -S 'localhost\SQLEXPRESS' -E -C -W -Q "SELECT SERVERPROPERTY('ProductVersion') AS version, SERVERPROPERTY('Edition') AS edicion"
+# 17.0.1000.7 Express Edition (64-bit)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/03-sqlserver-servicio.png}{Servicio \texttt{MSSQL\$SQLEXPRESS} en ejecución y versión de la instancia}
+\caption{Paso M3: servicio SQL Server (SQLEXPRESS) en ejecución y versión 17.0.1000.7
+Express Edition.}
+\end{figure}
+
+\paragraph{Instalación por terminal (\texttt{winget}).} El paquete de la edición Express es \texttt{Microsoft.\allowbreak SQLServer.\allowbreak 2025.\allowbreak Express}. Su instalador pide permisos de administrador (Windows muestra el aviso de Control de cuentas de usuario) y abre el mismo asistente descrito arriba, donde se elige \textbf{Básica}:
+
+\begin{lstlisting}[language=bash,numbers=none]
+winget search "SQL Server 2025" --source winget
+winget install --id Microsoft.SQLServer.2025.Express -e --source winget --accept-package-agreements --accept-source-agreements
+\end{lstlisting}
+En el equipo de verificación no se ejecutó \texttt{winget install} para SQL Server: la instancia \texttt{SQLEXPRESS} ya existía y \texttt{winget} no la reconoce con ese identificador, así que el comando habría iniciado una segunda instalación.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m3-a-sql-search.png}{paquetes de SQL Server 2025 en \texttt{winget}; el camino A usa la edición Express}
+\caption{Paso M3: paquetes de SQL Server 2025 en \texttt{winget}; el camino A usa la edición Express.}
+\end{figure}
+
+\subsubsection{Paso M4. Instalar SSMS 22 y \texttt{sqlcmd} (camino A)}
+\begin{enumerate}[itemsep=2pt]
+  \item Instalar SQL Server Management Studio 22 desde
+        \url{https://learn.microsoft.com/ssms/install/install}.
+  \item Instalar \texttt{sqlcmd} desde
+        \url{https://learn.microsoft.com/sql/tools/sqlcmd/sqlcmd-utility}, si no quedó
+        instalado con SQL Server.
+  \item Abrir SSMS. La primera vez ofrece iniciar sesión con una cuenta de Microsoft o
+        de GitHub; no es necesario: se elige \textbf{Omitir y agregar cuentas más tarde}.
+  \item Conectarse con \textbf{Nombre del servidor}
+        \texttt{localhost\textbackslash SQLEXPRESS}, \textbf{Autenticación} de Windows y
+        la opción \textbf{Confiar en el certificado del servidor} marcada. El mismo
+        resultado se obtiene abriendo SSMS desde la terminal:
+\end{enumerate}
+\begin{lstlisting}[language=bash,numbers=none]
+& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\SSMS.exe" -S localhost\SQLEXPRESS -d persona_db -C
+\end{lstlisting}
+SSMS pregunta si se desea conectar al servidor indicado con autenticación de Windows y,
+al aceptar, el Explorador de objetos muestra la instancia con sus carpetas. La conexión
+también se comprueba con \texttt{sqlcmd}, como en el paso M3; si la terminal no reconoce
+\texttt{sqlcmd}, se cierra y se abre una nueva para que cargue el \texttt{PATH}
+actualizado por el instalador.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/04-ssms-conexion.png}{SSMS conectado a \texttt{localhost\textbackslash SQLEXPRESS}}
+\caption{Paso M4: SSMS 22 conectado a \texttt{localhost\textbackslash SQLEXPRESS}; el
+Explorador de objetos muestra la instancia.}
+\end{figure}
+
+\paragraph{Instalación por terminal (\texttt{winget}).} El mismo paso se puede hacer desde PowerShell con el gestor de paquetes de Windows, que descarga el instalador oficial, comprueba su hash y lo ejecuta. Si la herramienta ya está instalada, \texttt{winget} lo detecta y cancela la reinstalación, como ocurrió en el equipo de verificación:
+
+\begin{lstlisting}[language=bash,numbers=none]
+winget install --id Microsoft.SQLServerManagementStudio.22 -e --source winget --accept-package-agreements --accept-source-agreements
+winget install --id Microsoft.Sqlcmd -e --source winget --accept-package-agreements --accept-source-agreements
+sqlcmd --version
+\end{lstlisting}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m4-a-ssms-install.png}{\texttt{winget install} de SSMS 22}
+\caption{Paso M4: \texttt{winget install} de SSMS 22.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m4-b-sqlcmd-install.png}{\texttt{winget install} de \texttt{sqlcmd} y su versión}
+\caption{Paso M4: \texttt{winget install} de \texttt{sqlcmd} y su versión.}
+\end{figure}
+
+SSMS 22 se instala y se actualiza con el Visual Studio Installer. Con el botón \textbf{Modificar} se ven sus cargas de trabajo; para este laboratorio bastan los componentes principales, que se instalan siempre.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m4-c-ssms-installer.png}{Visual Studio Installer, pantalla Modificar de SQL Server Management Studio 22 (se cerró sin cambios)}
+\caption{Paso M4: Visual Studio Installer, pantalla Modificar de SQL Server Management Studio 22 (se cerró sin cambios).}
+\end{figure}
+
+\subsubsection{Paso M5. Instalar Visual Studio 2026 Community (opcional)}
+Solo es necesario para abrir y depurar la solución. Desde
+\url{https://visualstudio.microsoft.com/} se instala con las cargas de trabajo
+\textbf{Desarrollo de ASP.NET y web} y \textbf{Almacenamiento y procesamiento de
+datos}. Los pasos de despliegue de este manual se hacen desde la terminal y no lo
+requieren. La herramienta \texttt{vswhere}, que se instala con Visual Studio, confirma
+qué instalación tiene las dos cargas de trabajo:
+
+\begin{lstlisting}[language=bash,numbers=none]
+$vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+& $vswhere -products * -requires Microsoft.VisualStudio.Workload.NetWeb Microsoft.VisualStudio.Workload.Data -property displayName
+# Visual Studio Community 2026
+& $vswhere -products * -requires Microsoft.VisualStudio.Workload.NetWeb Microsoft.VisualStudio.Workload.Data -property catalog_productDisplayVersion
+# 18.11.1
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/05-visualstudio-cargas.png}{Terminal con \texttt{vswhere} y la instalación que tiene las dos cargas de trabajo}
+\caption{Paso M5: Visual Studio Community 2026 (18.11.1) con las cargas de ASP.NET y web
+y de datos.}
+\end{figure}
+
+\paragraph{Instalación por terminal (\texttt{winget}).} El mismo paso se puede hacer desde PowerShell con el gestor de paquetes de Windows, que descarga el instalador oficial, comprueba su hash y lo ejecuta. Si la herramienta ya está instalada, \texttt{winget} lo detecta y cancela la reinstalación, como ocurrió en el equipo de verificación:
+
+\begin{lstlisting}[language=bash,numbers=none]
+winget install --id Microsoft.VisualStudio.Community -e --source winget --accept-package-agreements --accept-source-agreements
+\end{lstlisting}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m5-a-vs-install.png}{\texttt{winget install} de Visual Studio Community}
+\caption{Paso M5: \texttt{winget install} de Visual Studio Community.}
+\end{figure}
+
+El Visual Studio Installer muestra los productos instalados. Con \textbf{Modificar} en Visual Studio Community 2026 se marcan las dos cargas de trabajo y se confirma con \textbf{Modificar}, o con \textbf{Instalar} en una instalación nueva:
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m5-b-vs-installer.png}{Visual Studio Installer con Build Tools, SSMS 22 y Visual Studio Community 2026}
+\caption{Paso M5: Visual Studio Installer con Build Tools, SSMS 22 y Visual Studio Community 2026.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m5-c-vs-cargas.png}{carga Desarrollo de ASP.NET y web marcada y, en el panel derecho, Almacenamiento y procesamiento de datos (se cerró sin cambios)}
+\caption{Paso M5: carga Desarrollo de ASP.NET y web marcada y, en el panel derecho, Almacenamiento y procesamiento de datos (se cerró sin cambios).}
+\end{figure}
+
+\subsubsection{Paso M6. Instalar Docker Desktop (camino B)}
+\begin{enumerate}[itemsep=2pt]
+  \item Descargar Docker Desktop para Windows desde
+        \url{https://www.docker.com/products/docker-desktop/} e instalarlo con el motor
+        \textbf{WSL~2} (opción por defecto). Si Windows lo pide, reiniciar.
+  \item Abrir Docker Desktop y esperar a que indique que el motor está en ejecución
+        (\emph{Engine running}).
+  \item Comprobar desde la terminal:
+\end{enumerate}
+\begin{lstlisting}[language=bash,numbers=none]
+docker --version
+# Docker version 29.8.1, build 4a63305
+docker compose version
+# Docker Compose version v5.5.1
+docker info --format 'Motor: {{.ServerVersion}} ({{.OSType}}, {{.OperatingSystem}})'
+# Motor: 29.8.1 (linux, Docker Desktop)
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/06-docker-version.png}{Terminal con \texttt{docker --version}, \texttt{docker compose version} y el motor en ejecución}
+\caption{Paso M6: Docker Desktop instalado, con el motor Linux en ejecución.}
+\end{figure}
+
+\paragraph{Instalación por terminal (\texttt{winget}).} El mismo paso se puede hacer desde PowerShell con el gestor de paquetes de Windows, que descarga el instalador oficial, comprueba su hash y lo ejecuta. Si la herramienta ya está instalada, \texttt{winget} lo detecta y cancela la reinstalación, como ocurrió en el equipo de verificación:
+
+\begin{lstlisting}[language=bash,numbers=none]
+winget install --id Docker.DockerDesktop -e --source winget --accept-package-agreements --accept-source-agreements
+\end{lstlisting}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m6-a-docker-install.png}{\texttt{winget install} de Docker Desktop}
+\caption{Paso M6: \texttt{winget install} de Docker Desktop.}
+\end{figure}
+
+\subsubsection{Paso M7. Clonar el repositorio}
+\begin{lstlisting}[language=bash,numbers=none]
+git clone <URL-del-repositorio>.git
+cd <carpeta-del-clon>
+git checkout v1.0.0     # version entregada
+\end{lstlisting}
+La URL del repositorio público es \url{\repoURL}, la misma que se indica al final del
+procedimiento. La raíz del clon contiene \texttt{personapi-dotnet.sln},
+\texttt{Dockerfile}, \texttt{docker-compose.yml}, \texttt{.env.example} y las carpetas
+\texttt{scripts/}, \texttt{personapi-dotnet/} y \texttt{tests/}. Todos los comandos
+siguientes se ejecutan desde esa raíz.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/07-git-clone.png}{Terminal con el clon terminado y el listado de la raíz del repositorio}
+\caption{Paso M7: repositorio clonado y contenido de su raíz. La captura se tomó antes de
+publicar la etiqueta, clonando la rama de esta historia.}
+\end{figure}
+
+Para confirmar la rama y conocer la estructura del clon:
+
+\begin{lstlisting}[language=bash,numbers=none]
+git branch --show-current
+git log --oneline -5
+git remote -v
+Get-ChildItem -Name
+Get-ChildItem scripts -Name
+Get-ChildItem personapi-dotnet -Name -Exclude bin,obj
+\end{lstlisting}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m7-b-git-log.png}{rama, últimos commits y remoto del clon}
+\caption{Paso M7: rama, últimos commits y remoto del clon.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.62\textwidth]{figuras/manual/m7-c-estructura.png}{contenido de la raíz, de \texttt{scripts/} y del proyecto \texttt{personapi-dotnet/}}
+\caption{Paso M7: contenido de la raíz, de \texttt{scripts/} y del proyecto \texttt{personapi-dotnet/}.}
+\end{figure}
+
+\subsubsection{Camino A · Paso M8. Crear \texttt{persona\_db}}
+Se ejecutan los dos scripts en orden: primero el DDL, que crea la base, las tablas, las
+llaves y las restricciones, y después el DML, con tres filas de demostración por tabla.
+También pueden abrirse y ejecutarse en SSMS, en el mismo orden.
+
+\begin{lstlisting}[language=bash,numbers=none]
+sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i scripts/01_ddl.sql
+sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i scripts/02_dml.sql
+sqlcmd -S "localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT COUNT(*) FROM persona; SELECT COUNT(*) FROM profesion; SELECT COUNT(*) FROM telefono; SELECT COUNT(*) FROM estudios"
+# 3, 3, 3 y 3 filas
+\end{lstlisting}
+
+\textbf{Reejecución.} Los dos scripts son idempotentes: si la base y las filas ya
+existen no las duplican ni las modifican, y no muestran error. Para volver al estado
+inicial exacto se elimina la base (\texttt{DROP DATABASE persona\_db;}) y se ejecutan de
+nuevo los dos scripts.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/08-scripts-sqlcmd.png}{Terminal con la ejecución de \texttt{01\_ddl.sql}, \texttt{02\_dml.sql} y el conteo de filas}
+\caption{Paso M8: creación y carga de \texttt{persona\_db}.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/09-ssms-tablas.png}{Explorador de objetos de SSMS con las cuatro tablas de \texttt{persona\_db}}
+\caption{Paso M8: las cuatro tablas de \texttt{persona\_db} en el Explorador de objetos
+de SSMS y las tres personas cargadas por el DML.}
+\end{figure}
+
+El contenido de cada tabla se revisa con una consulta por tabla, en SSMS o con \texttt{sqlcmd}:
+
+\begin{lstlisting}[language=bash,numbers=none]
+sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM persona"
+sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM profesion"
+sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM telefono"
+sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM estudios"
+\end{lstlisting}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m8-c-persona.png}{tabla \texttt{persona} con las tres personas de demostración}
+\caption{Paso M8: tabla \texttt{persona} con las tres personas de demostración.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m8-d-profesion.png}{tabla \texttt{profesion}}
+\caption{Paso M8: tabla \texttt{profesion}.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m8-e-telefono.png}{tabla \texttt{telefono}; \texttt{duenio} referencia a \texttt{persona.cc}}
+\caption{Paso M8: tabla \texttt{telefono}; \texttt{duenio} referencia a \texttt{persona.cc}.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m8-f-estudios.png}{tabla \texttt{estudios}, con llave primaria compuesta (\texttt{id\_prof}, \texttt{cc\_per})}
+\caption{Paso M8: tabla \texttt{estudios}, con llave primaria compuesta (\texttt{id\_prof}, \texttt{cc\_per}).}
+\end{figure}
+
+El DML se puede ejecutar de nuevo sin duplicar filas:
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m8-g-reejecucion.png}{segunda ejecución de \texttt{02\_dml.sql}; los conteos siguen en 3 por tabla}
+\caption{Paso M8: segunda ejecución de \texttt{02\_dml.sql}; los conteos siguen en 3 por tabla.}
+\end{figure}
+
+\subsubsection{Camino A · Paso M9. Configurar la cadena de conexión}
+La aplicación lee la cadena de \texttt{ConnectionStrings:PersonaDb}. En
+\texttt{appsettings.json} está vacía a propósito, para no versionar datos de conexión;
+el valor local se guarda con \emph{User Secrets}, fuera del repositorio:
+
+\begin{lstlisting}[language=bash,numbers=none]
+dotnet user-secrets set "ConnectionStrings:PersonaDb" "Server=localhost\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=True" --project personapi-dotnet/personapi-dotnet.csproj
+dotnet user-secrets list --project personapi-dotnet/personapi-dotnet.csproj
+\end{lstlisting}
+
+Esta cadena no contiene contraseña porque usa la autenticación integrada de Windows.
+Como alternativa equivalente, sin \emph{User Secrets}, se define la variable de entorno
+en la terminal antes de ejecutar:
+
+\begin{lstlisting}[language=bash,numbers=none]
+$env:ConnectionStrings__PersonaDb = "Server=localhost\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=True"
+\end{lstlisting}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/10-user-secrets.png}{Terminal con \texttt{dotnet user-secrets list} mostrando la cadena con autenticación integrada}
+\caption{Paso M9: cadena de conexión configurada con User Secrets.}
+\end{figure}
+
+\subsubsection{Camino A · Paso M10. Restaurar, compilar y probar}
+\begin{lstlisting}[language=bash,numbers=none]
+dotnet restore
+dotnet build
+# Compilación realizado correctamente
+dotnet test
+# Correctas! - Con error: 0, Superado: 56, Omitido: 0, Total: 56
+\end{lstlisting}
+
+Las pruebas de integración usan la misma \texttt{persona\_db}: con la cadena definida
+se ejecutan contra la base y dejan los datos como los deja \texttt{02\_dml.sql}; sin
+ella se omiten.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/11-build-test.png}{Terminal con \texttt{dotnet build} sin errores y el resumen de \texttt{dotnet test}}
+\caption{Paso M10: compilación y pruebas en verde.}
+\end{figure}
+
+Los tres comandos también se pueden ejecutar por separado, para ubicar mejor un error:
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m10-a-restore.png}{\texttt{dotnet restore}}
+\caption{Paso M10: \texttt{dotnet restore}.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m10-b-build.png}{\texttt{dotnet build --no-restore} compila la aplicación y el proyecto de pruebas}
+\caption{Paso M10: \texttt{dotnet build --no-restore} compila la aplicación y el proyecto de pruebas.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m10-c-test.png}{\texttt{dotnet test --no-build}: 56 pruebas superadas, ninguna con error}
+\caption{Paso M10: \texttt{dotnet test --no-build}: 56 pruebas superadas, ninguna con error.}
+\end{figure}
+
+\subsubsection{Camino A · Paso M11. Ejecutar la aplicación}
+\begin{lstlisting}[language=bash,numbers=none]
+dotnet run --project personapi-dotnet/personapi-dotnet.csproj
+# Now listening on: http://localhost:5093
+# Hosting environment: Development
+\end{lstlisting}
+
+Con la aplicación en marcha:
+\begin{itemize}[itemsep=1pt]
+  \item Vistas web: \url{http://localhost:5093}
+  \item Swagger UI: \url{http://localhost:5093/swagger}
+\end{itemize}
+Se detiene con \texttt{Ctrl+C} en la terminal.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/12-dotnet-run.png}{Terminal con \texttt{dotnet run} escuchando en \texttt{http://localhost:5093}}
+\caption{Paso M11: aplicación en ejecución local.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/13-app-local.png}{Navegador en \texttt{http://localhost:5093} con la página de inicio y el menú}
+\caption{Paso M11: página de inicio servida localmente.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/14-swagger-local.png}{Swagger UI en \texttt{http://localhost:5093/swagger}}
+\caption{Paso M11: Swagger UI en ejecución local.}
+\end{figure}
+
+\subsubsection{Camino B · Paso M12. Crear el archivo \texttt{.env}}
+Docker Compose lee la contraseña del usuario \texttt{sa} del contenedor de SQL Server
+de un archivo \texttt{.env} en la raíz. Se crea a partir de la plantilla y se edita para
+dar valor a \texttt{SA\_PASSWORD}:
+
+\begin{lstlisting}[language=bash,numbers=none]
+Copy-Item .env.example .env
+notepad .env          # escribir SA_PASSWORD=<contrasena-local> y guardar
+git status --short    # .env no aparece: Git lo ignora
+\end{lstlisting}
+
+La contraseña debe tener al menos 8 caracteres e incluir tres de estos cuatro grupos:
+mayúsculas, minúsculas, dígitos y símbolos; si no, SQL Server no arranca. Es una
+contraseña local de laboratorio y \textbf{no se captura ni se escribe en ningún
+documento}.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m12-a-env-example.png}{plantilla \texttt{.env.example}; \texttt{SA\_PASSWORD} va vacía y se completa solo en \texttt{.env}, que no se captura}
+\caption{Paso M12: plantilla \texttt{.env.example}; \texttt{SA\_PASSWORD} va vacía y se completa solo en \texttt{.env}, que no se captura.}
+\end{figure}
+
+\subsubsection{Camino B · Paso M13. Construir y levantar los contenedores}
+\begin{lstlisting}[language=bash,numbers=none]
+docker compose up --build -d
+\end{lstlisting}
+
+El comando construye la imagen de la aplicación con el \texttt{Dockerfile} y arranca
+tres servicios en la red \texttt{personapi-net}:
+
+\begin{description}[itemsep=2pt]
+  \item[\texttt{sqlserver}] SQL Server 2025 Express. Publica el puerto 1433 y guarda los
+        datos en el volumen \texttt{sqldata}. Compose espera a que su comprobación de
+        salud (\texttt{SELECT 1}) responda.
+  \item[\texttt{db-init}] Ejecuta \texttt{scripts/01\_ddl.sql} y
+        \texttt{scripts/02\_dml.sql} contra \texttt{sqlserver} y termina. Como los
+        scripts son idempotentes, repetir \texttt{docker compose up} no duplica datos.
+  \item[\texttt{personapi}] La aplicación. Arranca solo cuando \texttt{db-init} terminó
+        bien y recibe la cadena de conexión por la variable
+        \texttt{ConnectionStrings\_\_PersonaDb}, con el usuario \texttt{sa} y la
+        contraseña de \texttt{.env}.
+\end{description}
+
+Salida esperada al final:
+\begin{lstlisting}[language=bash,numbers=none]
+[+] up 6/6
+ Image personapi-personapi       Built
+ Network personapi_personapi-net Created
+ Volume personapi_sqldata        Created
+ Container personapi-sqlserver-1 Healthy
+ Container personapi-db-init-1   Exited
+ Container personapi-personapi-1 Started
+\end{lstlisting}
+La primera vez, antes de estas líneas, Docker descarga las imágenes base y compila la
+aplicación dentro de la imagen \texttt{sdk:10.0}; eso tarda varios minutos. En las
+siguientes ejecuciones los pasos salen como \texttt{CACHED} y el arranque completo toma
+unos segundos.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/15-compose-up.png}{Terminal con la salida final de \texttt{docker compose up --build -d}}
+\caption{Paso M13: contenedores construidos y levantados.}
+\end{figure}
+
+Los dos archivos que usa este paso están en la raíz del repositorio:
 
 \begin{lstlisting}[language=docker,caption={\texttt{Dockerfile}.}]
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY personapi-dotnet/personapi-dotnet.csproj personapi-dotnet/
 RUN dotnet restore personapi-dotnet/personapi-dotnet.csproj
-COPY . .
-RUN dotnet publish personapi-dotnet/personapi-dotnet.csproj -c Release -o /app/publish
+COPY personapi-dotnet/ personapi-dotnet/
+RUN dotnet publish personapi-dotnet/personapi-dotnet.csproj -c Release -o /app/publish --no-restore
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-ENV ASPNETCORE_URLS=http://+:8080
+# La imagen aspnet:10.0 ya escucha en 8080 (ASPNETCORE_HTTP_PORTS); se declara el puerto.
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "personapi-dotnet.dll"]
 \end{lstlisting}
 
 \begin{lstlisting}[language=yaml,caption={\texttt{docker-compose.yml}.}]
+name: personapi
+
 services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2025-latest
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "${SA_PASSWORD}"
+      MSSQL_SA_PASSWORD: "${SA_PASSWORD:?Defina SA_PASSWORD en .env}"
       MSSQL_PID: "Express"
     ports:
       - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1'"]
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' || exit 1"]
       interval: 10s
-      retries: 10
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    networks:
+      - personapi-net
 
   db-init:
     image: mcr.microsoft.com/mssql/server:2025-latest
@@ -1064,12 +1687,19 @@ services:
       sqlserver:
         condition: service_healthy
     volumes:
-      - ./scripts:/scripts
-    entrypoint: >
-      bash -c "for f in /scripts/*.sql; do
-               /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P \"$SA_PASSWORD\" -C -i $$f; done"
+      - ./scripts:/scripts:ro
     environment:
-      SA_PASSWORD: "${SA_PASSWORD}"
+      SA_PASSWORD: "${SA_PASSWORD:?Defina SA_PASSWORD en .env}"
+    entrypoint:
+      - bash
+      - -c
+      - |
+        for f in /scripts/01_ddl.sql /scripts/02_dml.sql; do
+          echo "Ejecutando $$f"
+          /opt/mssql-tools18/bin/sqlcmd -S sqlserver -U sa -P "$$SA_PASSWORD" -C -b -i "$$f" || exit 1
+        done
+    networks:
+      - personapi-net
 
   personapi:
     build: .
@@ -1077,22 +1707,324 @@ services:
       db-init:
         condition: service_completed_successfully
     environment:
-      ConnectionStrings__PersonaDb: "Server=sqlserver,1433;Database=persona_db;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True"
+      ConnectionStrings__PersonaDb: "Server=sqlserver,1433;Database=persona_db;User Id=sa;Password=${SA_PASSWORD:?Defina SA_PASSWORD en .env};TrustServerCertificate=True"
     ports:
       - "8080:8080"
+    networks:
+      - personapi-net
+
+volumes:
+  sqldata:
+
+networks:
+  personapi-net:
 \end{lstlisting}
 
-Dentro de Docker no es posible la autenticación integrada de Windows
-(\texttt{Trusted\_Connection}), por lo que la cadena de conexión se sobrescribe con una
-variable de entorno que usa el usuario \texttt{sa}. La contraseña se lee de un archivo
-\texttt{.env} que no se versiona.
+Dentro de un contenedor Linux no existe la autenticación integrada de Windows, por eso
+este camino usa el usuario \texttt{sa}. La contraseña nunca está en el repositorio:
+Compose la toma de \texttt{.env} y la sustituye en
+\texttt{\$\{SA\_PASSWORD\}} al arrancar.
+
+\subsubsection{Camino B · Paso M14. Comprobar los contenedores}
+\begin{lstlisting}[language=bash,numbers=none]
+docker compose ps -a
+# personapi   running   0.0.0.0:8080->8080/tcp
+# sqlserver   running (healthy)   0.0.0.0:1433->1433/tcp
+# db-init     exited (0)
+docker compose logs db-init
+# Ejecutando /scripts/01_ddl.sql
+# Ejecutando /scripts/02_dml.sql
+docker compose logs personapi
+# Now listening on: http://[::]:8080
+\end{lstlisting}
+
+\texttt{db-init} debe terminar con código \texttt{0}: es un servicio de un solo uso, no
+un fallo.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/16-compose-ps.png}{Terminal con \texttt{docker compose ps -a} y los logs de \texttt{db-init}}
+\caption{Paso M14: estado de los tres servicios.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/17-docker-desktop-contenedores.png}{Docker Desktop con el proyecto \texttt{personapi} y sus contenedores}
+\caption{Paso M14: contenedores en Docker Desktop.}
+\end{figure}
+
+Los registros y los recursos creados se revisan desde la terminal:
 
 \begin{lstlisting}[language=bash,numbers=none]
-echo "SA_PASSWORD=<contrasena-local-no-versionada>" > .env
-docker compose up --build -d
-# Vistas:   http://localhost:8080/Personas
-# Swagger:  http://localhost:8080/swagger
+docker compose logs db-init
+docker compose logs personapi --tail 15
+docker image ls personapi-personapi
+docker network ls --filter name=personapi
+docker volume ls --filter name=personapi
 \end{lstlisting}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m14-b-logs-dbinit.png}{\texttt{db-init} ejecutó \texttt{01\_ddl.sql} y luego \texttt{02\_dml.sql}}
+\caption{Paso M14: \texttt{db-init} ejecutó \texttt{01\_ddl.sql} y luego \texttt{02\_dml.sql}.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m14-c-logs-personapi.png}{\texttt{personapi} escucha en el puerto 8080 del contenedor y consulta \texttt{persona\_db}}
+\caption{Paso M14: \texttt{personapi} escucha en el puerto 8080 del contenedor y consulta \texttt{persona\_db}.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m14-d-imagenes-red-volumen.png}{imagen \texttt{personapi-personapi}, red \texttt{personapi\_personapi-net} y volumen \texttt{personapi\_sqldata}}
+\caption{Paso M14: imagen \texttt{personapi-personapi}, red \texttt{personapi\_personapi-net} y volumen \texttt{personapi\_sqldata}.}
+\end{figure}
+
+Lo mismo se ve en Docker Desktop, filtrando por \texttt{personapi} en cada pestaña:
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m14-e-docker-imagenes.png}{Docker Desktop, pestaña Images, con la imagen de la aplicación}
+\caption{Paso M14: Docker Desktop, pestaña Images, con la imagen de la aplicación.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m14-f-docker-volumen.png}{Docker Desktop, pestaña Volumes, con el volumen de la base}
+\caption{Paso M14: Docker Desktop, pestaña Volumes, con el volumen de la base.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m14-g-docker-logs.png}{Docker Desktop, registros del contenedor \texttt{personapi-personapi-1}}
+\caption{Paso M14: Docker Desktop, registros del contenedor \texttt{personapi-personapi-1}.}
+\end{figure}
+
+\subsubsection{Camino B · Paso M15. Usar la aplicación}
+\begin{itemize}[itemsep=1pt]
+  \item Vistas web: \url{http://localhost:8080}
+  \item Swagger UI: \url{http://localhost:8080/swagger}
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/18-app-docker.png}{Navegador en \texttt{http://localhost:8080} con la página de inicio}
+\caption{Paso M15: aplicación servida desde el contenedor.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente{figuras/manual/19-swagger-docker.png}{Swagger UI (puerto 8080) ejecutando \texttt{GET /api/personas} con respuesta 200}
+\caption{Paso M15: Swagger UI desde el contenedor.}
+\end{figure}
+
+Con Swagger UI se recorre un CRUD completo sin otra herramienta: en cada operación se pulsa \textbf{Try it out}, se llenan los parámetros o el cuerpo y se pulsa \textbf{Execute}. La secuencia siguiente crea la profesión 40, la modifica, la consulta, la elimina y comprueba que ya no existe, así que la base queda como estaba:
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m15-a-swagger-get-lista.png}{\texttt{GET /api/personas} con respuesta 200 y las tres personas}
+\caption{Paso M15: \texttt{GET /api/personas} con respuesta 200 y las tres personas.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m15-c-swagger-get-cc.png}{\texttt{GET /api/personas/1010101010} con respuesta 200}
+\caption{Paso M15: \texttt{GET /api/personas/1010101010} con respuesta 200.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m15-d-swagger-post.png}{\texttt{POST /api/profesiones} con la profesión 40; respuesta 201}
+\caption{Paso M15: \texttt{POST /api/profesiones} con la profesión 40; respuesta 201.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m15-e-swagger-put.png}{\texttt{PUT /api/profesiones/40}; respuesta 204}
+\caption{Paso M15: \texttt{PUT /api/profesiones/40}; respuesta 204.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m15-f-swagger-get-id.png}{\texttt{GET /api/profesiones/40} devuelve la profesión modificada}
+\caption{Paso M15: \texttt{GET /api/profesiones/40} devuelve la profesión modificada.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m15-g-swagger-delete.png}{\texttt{DELETE /api/profesiones/40}; respuesta 204}
+\caption{Paso M15: \texttt{DELETE /api/profesiones/40}; respuesta 204.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m15-h-swagger-404.png}{\texttt{GET /api/profesiones/40} después de eliminarla; respuesta 404 con \texttt{ProblemDetails}}
+\caption{Paso M15: \texttt{GET /api/profesiones/40} después de eliminarla; respuesta 404 con \texttt{ProblemDetails}.}
+\end{figure}
+
+La interfaz MVC también responde en el 8080, por ejemplo la página de convenciones de errores:
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m15-b-convenciones.png}{página Convenciones de errores en \texttt{http://localhost:8080/Home/Convenciones}}
+\caption{Paso M15: página Convenciones de errores en \texttt{http://localhost:8080/Home/Convenciones}.}
+\end{figure}
+
+\subsubsection{Camino B · Paso M16. Detener y limpiar}
+\begin{lstlisting}[language=bash,numbers=none]
+docker compose down       # detiene y elimina los contenedores; conserva los datos
+docker compose down -v    # ademas elimina el volumen sqldata: la base se pierde
+\end{lstlisting}
+Tras \texttt{down -v}, el siguiente \texttt{docker compose up -d} vuelve a crear la base
+desde los scripts.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m16-a-compose-down.png}{\texttt{docker compose down} elimina contenedores y red; el volumen se conserva}
+\caption{Paso M16: \texttt{docker compose down} elimina contenedores y red; el volumen se conserva.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/m16-b-compose-up-otra-vez.png}{\texttt{docker compose up -d} vuelve a levantar la pila con los datos del volumen}
+\caption{Paso M16: \texttt{docker compose up -d} vuelve a levantar la pila con los datos del volumen.}
+\end{figure}
+
+\subsubsection{Verificación posterior al despliegue}
+Sirve para los dos caminos; solo cambia el puerto: \texttt{5093} en el camino A y
+\texttt{8080} en el B. Las comprobaciones se hacen desde el navegador, desde Swagger UI
+o con estos comandos de PowerShell:
+
+\begin{lstlisting}[language=bash,numbers=none]
+$b = "http://localhost:8080"     # en el camino A: http://localhost:5093
+(Invoke-WebRequest "$b/" -UseBasicParsing).StatusCode                     # 200
+(Invoke-WebRequest "$b/swagger/index.html" -UseBasicParsing).StatusCode   # 200
+Invoke-RestMethod "$b/api/personas" | ForEach-Object { $_ } | Format-Table cc, nombre, apellido
+Invoke-WebRequest "$b/api/profesiones" -Method Post -ContentType "application/json" -Body '{"id":40,"nom":"Arquitectura","des":"Prueba de despliegue"}' -UseBasicParsing | Select-Object StatusCode   # 201
+(Invoke-WebRequest "$b/api/profesiones/40" -Method Delete -UseBasicParsing).StatusCode       # 204
+\end{lstlisting}
+
+\begin{table}[H]
+\centering
+\caption{Resultado esperado de la verificación posterior al despliegue.}
+\label{tab:manual-verificacion}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4.6cm} >{\raggedright\arraybackslash}p{4.2cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Comprobación} & \textbf{Esperado} & \textbf{Qué demuestra} \\
+\midrule
+\texttt{GET /}                         & 200 & La aplicación MVC responde \\
+\texttt{GET /swagger/index.html}       & 200 & Swagger UI publicado \\
+\texttt{GET /swagger/v1/swagger.json}  & 200, OpenAPI 3.0.4 & Contrato OpenAPI 3 \\
+\texttt{GET /api/personas}             & 200 y las 3 personas del DML & Conexión real a \texttt{persona\_db} \\
+\texttt{POST /api/profesiones} (id 40) & 201 con \texttt{Location} & Escritura en la base \\
+\texttt{DELETE /api/profesiones/40}    & 204 & La base queda como estaba \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/v-a-verificacion-estados.png}{códigos de estado de la página de inicio, Swagger UI, el documento OpenAPI y la API}
+\caption{Verificación: códigos de estado de la página de inicio, Swagger UI, el documento OpenAPI y la API.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/v-b-verificacion-datos.png}{datos de \texttt{/api/personas} y \texttt{/api/profesiones} leídos de \texttt{persona\_db}}
+\caption{Verificación: datos de \texttt{/api/personas} y \texttt{/api/profesiones} leídos de \texttt{persona\_db}.}
+\end{figure}
+
+\subsubsection{Fallos frecuentes}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{4.4cm} >{\raggedright\arraybackslash}p{4.8cm} >{\raggedright\arraybackslash}p{5.4cm}}
+\caption{Fallos frecuentes del despliegue, su causa y su solución.}\label{tab:manual-fallos}\\
+\toprule
+\textbf{Síntoma} & \textbf{Causa} & \textbf{Solución} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Síntoma} & \textbf{Causa} & \textbf{Solución} \\
+\midrule
+\endhead
+\texttt{/api/*} responde 500 y el log dice \emph{No se ha inicializado la propiedad
+ConnectionString} &
+La cadena \texttt{ConnectionStrings:}\allowbreak\texttt{PersonaDb} no está definida
+(camino A) &
+Repetir el paso M9 en el mismo usuario y proyecto, o definir la variable de entorno en
+la misma terminal donde se ejecuta \texttt{dotnet run}. \\
+\midrule
+\texttt{/api/*} responde 500 y el log dice \emph{Cannot open database} con el nombre \texttt{persona\_db} &
+La base no existe o la cadena apunta a otra base &
+Ejecutar el paso M8 y revisar el nombre \texttt{Database=persona\_db} de la cadena. \\
+\midrule
+\texttt{sqlcmd} o la aplicación no conectan: \emph{A network-related or
+instance-specific error} &
+Conexión rechazada: el servicio \texttt{SQL Server (SQLEXPRESS)} está detenido o el
+nombre de la instancia es otro &
+Iniciar el servicio en \texttt{services.msc} y comprobar el nombre con SSMS
+(paso M4). \\
+\midrule
+\texttt{docker compose up} falla con \emph{Bind for 0.0.0.0:8080 failed: port is already
+allocated} (o 1433) &
+Puerto ocupado por otro programa o por otra instancia de los contenedores &
+Liberar el puerto (\texttt{netstat -ano | findstr :8080}) o cambiar el puerto
+publicado en \texttt{docker-compose.yml}, por ejemplo \texttt{8081:8080}. \\
+\midrule
+\texttt{dotnet run} falla con \emph{address already in use} en el 5093 &
+Otra instancia de la aplicación sigue en ejecución &
+Cerrarla con \texttt{Ctrl+C} o terminar el proceso \texttt{personapi-dotnet}. \\
+\midrule
+\texttt{docker compose up} se detiene con \emph{Defina SA\_PASSWORD en .env} &
+Falta el archivo \texttt{.env} o la variable está vacía &
+Repetir el paso M12. \\
+\midrule
+\texttt{sqlserver} nunca llega a \emph{healthy} y su log rechaza la contraseña &
+La contraseña no cumple la política de complejidad de SQL Server &
+Poner una contraseña más fuerte en \texttt{.env} y ejecutar
+\texttt{docker compose down -v} y luego \texttt{up --build -d}. \\
+\midrule
+\texttt{docker} responde \emph{cannot connect to the Docker daemon} &
+Docker Desktop no está abierto o su motor no arrancó &
+Abrir Docker Desktop y esperar a \emph{Engine running} (paso M6). \\
+\bottomrule
+\end{longtable}
+
+Dos de estos fallos se reprodujeron a propósito en el equipo de verificación:
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/f-a-falta-sa-password.png}{\texttt{SA\_PASSWORD} vacía; Compose se detiene con el mensaje \emph{Defina SA\_PASSWORD en .env}}
+\caption{Fallo: \texttt{SA\_PASSWORD} vacía; Compose se detiene con el mensaje \emph{Defina SA\_PASSWORD en .env}.}
+\end{figure}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.85\textwidth]{figuras/manual/f-b-puerto-ocupado.png}{puerto ocupado; \texttt{dotnet run} en el 8080, que ya usa el contenedor, termina con \emph{address already in use}}
+\caption{Fallo: puerto ocupado; \texttt{dotnet run} en el 8080, que ya usa el contenedor, termina con \emph{address already in use}.}
+\end{figure}
+
+\subsubsection{Registro de verificación}
+El 27 de octubre de 2026 se ejecutaron los dos caminos en un equipo con Windows 11 Pro,
+con las versiones de la Tabla~\ref{tab:manual-versiones}:
+
+\begin{itemize}[itemsep=2pt]
+  \item \textbf{Camino B desde cero.} Se eliminaron contenedores, red y volumen
+        (\texttt{docker compose down -v}) y se ejecutó \texttt{docker compose up --build -d}
+        sobre un clon nuevo del repositorio. \texttt{sqlserver} quedó \emph{healthy},
+        \texttt{db-init} terminó con código 0 tras ejecutar los dos scripts y
+        \texttt{personapi} escuchó en el 8080. Las comprobaciones de la
+        Tabla~\ref{tab:manual-verificacion} dieron los resultados esperados, y la
+        consulta a la base del contenedor mostró 3 filas por tabla. Una segunda ejecución
+        de \texttt{docker compose up -d} no duplicó datos.
+  \item \textbf{Camino A.} Con la base local creada por los scripts, \texttt{dotnet run}
+        escuchó en \url{http://localhost:5093}; \texttt{/} y \texttt{/swagger}
+        respondieron 200, y \texttt{/api/\allowbreak personas} y \texttt{/api/\allowbreak profesiones}
+        devolvieron los datos de \texttt{persona\_db}. Sin cadena de conexión y con una
+        base inexistente se reprodujeron los dos primeros fallos de la
+        Tabla~\ref{tab:manual-fallos}.
+\end{itemize}
+
+\textbf{Capturas.} Las figuras de este manual son capturas reales de ese mismo equipo,
+tomadas el 27 de octubre de 2026 al ejecutar cada paso: las ventanas de PowerShell,
+SSMS 22 y Docker Desktop, y Google Chrome sobre la aplicación en los puertos 5093 y
+8080. El 28 de octubre de 2026 se añadieron las de instalación con \texttt{winget},
+las del Visual Studio Installer, el CRUD por Swagger, los recursos de Docker y dos
+fallos reproducidos. En los pasos de instalación (M1 a M6), \texttt{winget install} se
+ejecutó de verdad sobre herramientas que ya estaban instaladas, así que las capturas
+muestran cómo detecta la versión existente y cancela la reinstalación; las pantallas
+de Modificar del Visual Studio Installer se cerraron sin cambios. Ninguna captura
+muestra la contraseña de \texttt{sa}.
+
+\textbf{Pendiente:} la ejecución de los pasos M1 a M6 en un equipo sin ninguna de las
+herramientas instaladas. En la fecha del registro, los recursos de teléfonos y estudios y las vistas CRUD estaban en
+desarrollo en otras historias; la verificación se limitó a lo integrado en ese momento.
 
 \subsection{Pruebas de funcionamiento}
 
