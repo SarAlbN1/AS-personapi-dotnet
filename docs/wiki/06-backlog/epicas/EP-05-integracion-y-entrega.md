@@ -8,11 +8,11 @@
 
 **Decisiones aplicadas:** AD-07 (OpenAPI 3 + Swagger UI), AD-01, AD-08, AD-09.
 
-**Componentes afectados:** configuración de Swagger en `Program.cs` y atributos de los controladores API, proyecto o suite de pruebas, `README.md`, `docs/wiki/04-implementacion/runbook-demo.md`, `docs/wiki/02-arquitectura/diagramas/`, tag Git. El informe `docs/informe/main.tex` se consulta en **solo lectura** desde todas las historias **salvo HU-017**, que es la que redacta el manual técnico de despliegue y está asignada a quien mantiene el documento; ninguna otra historia, persona ni asistente escribe en el `.tex`.
+**Componentes afectados:** configuración de Swagger en `Program.cs` y atributos de los controladores API, proyecto o suite de pruebas, `README.md`, `docs/wiki/04-implementacion/runbook-demo.md`, `docs/wiki/02-arquitectura/diagramas/`, tag Git, y los archivos de despliegue con contenedores (`Dockerfile`, `docker-compose.yml`, `.dockerignore`) que crea HU-017. El informe `docs/informe/main.tex` se consulta en **solo lectura** desde todas las historias **salvo HU-017**, que es la que redacta el manual técnico de despliegue y está asignada a quien mantiene el documento; ninguna otra historia, persona ni asistente escribe en el `.tex`.
 
-**Historias:** HU-009, HU-014, HU-015, HU-016, HU-017 (todas Sprint 2) · **18 puntos**
+**Historias:** HU-009, HU-014, HU-015, HU-016, HU-017 (todas Sprint 2) · **20 puntos**
 
-**Criterio de éxito de la épica:** Swagger UI expone y ejecuta las 20 operaciones; los siete escenarios de SRS §10 están ejecutados con evidencia; un clon limpio compila, conecta y corre siguiendo el README; los tres diagramas C4 están publicados y corresponden al código real; el manual de despliegue permite reproducirlo sin consultar a los autores; `v1.0.0` apunta a un commit verificado.
+**Criterio de éxito de la épica:** Swagger UI expone y ejecuta las 20 operaciones; los siete escenarios de SRS §10 están ejecutados con evidencia; un clon limpio compila, conecta y corre siguiendo el README; los tres diagramas C4 están publicados y corresponden al código real; el manual de despliegue permite reproducirlo sin consultar a los autores, con capturas reales y con el despliegue por Compose levantado; `v1.0.0` apunta a un commit verificado.
 
 ---
 
@@ -163,29 +163,33 @@ DoD común + diagramas publicados y enlazados, correspondencia con el repositori
 
 ## HU-017 · Manual técnico de despliegue en el informe académico
 
-**Épica** EP-05 · **Sprint** 2 · **Responsable** Integrante B · **Prioridad** P1 · **Puntos** 3 · **Módulo** Entrega
+**Épica** EP-05 · **Sprint** 2 · **Responsable** Integrante B · **Prioridad** P1 · **Puntos** 5 · **Módulo** Entrega
 
 ### Objetivo
 Redactar en `docs/informe/main.tex` el manual técnico de despliegue del monolito —requisitos, configuración, base de datos, ejecución y verificación— para que la entrega académica permita reproducir el despliegue sin consultar a los autores.
 
 ### Alcance técnico
-- Requisitos previos con las **versiones resueltas** de [versiones.md](../../04-implementacion/versiones.md): SDK .NET 10, SQL Server 2025 Express y herramientas.
+- **Instalación paso a paso de cada herramienta**, con su captura y con la **versión resuelta** de [versiones.md](../../04-implementacion/versiones.md): SDK .NET 10, SQL Server 2025 Express, la herramienta de consulta (SSMS o `sqlcmd`), Git y Docker Desktop con Compose v2. Incluye cómo comprobar la versión instalada (`dotnet --version`, `docker --version`, `docker compose version`). No basta con enumerar requisitos previos.
 - Cadena de conexión por **User Secrets** o variable de entorno. **Sin credenciales en el texto**, ni contraseñas, ni capturas que las muestren ([regla de secretos](../../../../CLAUDE.md)).
 - Creación de `persona_db` ejecutando `scripts/01_ddl.sql` y después `scripts/02_dml.sql`, con el comportamiento esperado ante reejecución.
 - Restauración, compilación, ejecución, URL de la aplicación y de `/swagger`, verificación posterior al despliegue y fallos frecuentes con su causa.
+- **Archivos de despliegue con contenedores que el informe ya declara (§8.14) y que no existen en el repositorio:** `Dockerfile`, `docker-compose.yml` y `.dockerignore`, con las imágenes ya fijadas en [versiones.md](../../04-implementacion/versiones.md) y los servicios `personapi`, `sqlserver` y `db-init`. La contraseña de `sa` se lee de un `.env` **no versionado**; el repositorio solo lleva `.env.example`. No se añade ni se retira ninguna tecnología: las tres imágenes y Compose v2 ya están en `versiones.md` y en el informe.
+- **Capturas reales** tomadas durante la ejecución en entorno limpio, que sustituyen los recuadros `\captura{...}` pendientes del procedimiento.
 - **Propiedad del documento:** esta historia es la única que escribe en el `.tex` y está asignada a quien lo mantiene. HU-015 sigue limitándose a verificar y citar.
-- **No incluye:** decidir la tecnología de despliegue. El manual **documenta lo que el informe ya declara** y no añade ni retira tecnologías respecto de ese documento; Docker sigue fuera del alcance verificable de las historias según [SRS §2](../../01-producto/01-SRS.md#2-alcance-confirmado) y el [README del backlog](../README.md). Tampoco duplica el README del repositorio: lo referencia.
+- **No incluye:** decidir la tecnología de despliegue. El manual **documenta lo que el informe ya declara** y no añade ni retira tecnologías respecto de ese documento ni de [versiones.md](../../04-implementacion/versiones.md). El **despliegue con Docker se verifica en esta historia y no es criterio de ninguna otra**; el camino que valida los criterios de aceptación de las demás historias sigue siendo la ejecución local, como fija [SRS §2](../../01-producto/01-SRS.md#2-alcance-confirmado). Tampoco duplica el README del repositorio: lo referencia.
 
 ### Criterios de aceptación
-1. Requisitos previos con las versiones resueltas de `versiones.md`.
+1. El manual describe, paso a paso y con su captura, la instalación de cada herramienta con la versión resuelta de `versiones.md`: SDK .NET 10, SQL Server 2025 Express, la herramienta de consulta (SSMS o `sqlcmd`), Git y Docker Desktop con Compose v2. Indica cómo comprobar la versión instalada (`dotnet --version`, `docker --version`, `docker compose version`).
 2. Configuración de la cadena de conexión documentada sin ninguna credencial.
 3. Creación de la base documentada con los dos scripts en orden y el comportamiento ante reejecución.
 4. Restauración, compilación, ejecución y URL documentadas, coherentes con lo que el informe declara.
-5. Verificación posterior al despliegue y fallos frecuentes con su causa.
-6. Los pasos se ejecutan en un entorno limpio antes de cerrar la historia y el resultado se registra; **lo no ejecutado se declara pendiente**, no se presenta como verificado.
-7. El manual referencia el README en lugar de duplicarlo.
+5. `docker compose up --build -d` levanta la aplicación en el puerto 8080 con `persona_db` creada desde `scripts/01_ddl.sql` y `scripts/02_dml.sql`, y el manual lo documenta con capturas reales. No se añade ni retira ninguna tecnología respecto de `versiones.md` y del informe.
+6. Verificación posterior al despliegue y fallos frecuentes con su causa.
+7. Cada paso del manual incluye al menos una captura real tomada durante la ejecución en entorno limpio. Las capturas sustituyen los recuadros `\captura{...}` pendientes del procedimiento, y ninguna muestra contraseñas ni cadenas de conexión con credenciales; si una pantalla las contiene, se recorta o se tapa antes de versionarla.
+8. Los pasos se ejecutan en un entorno limpio antes de cerrar la historia y el resultado se registra; **lo no ejecutado se declara pendiente**, no se presenta como verificado.
+9. El manual referencia el README en lugar de duplicarlo.
 
-**Evidencia mínima:** fragmento del informe compilado con el manual, log del despliegue ejecutado en entorno limpio y comprobación de ausencia de credenciales.
+**Evidencia mínima:** fragmento del informe compilado con el manual y sus capturas, log del despliegue ejecutado en entorno limpio —local y `docker compose up --build -d`— y comprobación de ausencia de credenciales en el texto, en las capturas y en `.env.example`.
 
 ### Dependencias
 **HU-001** (solución ejecutable) y **HU-002** (scripts DDL/DML). Sin dependientes, por la misma razón que HU-016.
@@ -194,4 +198,4 @@ Redactar en `docs/informe/main.tex` el manual técnico de despliegue del monolit
 RF-09 · RNF-04 · RNF-05 · AD-01 · AD-09 · [versiones.md](../../04-implementacion/versiones.md) · [entrega.md](../../05-proceso/entrega.md) · criterios de éxito 1, 3.
 
 ### Definition of Done
-DoD común + manual en el `.tex` compilando, pasos ejecutados en entorno limpio con su log y PR revisado.
+DoD común + manual en el `.tex` compilando con sus capturas, `Dockerfile`, `docker-compose.yml` y `.dockerignore` versionados y levantando la aplicación con Compose, pasos ejecutados en entorno limpio con su log y PR revisado.

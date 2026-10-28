@@ -2,23 +2,23 @@
 
 [← Backlog](README.md) · [Priorización](priorizacion.md) · [DoR/DoD](../05-proceso/dor-y-dod.md)
 
-Dos sprints, tres integrantes, 17 historias, **64 puntos**. Los responsables se nombran como `Integrante A`, `B` y `C`; la correspondencia con las cuentas reales de GitHub (`SarAlbN1`, `Juandi48`, `ma-sarmiento`) está en [equipo.tsv](equipo.tsv) y es la que usa el script al crear las issues. Los estados viven en GitHub Projects; esta página fija alcance, reparto y objetivos, no el progreso.
+Dos sprints, tres integrantes, 17 historias, **66 puntos**. Los responsables se nombran como `Integrante A`, `B` y `C`; la correspondencia con las cuentas reales de GitHub (`SarAlbN1`, `Juandi48`, `ma-sarmiento`) está en [equipo.tsv](equipo.tsv) y es la que usa el script al crear las issues. Los estados viven en GitHub Projects; esta página fija alcance, reparto y objetivos, no el progreso.
 
 ## Reparto global
 
 | Sprint | Historias | Puntos | Milestone |
 |---|---|---|---|
 | Sprint 1 | 6 | 23 | `Sprint 1` |
-| Sprint 2 | 11 | 41 | `Sprint 2` |
-| **Total** | **17** | **64** | |
+| Sprint 2 | 11 | 43 | `Sprint 2` |
+| **Total** | **17** | **66** | |
 
 | Integrante | Issues S1 | Puntos S1 | Issues S2 | Puntos S2 | Issues total | Puntos total |
 |---|---|---|---|---|---|---|
 | A | 2 | 8 | 3 | 11 | 5 | 19 |
-| B | 2 | 7 | 3 | 12 | 5 | 19 |
+| B | 2 | 7 | 3 | 14 | 5 | 21 |
 | C | 2 | 8 | 5 | 18 | 7 | 26 |
 
-**Diferencias de carga y justificación.** A y B quedan en 19 puntos y C en 26. El desequilibrio es deliberado y acordado: al añadirse HU-016 (diagramas C4, a A) y HU-017 (manual de despliegue en el informe, a B), el equipo pasó a C las dos historias de **menor prioridad** del Sprint 2 —`P1`, 3 puntos, hojas del grafo— una de cada persona: **HU-008** (antes de B) y **HU-012** (antes de A). Ver la [justificación completa](priorizacion.md#ampliación-documental-y-reasignación-hu-016-hu-017). Los 7 puntos de diferencia corresponden a historias de verificación y presentación, no de código nuevo. En Sprint 1, B queda con 7 puntos frente a 8 porque profesiones (HU-005) es la entidad con menos restricciones de entrada: no tiene FK ni clave compuesta. Se compensa en Sprint 2, donde B asume estudios (HU-011 + HU-013, 9 puntos), el módulo de mayor riesgo arquitectónico por la clave compuesta (AK-03). C concentra la base técnica de datos (HU-003, 5 puntos) y, en Sprint 2, la integración y la entrega (HU-009, HU-014, HU-015), trabajo de verificación y documentación que no produce funcionalidad nueva pero sí depende de todo lo demás; por eso se le reservan las historias de menor volumen de código y se acepta el punto adicional.
+**Diferencias de carga y justificación.** A queda en 19 puntos, B en 21 y C en 26. El desequilibrio es deliberado y acordado: al añadirse HU-016 (diagramas C4, a A) y HU-017 (manual de despliegue en el informe, a B), el equipo pasó a C las dos historias de **menor prioridad** del Sprint 2 —`P1`, 3 puntos, hojas del grafo— una de cada persona: **HU-008** (antes de B) y **HU-012** (antes de A). Ver la [justificación completa](priorizacion.md#ampliación-documental-y-reasignación-hu-016-hu-017). Los 7 puntos que separan a A de C corresponden a historias de verificación y presentación, no de código nuevo. B sube de 19 a 21 porque HU-017 pasó de 3 a 5 puntos al incorporar los archivos de despliegue con contenedores que el informe ya declara y las capturas reales del procedimiento. En Sprint 1, B queda con 7 puntos frente a 8 porque profesiones (HU-005) es la entidad con menos restricciones de entrada: no tiene FK ni clave compuesta. Se compensa en Sprint 2, donde B asume estudios (HU-011 + HU-013, 9 puntos), el módulo de mayor riesgo arquitectónico por la clave compuesta (AK-03). C concentra la base técnica de datos (HU-003, 5 puntos) y, en Sprint 2, la integración y la entrega (HU-009, HU-014, HU-015), trabajo de verificación y documentación que no produce funcionalidad nueva pero sí depende de todo lo demás; por eso se le reservan las historias de menor volumen de código y se acepta el punto adicional.
 
 ## Sprint 1 — base técnica y primer canal REST
 
@@ -55,7 +55,7 @@ Dos sprints, tres integrantes, 17 historias, **64 puntos**. Los responsables se 
 | HU-014 | Verificación integral: integridad SQL, CRUD dual y E2E | EP-05 | Pruebas | P0 | 5 | C | HU-007, HU-008, HU-010, HU-011, HU-012, HU-013 |
 | HU-015 | Cierre de entrega: clon limpio, revisión, informe y tag | EP-05 | Entrega | P0 | 4 | C | HU-009, HU-014 |
 | HU-016 | Diagramas C4: contexto, contenedores y componentes | EP-05 | Entrega | P1 | 3 | A | HU-001, HU-003 |
-| HU-017 | Manual técnico de despliegue en el informe | EP-05 | Entrega | P1 | 3 | B | HU-001, HU-002 |
+| HU-017 | Manual técnico de despliegue en el informe | EP-05 | Entrega | P1 | 5 | B | HU-001, HU-002 |
 
 **Entregables verificables al cierre:** 20 endpoints REST y 20 acciones web (cinco por entidad) operativas; Swagger con las 20 operaciones ejecutables; matriz de casos negativos ejecutada; diagramas C4 de contexto, contenedores y componentes enlazados desde la wiki; manual técnico de despliegue en el informe, con sus pasos ejecutados en entorno limpio; informe académico; tag `v1.0.0` con su URL.
 
