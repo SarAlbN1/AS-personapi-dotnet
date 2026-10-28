@@ -1172,12 +1172,22 @@ dotnet --list-sdks
   \item No hace falta crear usuarios ni contraseñas: el camino A usa la autenticación
         integrada de Windows con el usuario que inició sesión, que el instalador deja
         como administrador de la instancia.
+  \item Abrir una terminal nueva y comprobar que el servicio de la instancia está en
+        ejecución y que responde con la versión y la edición esperadas (\texttt{sqlcmd}
+        se instala en el paso M4):
 \end{enumerate}
+\begin{lstlisting}[language=bash,numbers=none]
+Get-Service 'MSSQL$SQLEXPRESS' | Format-Table Status, Name, DisplayName -AutoSize
+# Running  MSSQL$SQLEXPRESS  SQL Server (SQLEXPRESS)
+sqlcmd -S 'localhost\SQLEXPRESS' -E -C -W -Q "SELECT SERVERPROPERTY('ProductVersion') AS version, SERVERPROPERTY('Edition') AS edicion"
+# 17.0.1000.7 Express Edition (64-bit)
+\end{lstlisting}
 
 \begin{figure}[H]
 \centering
-\imagenOPendiente{figuras/manual/03-sqlserver-instalacion.png}{Pantalla final del instalador de SQL Server 2025 Express con la instancia \texttt{SQLEXPRESS}}
-\caption{Paso M3: SQL Server 2025 Express instalado.}
+\imagenOPendiente{figuras/manual/03-sqlserver-servicio.png}{Servicio \texttt{MSSQL\$SQLEXPRESS} en ejecución y versión de la instancia}
+\caption{Paso M3: servicio SQL Server (SQLEXPRESS) en ejecución y versión 17.0.1000.7
+Express Edition.}
 \end{figure}
 
 \subsubsection{Paso M4. Instalar SSMS 22 y \texttt{sqlcmd} (camino A)}
@@ -1187,20 +1197,27 @@ dotnet --list-sdks
   \item Instalar \texttt{sqlcmd} desde
         \url{https://learn.microsoft.com/sql/tools/sqlcmd/sqlcmd-utility}, si no quedó
         instalado con SQL Server.
-  \item Abrir SSMS y conectarse con \textbf{Nombre del servidor}
+  \item Abrir SSMS. La primera vez ofrece iniciar sesión con una cuenta de Microsoft o
+        de GitHub; no es necesario: se elige \textbf{Omitir y agregar cuentas más tarde}.
+  \item Conectarse con \textbf{Nombre del servidor}
         \texttt{localhost\textbackslash SQLEXPRESS}, \textbf{Autenticación} de Windows y
-        la opción \textbf{Confiar en el certificado del servidor} marcada.
-  \item Comprobar la misma conexión desde la terminal:
+        la opción \textbf{Confiar en el certificado del servidor} marcada. El mismo
+        resultado se obtiene abriendo SSMS desde la terminal:
 \end{enumerate}
 \begin{lstlisting}[language=bash,numbers=none]
-sqlcmd -S "localhost\SQLEXPRESS" -E -C -Q "SELECT SERVERPROPERTY('ProductVersion'), SERVERPROPERTY('Edition')"
-# 17.0.1000.7   Express Edition (64-bit)
+& "C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\SSMS.exe" -S localhost\SQLEXPRESS -d persona_db -C
 \end{lstlisting}
+SSMS pregunta si se desea conectar al servidor indicado con autenticación de Windows y,
+al aceptar, el Explorador de objetos muestra la instancia con sus carpetas. La conexión
+también se comprueba con \texttt{sqlcmd}, como en el paso M3; si la terminal no reconoce
+\texttt{sqlcmd}, se cierra y se abre una nueva para que cargue el \texttt{PATH}
+actualizado por el instalador.
 
 \begin{figure}[H]
 \centering
 \imagenOPendiente{figuras/manual/04-ssms-conexion.png}{SSMS conectado a \texttt{localhost\textbackslash SQLEXPRESS}}
-\caption{Paso M4: conexión a la instancia desde SSMS.}
+\caption{Paso M4: SSMS 22 conectado a \texttt{localhost\textbackslash SQLEXPRESS}; el
+Explorador de objetos muestra la instancia.}
 \end{figure}
 
 \subsubsection{Paso M5. Instalar Visual Studio 2026 Community (opcional)}
@@ -1208,12 +1225,22 @@ Solo es necesario para abrir y depurar la solución. Desde
 \url{https://visualstudio.microsoft.com/} se instala con las cargas de trabajo
 \textbf{Desarrollo de ASP.NET y web} y \textbf{Almacenamiento y procesamiento de
 datos}. Los pasos de despliegue de este manual se hacen desde la terminal y no lo
-requieren.
+requieren. La herramienta \texttt{vswhere}, que se instala con Visual Studio, confirma
+qué instalación tiene las dos cargas de trabajo:
+
+\begin{lstlisting}[language=bash,numbers=none]
+$vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+& $vswhere -products * -requires Microsoft.VisualStudio.Workload.NetWeb Microsoft.VisualStudio.Workload.Data -property displayName
+# Visual Studio Community 2026
+& $vswhere -products * -requires Microsoft.VisualStudio.Workload.NetWeb Microsoft.VisualStudio.Workload.Data -property catalog_productDisplayVersion
+# 18.11.1
+\end{lstlisting}
 
 \begin{figure}[H]
 \centering
-\imagenOPendiente{figuras/manual/05-visualstudio-cargas.png}{Instalador de Visual Studio 2026 con las dos cargas de trabajo seleccionadas}
-\caption{Paso M5: cargas de trabajo de Visual Studio 2026 Community.}
+\imagenOPendiente{figuras/manual/05-visualstudio-cargas.png}{Terminal con \texttt{vswhere} y la instalación que tiene las dos cargas de trabajo}
+\caption{Paso M5: Visual Studio Community 2026 (18.11.1) con las cargas de ASP.NET y web
+y de datos.}
 \end{figure}
 
 \subsubsection{Paso M6. Instalar Docker Desktop (camino B)}
@@ -1230,12 +1257,14 @@ docker --version
 # Docker version 29.8.1, build 4a63305
 docker compose version
 # Docker Compose version v5.5.1
+docker info --format 'Motor: {{.ServerVersion}} ({{.OSType}}, {{.OperatingSystem}})'
+# Motor: 29.8.1 (linux, Docker Desktop)
 \end{lstlisting}
 
 \begin{figure}[H]
 \centering
-\imagenOPendiente{figuras/manual/06-docker-desktop.png}{Docker Desktop con el motor en ejecución y la terminal con \texttt{docker compose version}}
-\caption{Paso M6: Docker Desktop instalado y en ejecución.}
+\imagenOPendiente{figuras/manual/06-docker-version.png}{Terminal con \texttt{docker --version}, \texttt{docker compose version} y el motor en ejecución}
+\caption{Paso M6: Docker Desktop instalado, con el motor Linux en ejecución.}
 \end{figure}
 
 \subsubsection{Paso M7. Clonar el repositorio}
@@ -1253,7 +1282,8 @@ siguientes se ejecutan desde esa raíz.
 \begin{figure}[H]
 \centering
 \imagenOPendiente{figuras/manual/07-git-clone.png}{Terminal con el clon terminado y el listado de la raíz del repositorio}
-\caption{Paso M7: repositorio clonado.}
+\caption{Paso M7: repositorio clonado y contenido de su raíz. La captura se tomó antes de
+publicar la etiqueta, clonando la rama de esta historia.}
 \end{figure}
 
 \subsubsection{Camino A · Paso M8. Crear \texttt{persona\_db}}
@@ -1282,7 +1312,8 @@ nuevo los dos scripts.
 \begin{figure}[H]
 \centering
 \imagenOPendiente{figuras/manual/09-ssms-tablas.png}{Explorador de objetos de SSMS con las cuatro tablas de \texttt{persona\_db}}
-\caption{Paso M8: tablas de \texttt{persona\_db} en SSMS.}
+\caption{Paso M8: las cuatro tablas de \texttt{persona\_db} en el Explorador de objetos
+de SSMS y las tres personas cargadas por el DML.}
 \end{figure}
 
 \subsubsection{Camino A · Paso M9. Configurar la cadena de conexión}
@@ -1313,9 +1344,9 @@ $env:ConnectionStrings__PersonaDb = "Server=localhost\SQLEXPRESS;Database=person
 \begin{lstlisting}[language=bash,numbers=none]
 dotnet restore
 dotnet build
-# Compilacion correcta. 0 Advertencia(s), 0 Errores
+# Compilación realizado correctamente
 dotnet test
-# Correctas! - Con error: 0
+# Correctas! - Con error: 0, Superado: 56, Omitido: 0, Total: 56
 \end{lstlisting}
 
 Las pruebas de integración usan la misma \texttt{persona\_db}: con la cadena definida
@@ -1399,10 +1430,18 @@ tres servicios en la red \texttt{personapi-net}:
 
 Salida esperada al final:
 \begin{lstlisting}[language=bash,numbers=none]
- Container personapi-sqlserver-1  Healthy
- Container personapi-db-init-1    Exited
- Container personapi-personapi-1  Started
+[+] up 6/6
+ Image personapi-personapi       Built
+ Network personapi_personapi-net Created
+ Volume personapi_sqldata        Created
+ Container personapi-sqlserver-1 Healthy
+ Container personapi-db-init-1   Exited
+ Container personapi-personapi-1 Started
 \end{lstlisting}
+La primera vez, antes de estas líneas, Docker descarga las imágenes base y compila la
+aplicación dentro de la imagen \texttt{sdk:10.0}; eso tarda varios minutos. En las
+siguientes ejecuciones los pasos salen como \texttt{CACHED} y el arranque completo toma
+unos segundos.
 
 \begin{figure}[H]
 \centering
@@ -1657,9 +1696,15 @@ con las versiones de la Tabla~\ref{tab:manual-versiones}:
         Tabla~\ref{tab:manual-fallos}.
 \end{itemize}
 
+\textbf{Capturas.} Las figuras de este manual son capturas reales de ese mismo equipo,
+tomadas el 27 de octubre de 2026 al ejecutar cada paso: las ventanas de PowerShell,
+SSMS 22 y Docker Desktop, y Google Chrome sobre la aplicación en los puertos 5093 y
+8080. En los pasos de instalación (M1 a M6) muestran la comprobación de cada
+herramienta ya instalada, no las pantallas de sus instaladores. Ninguna muestra la
+contraseña de \texttt{sa}.
+
 \textbf{Pendiente:} la ejecución de los pasos M1 a M6 en un equipo sin ninguna de las
-herramientas instaladas y la toma de las capturas de cada paso. En la fecha del
-registro, los recursos de teléfonos y estudios y las vistas CRUD estaban en
+herramientas instaladas. En la fecha del registro, los recursos de teléfonos y estudios y las vistas CRUD estaban en
 desarrollo en otras historias; la verificación se limitó a lo integrado en ese momento.
 
 \subsection{Pruebas de funcionamiento}
