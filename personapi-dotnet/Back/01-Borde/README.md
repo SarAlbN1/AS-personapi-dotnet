@@ -32,6 +32,8 @@ línea de HTML.
 
 Los REST llevan `[ApiController]`; los MVC heredan de `Controller`.
 
+Los REST se documentan en OpenAPI 3 con `[ProducesResponseType]` y comentarios XML; el `500` lo añade `ErroresApiConvention` (`ControllersApi/`). La convención está en [api-rest.md · Convención OpenAPI](../../../docs/wiki/03-contratos/api-rest.md#convención-openapi-hu-009).
+
 Los MVC traducen el `ServiceResult` con `this.VistaSiFalla(...)` y quedan protegidos con
 antiforgery por convención; ambas piezas están en `Controllers/` y se describen en
 [Front · Convenciones compartidas](../../Front/README.md#convenciones-compartidas-hu-006).

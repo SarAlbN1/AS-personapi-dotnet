@@ -18,23 +18,31 @@ public class PersonasApiController : ControllerBase
 
     public PersonasApiController(IPersonaService personas) => _personas = personas;
 
-    /// <summary>Listado completo; sin filas devuelve <c>[]</c>.</summary>
+    /// <summary>Lista todas las personas.</summary>
+    /// <response code="200">Las personas registradas; sin filas, <c>[]</c>.</response>
     [HttpGet]
     [ProducesResponseType<IReadOnlyList<PersonaDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<PersonaDto>>> GetAll() =>
         Ok(await _personas.GetAllAsync());
 
-    /// <summary>Detalle por cédula.</summary>
+    /// <summary>Consulta una persona por su cédula.</summary>
+    /// <param name="cc">Cédula de la persona (clave).</param>
+    /// <response code="200">La persona encontrada.</response>
+    /// <response code="404">No existe una persona con esa cédula.</response>
     [HttpGet("{cc:int}")]
     [ProducesResponseType<PersonaDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int cc) =>
         Traducir(await _personas.GetByIdAsync(cc));
 
-    /// <summary>Alta. Devuelve <c>201</c> con <c>Location</c> del recurso creado.</summary>
+    /// <summary>Crea una persona.</summary>
+    /// <param name="entrada">Datos de la persona; <c>genero</c> es <c>M</c> o <c>F</c>.</param>
+    /// <response code="201">Persona creada; <c>Location</c> apunta a <c>/api/personas/{cc}</c>.</response>
+    /// <response code="400">Falta un campo obligatorio, una longitud se excede, el género no es M ni F o la edad es negativa.</response>
+    /// <response code="409">Ya existe una persona con esa cédula.</response>
     [HttpPost]
     [ProducesResponseType<PersonaDto>(StatusCodes.Status201Created)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create([FromBody] PersonaEntradaDto entrada)
     {
@@ -48,15 +56,24 @@ public class PersonasApiController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { cc = resultado.Value!.Cc }, resultado.Value);
     }
 
-    /// <summary>Edición completa; la cédula de la ruta manda sobre la identidad.</summary>
+    /// <summary>Actualiza una persona; la cédula no se puede cambiar.</summary>
+    /// <param name="cc">Cédula de la persona (clave).</param>
+    /// <param name="entrada">Datos completos de la persona, con la misma cédula de la ruta.</param>
+    /// <response code="204">Persona actualizada.</response>
+    /// <response code="400">Datos inválidos o la cédula del cuerpo no coincide con la de la ruta.</response>
+    /// <response code="404">No existe una persona con esa cédula.</response>
     [HttpPut("{cc:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int cc, [FromBody] PersonaEntradaDto entrada) =>
         Traducir(await _personas.UpdateAsync(cc, entrada));
 
-    /// <summary>Baja. Con teléfonos o estudios asociados responde <c>409</c>.</summary>
+    /// <summary>Elimina una persona.</summary>
+    /// <param name="cc">Cédula de la persona (clave).</param>
+    /// <response code="204">Persona eliminada.</response>
+    /// <response code="404">No existe una persona con esa cédula.</response>
+    /// <response code="409">La persona tiene teléfonos o estudios asociados; no se elimina.</response>
     [HttpDelete("{cc:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]

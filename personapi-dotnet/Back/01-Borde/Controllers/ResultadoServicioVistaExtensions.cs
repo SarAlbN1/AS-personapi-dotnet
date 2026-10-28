@@ -28,6 +28,8 @@ public static class ResultadoServicioVistaExtensions
     /// Devuelve la vista que corresponde a un resultado fallido, o <c>null</c> si el
     /// servicio tuvo éxito y el controlador debe seguir (normalmente, redirigir).
     /// </summary>
+    /// <param name="controller">El controlador MVC que atiende la acción.</param>
+    /// <param name="resultado">El resultado devuelto por el servicio.</param>
     /// <param name="modelo">El ViewModel recibido, para volver a pintar el formulario tal como se envió.</param>
     /// <param name="vista">Vista que se vuelve a pintar; por defecto, la de la acción actual.</param>
     public static IActionResult? VistaSiFalla(
