@@ -44,6 +44,7 @@ Usar etiquetas existentes cuando sirvan (`enhancement`, `bug`, `documentation`) 
 
 - Milestones: `Sprint 1` y `Sprint 2`.
 - Plan inicial: 15 issues, 3 integrantes, 5 issues por persona; en Sprint 1, 2 por persona y en Sprint 2, 3 por persona.
+- Estado vigente: 17 issues tras añadir HU-016 y HU-017 y reasignar HU-008 y HU-012; el reparto por persona es 5/5/7 y la justificación está en la [priorización](../06-backlog/priorizacion.md#ampliación-documental-y-reasignación-hu-016-hu-017).
 - Cantidad igual no garantiza esfuerzo igual. Validar tamaño, riesgos y carga de revisión antes de asignar definitivamente.
 - Dependencias: fijar contratos compartidos temprano; no bloquear un módulo hasta que otro esté terminado si puede desarrollarse con datos de prueba y contratos estables.
 

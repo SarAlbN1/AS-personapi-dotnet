@@ -67,14 +67,15 @@ awk -F'\t' '
     ids[$1]=1; deps[$1]=$10
   }
   END {
-    if (filas != 15) { printf "ERROR: se esperan 15 historias, hay %d\n", filas; bad=1 }
+    if (filas != 17) { printf "ERROR: se esperan 17 historias, hay %d\n", filas; bad=1 }
     if (sprint[1] != 6) { printf "ERROR: Sprint 1 tiene %d historias, se esperan 6\n", sprint[1]; bad=1 }
-    if (sprint[2] != 9) { printf "ERROR: Sprint 2 tiene %d historias, se esperan 9\n", sprint[2]; bad=1 }
+    if (sprint[2] != 11) { printf "ERROR: Sprint 2 tiene %d historias, se esperan 11\n", sprint[2]; bad=1 }
     split("A B C", p, " ")
+    esp2["A"]=3; esp2["B"]=3; esp2["C"]=5
     for (i=1; i<=3; i++) {
       k=p[i]
       if (porpersona[k"-1"] != 2) { printf "ERROR: %s tiene %d issues en Sprint 1, se esperan 2\n", k, porpersona[k"-1"]; bad=1 }
-      if (porpersona[k"-2"] != 3) { printf "ERROR: %s tiene %d issues en Sprint 2, se esperan 3\n", k, porpersona[k"-2"]; bad=1 }
+      if (porpersona[k"-2"] != esp2[k]) { printf "ERROR: %s tiene %d issues en Sprint 2, se esperan %d\n", k, porpersona[k"-2"], esp2[k]; bad=1 }
     }
     # dependencias: existentes y solo hacia historias anteriores (evita ciclos y bloqueos regresivos)
     for (id in deps) {
