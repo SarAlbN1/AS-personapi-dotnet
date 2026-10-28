@@ -30,12 +30,18 @@ Los cuatro CRUD web usan lo mismo y no inventan cada uno su presentación.
 Teléfonos y Estudios por ruta (`/Personas`, …) y Swagger. Mientras un módulo no tenga
 controlador, su enlace responde con la vista `Estado` (404):
 
-| Módulo | Historia que lo implementa |
-|---|---|
-| Personas | HU-007 |
-| Profesiones | HU-008 |
-| Teléfonos | HU-012 |
-| Estudios | HU-013 |
+| Módulo | Historia que lo implementa | Estado |
+|---|---|---|
+| Personas | HU-007 | implementado: `Views/Personas/` con las cinco acciones |
+| Profesiones | HU-008 | pendiente |
+| Teléfonos | HU-012 | pendiente |
+| Estudios | HU-013 | pendiente |
+
+**Personas es la referencia de los otros tres.** `Back/01-Borde/Controllers/PersonasController.cs`
+consume el mismo `IPersonaService` que el controlador REST, los ViewModels
+(`PersonaFormViewModel`, `PersonaDetalleViewModel`, `PersonaListadoViewModel`) llevan solo
+las anotaciones de forma, y `Views/Personas/_CamposPersona.cshtml` es el formulario que
+comparten `Create` y `Edit`, con la clave bloqueada en edición.
 
 **Errores del servicio.** El controlador traduce el `ServiceResult` con
 `this.VistaSiFalla(resultado, modelo)` (`Back/01-Borde/Controllers/ResultadoServicioVistaExtensions.cs`)
