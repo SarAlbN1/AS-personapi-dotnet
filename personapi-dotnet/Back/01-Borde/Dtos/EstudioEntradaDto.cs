@@ -25,6 +25,8 @@ public class EstudioEntradaDto
     // formato no se enlaza y [ApiController] responde 400. Nula está permitida por el DDL.
     public DateOnly? Fecha { get; set; }
 
-    [StringLength(UniverLongitudMaxima, ErrorMessage = "La universidad (univer) admite hasta 50 caracteres.")]
+    // Sin [StringLength]: la longitud se mide después de recortar los espacios de los
+    // extremos, y eso lo hace EstudioService. Una anotación aquí mediría antes del recorte
+    // y [ApiController] respondería 400 a un valor que el servicio acepta.
     public string? Univer { get; set; }
 }

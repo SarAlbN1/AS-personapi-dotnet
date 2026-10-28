@@ -147,6 +147,22 @@ public class EstudiosApiPersonaDbTests : IClassFixture<WebApplicationFactory<Pro
         Assert.Null(await LeerDeLaBaseAsync(ProfLibre, CcLuis));
     }
 
+    [FactConPersonaDb]
+    public async Task Universidad_se_mide_sin_los_espacios_de_los_extremos()
+    {
+        var univer49 = new string('u', 49);
+
+        var conEspacios = await _client.PostAsJsonAsync("/api/estudios",
+            new EstudioEntradaDto { IdProf = ProfLibre, CcPer = CcLuis, Univer = $"  {univer49}  " });
+        var larga = await _client.PostAsJsonAsync("/api/estudios",
+            new EstudioEntradaDto { IdProf = ProfLibre, CcPer = CcSofia, Univer = new string('u', 51) });
+
+        Assert.Equal(HttpStatusCode.Created, conEspacios.StatusCode);
+        Assert.Equal(univer49, (await LeerDeLaBaseAsync(ProfLibre, CcLuis))!.Univer);
+        Assert.Equal(HttpStatusCode.BadRequest, larga.StatusCode);
+        Assert.Null(await LeerDeLaBaseAsync(ProfLibre, CcSofia));
+    }
+
     private async Task<Estudio?> LeerDeLaBaseAsync(int idProf, int ccPer)
     {
         using var scope = _factory.Services.CreateScope();
