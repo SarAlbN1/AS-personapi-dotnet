@@ -1,1 +1,0 @@
-{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"detail":"No existe un estudio de la profesión 3 para la persona 1010101010.","traceId":"00-9f7b6f5f4573e8a24d3d5e914501516a-1395652b4c680362-00"}

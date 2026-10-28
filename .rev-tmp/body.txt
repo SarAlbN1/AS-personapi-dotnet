@@ -1,1 +1,0 @@
-{"type":"https://tools.ietf.org/html/rfc9110#section-15.5.5","title":"Not Found","status":404,"detail":"No existe una profesión con id 9101.","traceId":"00-9b26446cf4178b50e584ce667f44f284-a1b54669510d37c6-00"}
