@@ -28,6 +28,8 @@ Una issue no pasa a `Done` por tener el PR aprobado, fusionable o sin conflictos
 
 **Agentes.** Un asistente automatizado puede mover los elementos del tablero entre estos estados cuando el hecho que dispara la transición ya ocurrió, también en issues de otros integrantes, porque reflejar el estado real no es apropiarse del trabajo. No cambia responsable, sprint, módulo, prioridad ni alcance, no crea issues ni las cierra a mano —el cierre automático por `Closes #<número>` al fusionar es parte de la integración, no una acción sobre la issue—, y no mueve a `Done` nada cuyo PR no esté fusionado. Si el estado real no encaja en ninguna transición, lo informa en vez de elegir una.
 
+Esa autorización es **permanente y no se pide dos veces**: mover el tablero forma parte del acto que dispara la transición, no es una tarea aparte que haya que encargar ni confirmar caso por caso. Quien abre un PR, registra una aprobación o fusiona deja el estado al día en el mismo momento, y después dice qué movió. Pedir permiso para reflejar un hecho ya ocurrido deja el tablero desactualizado mientras se espera la respuesta, que es justo lo que estas obligaciones evitan. Los límites siguen siendo los del párrafo anterior: no se toca responsable, sprint, módulo, prioridad ni alcance, no se crean ni se cierran issues a mano, y nada pasa a `Done` sin su PR fusionado.
+
 ## Obligaciones de actualización del tablero
 
 Mover el tablero **no es opcional ni es tarea de quien pase por ahí**: cada hecho tiene un responsable nombrado y un momento exacto. Un tablero desactualizado hace que el equipo planifique sobre datos falsos, así que estas cuatro obligaciones se cumplen siempre.

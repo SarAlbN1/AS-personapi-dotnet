@@ -61,7 +61,7 @@ Esta sección es la **fuente única** de la política de integración. El resto 
 
     La integración cuenta como del revisor, que responde por ella.
 
-13. **Quien fusiona actualiza el tablero en el mismo acto.** Pasa la issue a `Done` —la fusión y el cambio de estado no se separan— y hace el **barrido de desbloqueo**: revisa qué issues declaraban esa historia como dependencia en [backlog.tsv](../06-backlog/backlog.tsv) y saca de `Blocked` las que ya no tengan ninguna pendiente, avisando a su responsable. Las obligaciones completas, con responsable y momento de cada transición, están en [issues, etiquetas y milestones](issues-etiquetas-y-milestones.md#obligaciones-de-actualización-del-tablero). Un PR fusionado cuyo tablero no se actualizó queda incompleto, y esto aplica igual a un agente que registre la integración por la regla 12.
+13. **Quien fusiona actualiza el tablero en el mismo acto.** Pasa la issue a `Done` —la fusión y el cambio de estado no se separan— y hace el **barrido de desbloqueo**: revisa qué issues declaraban esa historia como dependencia en [backlog.tsv](../06-backlog/backlog.tsv) y saca de `Blocked` las que ya no tengan ninguna pendiente, avisando a su responsable. Las obligaciones completas, con responsable y momento de cada transición, están en [issues, etiquetas y milestones](issues-etiquetas-y-milestones.md#obligaciones-de-actualización-del-tablero). Un PR fusionado cuyo tablero no se actualizó queda incompleto, y esto aplica igual a un agente que registre la integración por la regla 12, que lo hace con la autorización permanente de las [obligaciones del tablero](issues-etiquetas-y-milestones.md#transiciones-de-estado) y sin pedir confirmación para cada tarjeta.
 
 ### Procedimiento por historia
 
