@@ -59,12 +59,23 @@ public class ProfesionesController : Controller
     {
         if (!ModelState.IsValid)
         {
-            return View(modelo);
+            return View(ConIdDeLaRuta(id, modelo));
         }
 
         var resultado = await _profesiones.UpdateAsync(id, ADto(modelo));
-        return this.VistaSiFalla(resultado, modelo)
+        return this.VistaSiFalla(resultado, ConIdDeLaRuta(id, modelo))
             ?? this.RedirigirConExito($"Profesión {id} actualizada.", nameof(Details), new { id });
+    }
+
+    // Al repintar la edición, el formulario vuelve a apuntar a la profesión de la ruta. El id
+    // del cuerpo puede venir manipulado y ser el de otra profesión que existe: si la vista lo
+    // usara, un segundo «Guardar» la modificaría. Se quita también de ModelState, porque los
+    // tag helpers pintan el valor enviado antes que el del modelo.
+    private ProfesionViewModel ConIdDeLaRuta(int id, ProfesionViewModel modelo)
+    {
+        modelo.Id = id;
+        ModelState.Remove(nameof(ProfesionViewModel.Id));
+        return modelo;
     }
 
     [HttpGet]

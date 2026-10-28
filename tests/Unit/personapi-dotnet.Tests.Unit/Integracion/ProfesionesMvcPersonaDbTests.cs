@@ -179,6 +179,24 @@ public partial class ProfesionesMvcPersonaDbTests : IClassFixture<WebApplication
     }
 
     [FactConPersonaDb]
+    public async Task Tras_un_id_manipulado_el_formulario_repintado_sigue_apuntando_a_la_ruta()
+    {
+        // El id manipulado es el de otra profesión que sí existe: si el formulario repintado
+        // apuntara a ella, un segundo «Guardar» la modificaría.
+        var (cliente, token) = await ClienteConTokenAsync("/Profesiones/Edit/2");
+
+        var respuesta = await cliente.PostAsync("/Profesiones/Edit/2", Formulario(token, 1, "Manipulada", null));
+        var html = await respuesta.Content.ReadAsStringAsync();
+
+        Assert.Equal(HttpStatusCode.BadRequest, respuesta.StatusCode);
+        Assert.Contains("action=\"/Profesiones/Edit/2\"", html);
+        Assert.DoesNotContain("/Profesiones/Edit/1\"", html);
+        Assert.Matches("name=\"Id\"[^>]*value=\"2\"", html);
+        Assert.Equal("Ingeniería de Sistemas", (await LeerDeLaBaseAsync(1))!.Nom);
+        Assert.Equal("Medicina", (await LeerDeLaBaseAsync(2))!.Nom);
+    }
+
+    [FactConPersonaDb]
     public async Task Un_POST_sin_token_antiforgery_se_rechaza()
     {
         var respuesta = await _factory.CreateClient().PostAsync("/Profesiones/Create",
