@@ -12,7 +12,9 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     WebRootPath = "Front/wwwroot"
 });
 
-builder.Services.AddControllersWithViews();
+// Antiforgery automático en los POST de los controladores MVC; la API REST queda fuera (HU-006).
+builder.Services.AddControllersWithViews(options =>
+    options.Conventions.Add(new personapi_dotnet.Back.Borde.Controllers.AntiforgeryEnVistasConvention()));
 
 // El árbol separa Front/ de Back/: sin estas rutas Razor no encuentra las vistas.
 builder.Services.Configure<RazorViewEngineOptions>(options =>
@@ -49,6 +51,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
     app.UseHsts();
 }
+
+// Las respuestas de error sin cuerpo de las rutas web (ruta desconocida, POST sin token)
+// se muestran con la vista Estado. /api queda fuera: allí los errores son ProblemDetails.
+app.UseWhen(
+    context => !context.Request.Path.StartsWithSegments("/api"),
+    web => web.UseStatusCodePagesWithReExecute("/Home/Estado", "?codigo={0}"));
 
 // UseStaticFiles y no MapStaticAssets: el manifiesto de MapStaticAssets se genera en
 // compilación a partir de ./wwwroot, que aquí no existe. WebRootPath resuelve
