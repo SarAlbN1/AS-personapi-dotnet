@@ -137,14 +137,5 @@ Desktop.ini
 *.synctex.gz
 *.toc
 
-# ----------------------------------------------------------------------
-# Estado local de herramientas de asistencia (no se versiona)
-# ----------------------------------------------------------------------
-.claude/
-
 # Bundle de CSS aislado copiado al web root en compilación (lo genera el SDK)
 personapi-dotnet/Front/wwwroot/*.styles.css
-
-# Instrucciones locales de los asistentes de cada integrante: no se versionan
-CLAUDE.md
-docs/wiki/05-proceso/trabajo-con-ia.md

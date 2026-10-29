@@ -8,7 +8,7 @@
 
 **Decisiones aplicadas:** AD-07 (OpenAPI 3 + Swagger UI), AD-01, AD-08, AD-09.
 
-**Componentes afectados:** configuración de Swagger en `Program.cs` y atributos de los controladores API, proyecto o suite de pruebas, `README.md`, `docs/wiki/04-implementacion/runbook-demo.md`, `docs/wiki/02-arquitectura/diagramas/`, tag Git, y los archivos de despliegue con contenedores (`Dockerfile`, `docker-compose.yml`, `.dockerignore`) que crea HU-017. El informe `docs/informe/main.tex` se consulta en **solo lectura** desde todas las historias **salvo HU-017**, que es la que redacta el manual técnico de despliegue y está asignada a quien mantiene el documento; ninguna otra historia, persona ni asistente escribe en el `.tex`.
+**Componentes afectados:** configuración de Swagger en `Program.cs` y atributos de los controladores API, proyecto o suite de pruebas, `README.md`, `docs/wiki/04-implementacion/runbook-demo.md`, `docs/wiki/02-arquitectura/diagramas/`, tag Git, y los archivos de despliegue con contenedores (`Dockerfile`, `docker-compose.yml`, `.dockerignore`) que crea HU-017. El informe `docs/informe/main.tex` se consulta en **solo lectura** desde todas las historias **salvo HU-017**, que es la que redacta el manual técnico de despliegue y está asignada a quien mantiene el documento; ninguna otra historia ni persona escribe en el `.tex`.
 
 **Historias:** HU-009, HU-014, HU-015, HU-016, HU-017 (todas Sprint 2) · **20 puntos**
 

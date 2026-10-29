@@ -45,10 +45,6 @@ El equipo son tres integrantes, registrados con sus cuentas reales en [`equipo.t
 
 Un trabajo no está hecho hasta que el PR muestra: comandos ejecutados y su salida (`dotnet build` y pruebas), el caso concreto probado con resultado esperado frente a obtenido, verificación contra SQL Server real si toca persistencia, los estados HTTP comprobados si toca REST, y el recorrido en navegador si toca MVC. Las afirmaciones sin ejecución se describen como **pendientes**.
 
-## Asistentes de desarrollo
-
-Aplican las mismas reglas que a cualquier integrante: no introducen cambios fuera de la issue asignada, no inventan issues, ramas, pruebas, endpoints ni datos, y no declaran éxito sin ejecución. La responsabilidad sigue siendo del integrante asignado.
-
-**Sin rastro de asistentes en el repositorio.** Los commits, mensajes de PR, documentos, informe y logs **no** llevan líneas de co-autoría, firmas, menciones de la herramienta ni marcas del tipo «generado con». El autor registrado de cada cambio es el integrante asignado, que lo verifica y responde por él. Si el curso exige declarar el uso de asistentes, se hace por el canal que indique el docente, no mediante metadatos en el repositorio.
+## Datos y estado
 
 No incluir credenciales ni datos sensibles. No duplicar en Markdown el estado de las issues: vive en GitHub Projects.
