@@ -49,6 +49,21 @@ public class DocumentoOpenApiTests : IClassFixture<WebApplicationFactory<Program
         }
     }
 
+    // Las acciones MVC con ruta por atributo (estudios y teléfonos) también son visibles
+    // para el explorador de API; sin la convención, Swagger publicaba 30 operaciones.
+    [Fact]
+    public async Task El_documento_publica_solo_las_veinte_operaciones_de_la_api()
+    {
+        using var documento = await DocumentoAsync();
+        // Todas las rutas del documento, no solo las de /api que filtra Operaciones.
+        var operaciones = documento.RootElement.GetProperty("paths").EnumerateObject()
+            .SelectMany(ruta => ruta.Value.EnumerateObject().Select(verbo => $"{verbo.Name} {ruta.Name}"))
+            .ToList();
+
+        Assert.All(operaciones, o => Assert.Contains(" /api/", o));
+        Assert.Equal(20, operaciones.Count);
+    }
+
     [Fact]
     public async Task Cada_operacion_de_la_api_documenta_los_codigos_del_contrato()
     {

@@ -75,7 +75,9 @@ El documento OpenAPI 3 se genera a partir del código: los códigos salen de los
    - un `<response code="...">` por cada código declarado, que explique **cuándo** ocurre (no solo «Not Found»).
 5. **Ejemplos en los DTO.** Cada propiedad de los DTO de entrada y salida lleva `<example>`, con valores coherentes con `scripts/02_dml.sql`. Así Swagger UI rellena el cuerpo de prueba.
 6. **Mensajes de error.** Los arma el controlador con `Problem(detail: resultado.Message, …)` a partir del `ServiceResult`. Nunca se envía el mensaje de una excepción.
+7. **Solo `/api` en el documento.** `VistasFueraDeOpenApiConvention` (`Back/01-Borde/Controllers/`) oculta al explorador de API todo controlador sin `[ApiController]`. Sin ella, las acciones MVC con ruta por atributo (estudios y teléfonos llevan su clave en la URL) salían en Swagger como operaciones del contrato.
 
 **Comprobación automática.** `tests/Unit/personapi-dotnet.Tests.Unit/OpenApi/DocumentoOpenApiTests.cs` lee `/swagger/v1/swagger.json`:
+- **Exactamente 20 operaciones, todas de `/api`:** prueba `El_documento_publica_solo_las_veinte_operaciones_de_la_api`.
 - **Códigos mínimos, `500` y esquema `ProblemDetails`:** los exige a **toda** operación de `/api`.
 - **Resúmenes, descripciones propias y ejemplos:** los exige a los recursos listados en `RecursosDocumentados` y a los esquemas de la prueba `Los_esquemas_de_entrada_y_salida_traen_ejemplo_en_cada_propiedad`. Al documentar un recurso nuevo se añade allí.
