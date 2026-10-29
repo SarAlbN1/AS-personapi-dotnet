@@ -29,14 +29,8 @@ y su código o su historia está más abajo.
 | `c4-c1-contexto` | C4 1 · Contexto | El usuario, el cliente REST, el monolito PersonAPI y SQL Server `persona_db` como único almacén |
 | `c4-c2-contenedores` | C4 2 · Contenedores | La aplicación ASP.NET Core MVC 10 como **único artefacto desplegable**, sus dos canales y la base `persona_db` |
 | `c4-c3-componentes` | C4 3 · Componentes | El contenedor web completo: cuatro controladores MVC y cuatro de API, un servicio por entidad, las cuatro interfaces DAO con su implementación EF Core, el contexto y las entidades |
-| `c4-c3-componentes-canal-web` | C4 3 · Recorte | Solo el canal MVC, para explicarlo sin el ruido del otro canal |
-| `c4-c3-componentes-canal-json` | C4 3 · Recorte | Solo el canal REST, con Swagger y el resultado discriminado |
-| `c4-c3-componentes-arranque` | C4 3 · Recorte | La composición de SDD §4: qué registra `Program.cs` y con qué ciclo de vida |
 | `c4-despliegue` | Despliegue | Los tres servicios de `docker-compose.yml` con su imagen, puerto, volumen y las URL que quedan publicadas |
 | `c4-c4-codigo-personaservice` | C4 4 · Código | Zoom a **un** componente del nivel 3: `PersonaService`, con las firmas reales, sus tres repositorios y `ServiceResult` |
-
-Los dos recortes existen porque la vista completa tiene 22 componentes: sirven para la
-sustentación, mientras `c4-c3-componentes` es la que va al informe.
 
 ## Cómo renderizar
 
@@ -106,9 +100,6 @@ incluye:
 | Contexto | [`c4-c1-contexto.png`](../../../informe/diagramas/c4-c1-contexto.png) | sí, figura de nivel 1 |
 | Contenedores | [`c4-c2-contenedores.png`](../../../informe/diagramas/c4-c2-contenedores.png) | sí, figura de nivel 2 |
 | Componentes | [`c4-c3-componentes.png`](../../../informe/diagramas/c4-c3-componentes.png) | sí, figura de nivel 3 |
-| Recorte del canal MVC | [`c4-c3-componentes-canal-web.png`](../../../informe/diagramas/c4-c3-componentes-canal-web.png) | no: material de sustentación |
-| Recorte del canal REST | [`c4-c3-componentes-canal-json.png`](../../../informe/diagramas/c4-c3-componentes-canal-json.png) | no: material de sustentación |
-| Recorte de la composición | [`c4-c3-componentes-arranque.png`](../../../informe/diagramas/c4-c3-componentes-arranque.png) | no: material de sustentación |
 | Despliegue | [`c4-despliegue.png`](../../../informe/diagramas/c4-despliegue.png) | no: el informe tiene su propia figura de despliegue en TikZ |
 
 Las tres primeras son las que `main.tex` referencia por nombre, así que aparecen en el PDF
@@ -130,6 +121,9 @@ el pie de figura de `main.tex` dice «el usuario, el monolito y SQL Server `pers
 como único almacén», y el primer criterio de HU-016 repite esa frase. Quien decide es el
 modelo C4, no el pie: **la diferencia está reportada** a quien mantiene el informe y al
 backlog, y se corrige allí, no redibujando el diagrama.
+
+**Un diagrama por nivel.** El nivel 3 es **una sola vista** del contenedor web: no hay
+recortes por canal ni de la composición, porque cada nivel de C4 se dibuja una vez.
 
 **Solo se dibujan llamadas reales.** Lo que el framework aplica por convención —el filtro
 de antiforgery— y los tipos de datos que viajan entre capas —`ServiceResult`, DTOs,

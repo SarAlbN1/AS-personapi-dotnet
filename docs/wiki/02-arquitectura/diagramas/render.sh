@@ -15,8 +15,7 @@ cd "$RAIZ"
 D=docs/wiki/02-arquitectura/diagramas
 SALIDA=docs/informe/diagramas
 
-VISTAS="c4-c1-contexto c4-c2-contenedores c4-c3-componentes \
-c4-c3-componentes-canal-web c4-c3-componentes-canal-json c4-c3-componentes-arranque c4-despliegue"
+VISTAS="c4-c1-contexto c4-c2-contenedores c4-c3-componentes c4-despliegue"
 
 echo "== Validando el modelo =="
 docker run --rm -v "$PWD/$D:/w" structurizr/structurizr \

@@ -37,8 +37,6 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
                 mvcProfesiones = component "ProfesionesController" "Cinco acciones web de profesiones." "Back/01-Borde/Controllers"
                 mvcTelefonos = component "TelefonosController" "Cinco acciones web de teléfonos." "Back/01-Borde/Controllers"
                 mvcEstudios = component "EstudiosController" "Cinco acciones web de estudios." "Back/01-Borde/Controllers"
-                conv = component "ResultadoServicioVistaExtensions" "Traduce el ServiceResult a vista y código (HU-006)." "Back/01-Borde/Controllers"
-                antiforgery = component "AntiforgeryEnVistasConvention" "Filtro: exige el token en los POST web." "Back/01-Borde/Controllers"
 
                 # --- Capa 1 · Borde JSON ---
                 apiPersonas = component "PersonasApiController" "Cinco operaciones de /api/personas." "Back/01-Borde/ControllersApi"
@@ -63,7 +61,6 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
                 contexto = component "PersonaDbContext" "Único punto que abre conexiones a la base." "EF Core 10"
 
                 # --- Composición (vista aparte) ---
-                arranque = component "Program.cs" "Registra contexto, repositorios y servicios (SDD §4)." "ASP.NET Core"
             }
 
             db = container "persona_db" "Cuatro tablas; el DDL de scripts/ es el origen." "SQL Server 2025 Express" "Base de datos"
@@ -127,26 +124,6 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
         personapi.web.daoEstudio -> personapi.web.contexto "LINQ"
         personapi.web.contexto -> personapi.db "SQL" "ADO.NET / TDS 1433"
 
-        # ===== Borde web · convención de errores (recorte del canal MVC) =====
-        personapi.web.home -> personapi.web.conv "Traduce"
-        personapi.web.mvcPersonas -> personapi.web.conv "Traduce"
-        personapi.web.mvcProfesiones -> personapi.web.conv "Traduce"
-        personapi.web.mvcTelefonos -> personapi.web.conv "Traduce"
-        personapi.web.mvcEstudios -> personapi.web.conv "Traduce"
-
-        # ===== Composición de SDD §4 (vista aparte) =====
-        personapi.web.arranque -> personapi.web.contexto "Registra scoped"
-        personapi.web.arranque -> personapi.web.daoPersona "Registra"
-        personapi.web.arranque -> personapi.web.daoProfesion "Registra"
-        personapi.web.arranque -> personapi.web.daoTelefono "Registra"
-        personapi.web.arranque -> personapi.web.daoEstudio "Registra"
-        personapi.web.arranque -> personapi.web.svcPersona "Registra"
-        personapi.web.arranque -> personapi.web.svcProfesion "Registra"
-        personapi.web.arranque -> personapi.web.svcTelefono "Registra"
-        personapi.web.arranque -> personapi.web.svcEstudio "Registra"
-        personapi.web.arranque -> personapi.web.antiforgery "Registra la convención"
-        personapi.web.arranque -> personapi.web.swagger "Configura"
-
         # ===== Despliegue declarado en el informe (docker-compose.yml) =====
         deploymentEnvironment "Docker Compose" {
             equipo = deploymentNode "Equipo del laboratorio" "docker compose up --build -d" "macOS o Windows · Docker Desktop" {
@@ -178,35 +155,6 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
 
         component personapi.web "c4-c3-componentes" "C4 nivel 3 · Componentes del contenedor web: los dos canales de cada módulo sobre el mismo servicio, las interfaces DAO y el contexto." {
             include *
-            # Fuera de esta vista: la convención de errores y el antiforgery son del canal
-            # web y van en su recorte; Program.cs tiene vista propia.
-            exclude personapi.web.arranque
-            exclude personapi.web.conv
-            exclude personapi.web.antiforgery
-            autolayout tb 500 450
-        }
-
-        component personapi.web "c4-c3-componentes-canal-web" "C4 nivel 3 · Recorte del canal MVC: controladores web, la convención de errores y el antiforgery." {
-            include personapi.web.home personapi.web.mvcPersonas personapi.web.mvcProfesiones personapi.web.mvcTelefonos personapi.web.mvcEstudios
-            include personapi.web.conv personapi.web.antiforgery
-            include personapi.web.svcPersona personapi.web.svcProfesion personapi.web.svcTelefono personapi.web.svcEstudio
-            include usuario
-            autolayout tb 500 450
-        }
-
-        component personapi.web "c4-c3-componentes-canal-json" "C4 nivel 3 · Recorte del canal REST: controladores de API y Swagger sobre los mismos servicios." {
-            include personapi.web.apiPersonas personapi.web.apiProfesiones personapi.web.apiTelefonos personapi.web.apiEstudios
-            include personapi.web.swagger
-            include personapi.web.svcPersona personapi.web.svcProfesion personapi.web.svcTelefono personapi.web.svcEstudio
-            include clienteRest
-            autolayout tb 500 450
-        }
-
-        component personapi.web "c4-c3-componentes-arranque" "C4 nivel 3 · Recorte de la composición: qué registra Program.cs (SDD §4)." {
-            include personapi.web.arranque
-            include personapi.web.svcPersona personapi.web.svcProfesion personapi.web.svcTelefono personapi.web.svcEstudio
-            include personapi.web.daoPersona personapi.web.daoProfesion personapi.web.daoTelefono personapi.web.daoEstudio
-            include personapi.web.contexto personapi.web.antiforgery personapi.web.swagger
             autolayout tb 500 450
         }
 
