@@ -47,8 +47,8 @@
 | 2026-10-28 | **Recorrido R1 de las 20 operaciones REST y de los casos negativos**, sobre `8434ffa`. | Las 39 comprobaciones dieron el código esperado. El detalle está en [cobertura CRUD](pruebas/cobertura-crud.md). |
 
 **Estado del recorrido E2E** (pasos de la tabla de arriba):
-- **3, 4, 6 (parte API), 7 y 8:** cubiertos por R1 y por `EscenariosSrsPersonaDbTests`.
-- **1, la parte MVC del 6 y la vista de teléfonos del 3:** pendientes de que se integren HU-007 (#35) y HU-012 (#39).
+- **3 (también por MVC, con el selector de dueño), 4, 6 (parte API), 7 y 8:** cubiertos por R1 y por `EscenariosSrsPersonaDbTests`.
+- **1 y la parte MVC del 6:** pendientes de que se integre HU-007 (#35).
 - **2 y 5:** pendientes del ensayo final en navegador.
 
 El ensayo final se repite sobre el `main` que lleve el tag.

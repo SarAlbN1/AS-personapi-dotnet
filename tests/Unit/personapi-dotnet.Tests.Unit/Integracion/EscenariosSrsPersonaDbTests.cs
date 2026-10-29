@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using personapi_dotnet.Back.Borde.Dtos;
 
@@ -9,8 +10,8 @@ namespace personapi_dotnet.Tests.Unit.Integracion;
 /// Escenarios de aceptación de SRS §10 contra persona_db real (HU-014), cruzando los dos
 /// canales cuando el módulo web ya está integrado. Trabajan sobre filas propias (persona
 /// 914000010, profesión 9142 y teléfono 9140000010) para no depender del estado que dejen
-/// otras pruebas, y las borran al empezar y al terminar. Las partes de personas en Razor
-/// se añaden cuando se integre su módulo.
+/// otras pruebas, y las borran al empezar y al terminar. El escenario 1 y la parte MVC del
+/// 5 se añaden cuando se integre el módulo web de personas (HU-007).
 /// </summary>
 public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<Program>>, IAsyncLifetime
 {
@@ -18,9 +19,14 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
     private const int IdPrueba = 9142;
     private const string NumPrueba = "9140000010";
 
+    private readonly WebApplicationFactory<Program> _factory;
     private readonly HttpClient _client;
 
-    public EscenariosSrsPersonaDbTests(WebApplicationFactory<Program> factory) => _client = factory.CreateClient();
+    public EscenariosSrsPersonaDbTests(WebApplicationFactory<Program> factory)
+    {
+        _factory = factory;
+        _client = factory.CreateClient();
+    }
 
     public Task InitializeAsync() => LimpiarAsync();
 
@@ -63,6 +69,28 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
         // Y aparece en el listado entre los teléfonos de esa persona.
         var telefonos = await _client.GetFromJsonAsync<List<TelefonoDto>>("/api/telefonos");
         Assert.Contains(telefonos!, t => t.Num == NumPrueba && t.Duenio == CcPrueba);
+    }
+
+    [FactConPersonaDb]
+    public async Task Escenario_3_un_telefono_creado_por_MVC_con_el_selector_se_consulta_por_REST()
+    {
+        await CrearPersonaYProfesionAsync();
+        var (cliente, token) = await ClienteConTokenAsync("/Telefonos/Create");
+
+        // El dueño se elige en el selector, que ya ofrece a la persona recién creada.
+        Assert.Contains($"<option value=\"{CcPrueba}\">{CcPrueba} · Escenario Srs</option>",
+            await HtmlAsync("/Telefonos/Create"));
+
+        var alta = await cliente.PostAsync("/Telefonos/Create", Formulario(token, new()
+        {
+            ["Num"] = NumPrueba, ["Oper"] = "Claro", ["Duenio"] = $"{CcPrueba}"
+        }));
+        Assert.Equal(HttpStatusCode.OK, alta.StatusCode);
+
+        var porRest = await _client.GetFromJsonAsync<TelefonoDto>($"/api/telefonos/{NumPrueba}");
+        Assert.Equal(CcPrueba, porRest!.Duenio);
+        Assert.Equal("Claro", porRest.Oper);
+        Assert.Contains($"{CcPrueba} · Escenario Srs", await HtmlAsync($"/Telefonos/Details/{NumPrueba}"));
     }
 
     [FactConPersonaDb]
@@ -129,6 +157,21 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
         var respuesta = await _client.GetAsync(ruta);
         Assert.Equal(HttpStatusCode.OK, respuesta.StatusCode);
         return WebUtility.HtmlDecode(await respuesta.Content.ReadAsStringAsync());
+    }
+
+    // El mismo cliente conserva la cookie antiforgery que acompaña al token del formulario.
+    private async Task<(HttpClient Cliente, string Token)> ClienteConTokenAsync(string ruta)
+    {
+        var cliente = _factory.CreateClient();
+        var html = await cliente.GetStringAsync(ruta);
+        var token = Regex.Match(html, "name=\"__RequestVerificationToken\" type=\"hidden\" value=\"([^\"]+)\"").Groups[1].Value;
+        return (cliente, token);
+    }
+
+    private static FormUrlEncodedContent Formulario(string token, Dictionary<string, string> campos)
+    {
+        campos["__RequestVerificationToken"] = token;
+        return new FormUrlEncodedContent(campos);
     }
 
     private async Task CrearPersonaYProfesionAsync()
