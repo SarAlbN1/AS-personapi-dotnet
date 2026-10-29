@@ -510,11 +510,13 @@ contenedor de inyección de dependencias de ASP.NET Core.
 
 \subsection{Modelo C4}
 
-El modelo C4 describe la misma arquitectura en niveles de detalle creciente. Los tres
+El modelo C4 describe la misma arquitectura en niveles de detalle creciente. Los cuatro
 diagramas se derivan del SAD y del SDD de la wiki y se comprueban contra el código del
 repositorio; sus fuentes en texto se versionan en
 \texttt{docs/wiki/02-arquitectura/diagramas/} y las imágenes exportadas se guardan junto
-a este documento, en \texttt{diagramas/}.
+a este documento, en \texttt{diagramas/}. Los tres primeros niveles salen del modelo en
+Structurizr DSL; el cuarto, que es un diagrama de clases, se escribe en PlantUML, porque
+Structurizr no dibuja el nivel de código.
 
 \begin{figure}[H]
 \centering
@@ -540,6 +542,34 @@ artefacto desplegable, con sus dos canales (vistas Razor y API REST), y la base
 servicios, interfaces DAO e implementaciones EF Core.}
 \label{fig:c4-componentes}
 \end{figure}
+
+El cuarto nivel es, por definición, un diagrama de clases del interior de un componente:
+el \textbf{diagrama de clases de la solución y el nivel 4 del modelo C4 son el mismo
+documento}, no dos vistas distintas, y por eso aparece una sola vez. La
+Figura~\ref{fig:c4-codigo} aplica el patrón DAO a la entidad \texttt{Persona}; las otras
+tres entidades siguen exactamente la misma estructura.
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.95\textwidth]{diagramas/c4-c4-codigo-personaservice.png}{Diagrama C4 de nivel 4: código del componente PersonaService}
+\caption{C4 nivel 4 (código): diagrama de clases del patrón DAO para \texttt{Persona}.}
+\label{fig:c4-codigo}
+\end{figure}
+
+La cadena que allí se ve es la que exige la arquitectura, y se lee de arriba abajo:
+
+\begin{enumerate}[itemsep=2pt]
+  \item el controlador —de vistas o de API— depende de la interfaz \texttt{IPersonaService}
+        y nunca de su implementación;
+  \item \texttt{PersonaService} implementa esa interfaz y concentra las reglas del dominio;
+  \item ese servicio depende de \textbf{tres} interfaces de repositorio: la de su propia
+        entidad, \texttt{IPersonaRepository}, y las de teléfono y estudio, que necesita para
+        comprobar dependientes antes de permitir un borrado;
+  \item cada \texttt{*Repository} implementa su interfaz y es el único punto que conoce
+        \texttt{PersonaDbContext}, de modo que EF Core no se filtra hacia arriba;
+  \item el resultado de cada operación viaja en \texttt{ServiceResult}, que el borde traduce
+        a código HTTP en la API y a mensaje visible en las vistas, sin repetir la regla.
+\end{enumerate}
 
 \subsection{Estructura del proyecto}
 
@@ -596,44 +626,6 @@ personapi-dotnet/
                 |-- Estudio.cs
                 `-- Telefono.cs
 \end{lstlisting}
-
-\subsection{Diagrama de clases (capa de acceso a datos)}
-
-La Figura~\ref{fig:dao} muestra la aplicación del patrón DAO para la entidad
-\texttt{Persona}; las demás entidades siguen exactamente la misma estructura.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[
-  clase/.style={rectangle split, rectangle split parts=2, draw=black!70, thick,
-                rectangle split part fill={azulj!15,white}, font=\ttfamily\scriptsize,
-                align=left, inner sep=4pt},
-  impl/.style={-{Triangle[open,length=3mm]}, dashed, thick},
-  usa/.style={-{Stealth[length=2.5mm]}, thick}
-]
-\node[clase] (ctrl) {\textbf{PersonasApiController}
-  \nodepart{two} - \_service : IPersonaService\\ + GetAll() : IActionResult\\ + Get(cc) : IActionResult\\
-                 + Post(persona) : IActionResult\\ + Put(cc, persona) : IActionResult\\ + Delete(cc) : IActionResult};
-\node[clase, right=1.2cm of ctrl] (isrv) {\textit{<<interface>>}\\ \textbf{IPersonaService}
-  \nodepart{two} + GetAllAsync()\\ + GetByIdAsync(cc)\\ + CreateAsync(p)\\ + UpdateAsync(cc, p)\\ + DeleteAsync(cc)};
-\node[clase, below=1.2cm of isrv] (srv) {\textbf{PersonaService}
-  \nodepart{two} - \_repo : IPersonaRepository};
-\node[clase, below=1.2cm of ctrl] (irepo) {\textit{<<interface>>}\\ \textbf{IPersonaRepository}
-  \nodepart{two} + GetAllAsync()\\ + GetByIdAsync(cc)\\ + ExistsAsync(cc)\\ + AddAsync(p)\\ + UpdateAsync(p)\\ + DeleteAsync(p)};
-\node[clase, below=1.2cm of irepo] (repo) {\textbf{PersonaRepository}
-  \nodepart{two} - \_context : PersonaDbContext};
-\node[clase, right=1.2cm of repo] (ctx) {\textbf{PersonaDbContext}
-  \nodepart{two} + Personas : DbSet<Persona>\\ + Profesions : DbSet<Profesion>\\ + Estudios : DbSet<Estudio>\\ + Telefonos : DbSet<Telefono>};
-
-\draw[usa] (ctrl) -- (isrv);
-\draw[impl] (srv) -- (isrv);
-\draw[usa] (srv) -- (irepo);
-\draw[impl] (repo) -- (irepo);
-\draw[usa] (repo) -- (ctx);
-\end{tikzpicture}
-\caption{Patrón DAO/Repository aplicado a la entidad \texttt{Persona}.}
-\label{fig:dao}
-\end{figure}
 
 \subsection{Diseño de la API REST}
 
@@ -705,22 +697,11 @@ manualmente una llave foránea.
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-  cont/.style={draw=azulj, thick, rounded corners=3pt, fill=white, minimum width=4.6cm,
-               minimum height=2.2cm, align=center, font=\small},
-  flecha/.style={-{Stealth[length=3mm]}, thick}
-]
-\node[cont] (app) {\textbf{personapi-dotnet}\\ \texttt{aspnet:10.0}\\ puerto 8080};
-\node[cont, right=2.2cm of app] (sql) {\textbf{sqlserver}\\ \texttt{mssql/server:2025-latest}\\ puerto 1433};
-\node[cont, below=0.9cm of sql, minimum height=1.1cm, fill=grisfondo] (init) {\textbf{db-init}\\ ejecuta \texttt{scripts/*.sql}};
-\node[draw, dashed, rounded corners, inner sep=0.45cm, fit=(app)(sql)(init),
-      label={[font=\small\bfseries,text=azulj]above:Docker Compose -- red \texttt{personapi-net}}] {};
-\node[left=1.3cm of app, align=center, font=\small] (nav) {Navegador\\ \texttt{localhost:8080}};
-\draw[flecha] (nav) -- (app);
-\draw[flecha] (app) -- node[above,font=\scriptsize]{TDS} (sql);
-\draw[flecha] (init) -- (sql);
-\end{tikzpicture}
-\caption{Vista de despliegue con Docker Compose.}
+\imagenOPendiente[0.95\textwidth]{diagramas/c4-despliegue.png}{Vista de despliegue con Docker Compose}
+\caption{Vista de despliegue con Docker Compose: los tres servicios de
+\texttt{docker-compose.yml} en la red \texttt{personapi-net}, con su imagen, el puerto que
+publican, el volumen de datos y las URL que quedan disponibles. \texttt{db-init} ejecuta el
+DDL y el DML y termina; la aplicación no arranca hasta que ese servicio acaba bien.}
 \label{fig:deploy}
 \end{figure}
 
