@@ -510,11 +510,15 @@ contenedor de inyección de dependencias de ASP.NET Core.
 
 \subsection{Modelo C4}
 
-El modelo C4 describe la misma arquitectura en niveles de detalle creciente. Los tres
+El modelo C4 describe la misma arquitectura en niveles de detalle creciente. Los cuatro
 diagramas se derivan del SAD y del SDD de la wiki y se comprueban contra el código del
 repositorio; sus fuentes en texto se versionan en
 \texttt{docs/wiki/02-arquitectura/diagramas/} y las imágenes exportadas se guardan junto
-a este documento, en \texttt{diagramas/}.
+a este documento, en \texttt{diagramas/}. Los tres primeros niveles salen del modelo en
+Structurizr DSL; el cuarto, que es un diagrama de clases, se escribe en PlantUML, porque
+Structurizr no dibuja el nivel de código. El repositorio conserva además tres recortes del
+nivel 3 —uno por canal y otro de la composición de dependencias— que sirven para la
+sustentación y no se reproducen aquí.
 
 \begin{figure}[H]
 \centering
@@ -539,6 +543,16 @@ artefacto desplegable, con sus dos canales (vistas Razor y API REST), y la base
 \caption{C4 nivel 3 (componentes) del contenedor web: controladores MVC y API,
 servicios, interfaces DAO e implementaciones EF Core.}
 \label{fig:c4-componentes}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.95\textwidth]{diagramas/c4-c4-codigo-personaservice.png}{Diagrama C4 de nivel 4: código del componente PersonaService}
+\caption{C4 nivel 4 (código) del componente \texttt{PersonaService}: su interfaz, los tres
+repositorios que inyecta y el resultado discriminado \texttt{ServiceResult}. El nivel de
+código se dibuja para \textbf{un} componente a modo de ejemplo; los otros tres servicios
+tienen la misma forma.}
+\label{fig:c4-codigo}
 \end{figure}
 
 \subsection{Estructura del proyecto}
