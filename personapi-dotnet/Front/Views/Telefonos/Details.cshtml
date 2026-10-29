@@ -1,0 +1,14 @@
+@model TelefonoViewModel
+@{
+    ViewData["Title"] = $"Teléfono {Model.Num}";
+}
+
+<h1 class="h3">Teléfono @Model.Num</h1>
+
+<partial name="_MensajesServicio" />
+
+<partial name="_Ficha" model="Model" />
+
+<a class="btn btn-primary" asp-action="Edit" asp-route-num="@Model.Num">Editar</a>
+<a class="btn btn-outline-danger" asp-action="Delete" asp-route-num="@Model.Num">Eliminar</a>
+<a class="btn btn-link" asp-action="Index">Volver al listado</a>

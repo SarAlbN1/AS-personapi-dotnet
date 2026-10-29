@@ -1,0 +1,17 @@
+@model TelefonoViewModel
+@{
+    ViewData["Title"] = $"Eliminar teléfono {Model.Num}";
+}
+
+<h1 class="h3">Eliminar teléfono @Model.Num</h1>
+
+<partial name="_MensajesServicio" />
+
+<p>¿Seguro que quiere eliminar este teléfono? Su dueño no se elimina.</p>
+
+<partial name="_Ficha" model="Model" />
+
+<form asp-action="Delete" asp-route-num="@Model.Num" method="post">
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a class="btn btn-link" asp-action="Details" asp-route-num="@Model.Num">Cancelar</a>
+</form>
