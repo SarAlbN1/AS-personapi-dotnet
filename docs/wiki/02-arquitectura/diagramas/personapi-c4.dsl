@@ -69,17 +69,19 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
                 entidades = component "Entidades" "Persona, Profesion, Telefono y Estudio, con la clave compuesta (id_prof, cc_per) de estudios y sin identificador artificial." "Back/04-Persistencia/Entities"
             }
 
-            db = container "persona_db" "Cuatro tablas con sus llaves primarias, foráneas y restricciones CHECK; el DDL de scripts/ es el origen del esquema." "SQL Server 2025 Express" "Base de datos"
         }
+
+        db = softwareSystem "persona_db" "SQL Server 2025 Express. Única base del sistema: cuatro tablas con sus llaves primarias, foráneas y restricciones CHECK; el DDL de scripts/ es el origen del esquema." "Base de datos"
 
         # ===== Nivel 1 ==========================================================
         usuario -> personapi "Consulta y mantiene los datos del dominio"
         clienteRest -> personapi "Prueba y documenta el contrato REST"
+        personapi -> db "Lee y escribe" "ADO.NET / TDS 1433"
 
         # ===== Nivel 2 ==========================================================
         usuario -> personapi.web "Usa las vistas HTML" "HTTPS"
         clienteRest -> personapi.web "Consume /api/* y /swagger" "HTTPS/JSON"
-        personapi.web -> personapi.db "Lee y escribe con EF Core" "ADO.NET / TDS 1433"
+        personapi.web -> db "Lee y escribe con EF Core" "ADO.NET / TDS 1433"
 
         # ===== Nivel 3 · entrada ================================================
         usuario -> personapi.web.home "Abre la página inicial" "HTTPS"
@@ -142,17 +144,17 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
         personapi.web.daoTelefono -> personapi.web.contexto "Consulta y persiste con LINQ"
         personapi.web.daoEstudio -> personapi.web.contexto "Consulta y persiste con LINQ"
         personapi.web.contexto -> personapi.web.entidades "Materializa y rastrea"
-        personapi.web.contexto -> personapi.db "Ejecuta SQL" "ADO.NET / TDS 1433"
+        personapi.web.contexto -> db "Ejecuta SQL" "ADO.NET / TDS 1433"
 
         # ===== Despliegue declarado en el informe (docker-compose.yml) ==========
         deploymentEnvironment "Docker Compose" {
             equipo = deploymentNode "Equipo del laboratorio" "Donde se ejecuta la demostración" "macOS o Windows con Docker Desktop" {
                 motor = deploymentNode "Docker Engine · red personapi-net" "Los tres servicios comparten una red interna" "Docker Compose" {
-                    nodoApp = deploymentNode "personapi" "Publica el puerto 8080 del host" "mcr.microsoft.com/dotnet/aspnet:10.0" {
+                    nodoApp = deploymentNode "personapi" "Publica el puerto 8080 del host" "mcr.microsoft.com/dotnet/aspnet:10.0 · puerto 8080" {
                         containerInstance personapi.web
                     }
-                    nodoSql = deploymentNode "sqlserver" "Publica el puerto 1433; los datos viven en el volumen sqldata" "mcr.microsoft.com/mssql/server:2025-latest" {
-                        containerInstance personapi.db
+                    nodoSql = deploymentNode "sqlserver" "Los datos viven en el volumen sqldata" "mcr.microsoft.com/mssql/server:2025-latest · puerto 1433" {
+                        softwareSystemInstance db
                     }
                     init = infrastructureNode "db-init" "Ejecuta 01_ddl.sql y después 02_dml.sql con el sqlcmd de /opt/mssql-tools18 y termina; la aplicación arranca cuando este servicio acaba bien." "mcr.microsoft.com/mssql/server:2025-latest"
                 }
@@ -184,7 +186,7 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
             include personapi.web.svcPersona personapi.web.svcProfesion personapi.web.svcTelefono personapi.web.svcEstudio
             include personapi.web.daoPersona personapi.web.daoProfesion personapi.web.daoTelefono personapi.web.daoEstudio
             include personapi.web.contexto personapi.web.entidades
-            include usuario personapi.db
+            include usuario db
             autolayout tb
         }
 
@@ -194,7 +196,7 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
             include personapi.web.svcPersona personapi.web.svcProfesion personapi.web.svcTelefono personapi.web.svcEstudio
             include personapi.web.daoPersona personapi.web.daoProfesion personapi.web.daoTelefono personapi.web.daoEstudio
             include personapi.web.contexto personapi.web.entidades
-            include clienteRest personapi.db
+            include clienteRest db
             autolayout tb
         }
 

@@ -8,6 +8,7 @@ son material derivado y se regeneran a partir de él.
 | Archivo | Contenido |
 |---|---|
 | [`personapi-c4.dsl`](personapi-c4.dsl) | Modelo C4 completo en Structurizr DSL: contexto, contenedores, componentes, recortes por canal y despliegue |
+| [`render.sh`](render.sh) | Regenera las seis imágenes desde el `.dsl`: valida, exporta a PlantUML y convierte a PNG con los nombres del informe |
 
 ## Qué se dibuja
 
@@ -39,6 +40,9 @@ sustentación, mientras `c4-c3-componentes` es la que va al informe.
 **Playground (sin instalar nada).** Abrir <https://structurizr.com/dsl>, pegar el
 contenido de `personapi-c4.dsl` y elegir la vista en el selector. Exportar cada diagrama
 como PNG.
+
+**Una sola orden.** `./docs/wiki/02-arquitectura/diagramas/render.sh` hace los tres pasos
+y avisa del tamaño de cada imagen. Necesita Docker. Lo que ejecuta por dentro:
 
 **Reproducible, con Docker.** `structurizr-cli` **no** exporta PNG —sus formatos son
 `plantuml`, `mermaid`, `json`, `static`…— y la imagen `structurizr/cli` está
@@ -94,16 +98,31 @@ compila igual, así que la ausencia se ve en el PDF en vez de pasar inadvertida.
 Exportadas con los comandos de arriba y versionadas junto al informe, que es quien las
 incluye:
 
-| Vista | Imagen |
-|---|---|
-| Contexto | [`c4-c1-contexto.png`](../../../informe/diagramas/c4-c1-contexto.png) |
-| Contenedores | [`c4-c2-contenedores.png`](../../../informe/diagramas/c4-c2-contenedores.png) |
-| Componentes | [`c4-c3-componentes.png`](../../../informe/diagramas/c4-c3-componentes.png) |
-| Despliegue | [`c4-despliegue.png`](../../../informe/diagramas/c4-despliegue.png) |
+| Vista | Imagen | ¿La usa el informe? |
+|---|---|---|
+| Contexto | [`c4-c1-contexto.png`](../../../informe/diagramas/c4-c1-contexto.png) | sí, figura de nivel 1 |
+| Contenedores | [`c4-c2-contenedores.png`](../../../informe/diagramas/c4-c2-contenedores.png) | sí, figura de nivel 2 |
+| Componentes | [`c4-c3-componentes.png`](../../../informe/diagramas/c4-c3-componentes.png) | sí, figura de nivel 3 |
+| Recorte del canal MVC | [`c4-c3-componentes-canal-web.png`](../../../informe/diagramas/c4-c3-componentes-canal-web.png) | no: material de sustentación |
+| Recorte del canal REST | [`c4-c3-componentes-canal-json.png`](../../../informe/diagramas/c4-c3-componentes-canal-json.png) | no: material de sustentación |
+| Despliegue | [`c4-despliegue.png`](../../../informe/diagramas/c4-despliegue.png) | no: el informe tiene su propia figura de despliegue en TikZ |
+
+Las tres primeras son las que `main.tex` referencia por nombre, así que aparecen en el PDF
+sin tocar el `.tex`. Las otras tres se incluirían solo si quien mantiene el informe decide
+añadirlas.
 
 Se regeneran desde el `.dsl` cada vez que el modelo cambie; no se editan a mano. Al
 regenerarlas, **comprobar que la imagen de componentes no quede recortada**: mide unos
 5000 px de ancho y el límite por defecto de PlantUML la corta en silencio.
+
+## Una decisión de modelado que conviene saber
+
+`persona_db` se modela como **sistema propio**, no como contenedor dentro de PersonAPI.
+No es un capricho: una vista de contexto de Structurizr solo admite personas y sistemas,
+así que con la base como contenedor el nivel 1 salía **sin la base**, y tanto el pie de
+figura del informe como el primer criterio de HU-016 exigen que aparezca. Modelada como
+sistema, sale en los tres niveles y la relación «lee y escribe» conserva su protocolo.
+Sigue siendo **una sola base**: AD-01 y la regla 1 no cambian.
 
 ## Lo que el modelo garantiza
 
