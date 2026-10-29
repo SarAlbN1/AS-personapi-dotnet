@@ -4,6 +4,7 @@ using personapi_dotnet.Back.AccesoDatos.Repository.Implementations;
 using personapi_dotnet.Back.AccesoDatos.Repository.Interfaces;
 using personapi_dotnet.Back.Aplicacion.Services.Implementations;
 using personapi_dotnet.Back.Aplicacion.Services.Interfaces;
+using personapi_dotnet.Back.Borde.ControllersApi;
 using personapi_dotnet.Back.Persistencia.Entities;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -13,8 +14,17 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 });
 
 // Antiforgery automático en los POST de los controladores MVC; la API REST queda fuera (HU-006).
+// Los [ApiController] documentan el 500 por convención (HU-009).
 builder.Services.AddControllersWithViews(options =>
-    options.Conventions.Add(new personapi_dotnet.Back.Borde.Controllers.AntiforgeryEnVistasConvention()));
+{
+    options.Conventions.Add(new personapi_dotnet.Back.Borde.Controllers.AntiforgeryEnVistasConvention());
+    options.Conventions.Add(new ErroresApiConvention());
+});
+
+// ProblemDetails para los errores no controlados de /api (ver UseExceptionHandler abajo) y
+// textos y ejemplos del documento OpenAPI 3 (HU-009).
+builder.Services.AddProblemDetails();
+builder.Services.AddDocumentacionOpenApi();
 
 // El árbol separa Front/ de Back/: sin estas rutas Razor no encuentra las vistas.
 builder.Services.Configure<RazorViewEngineOptions>(options =>
@@ -49,7 +59,14 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    // Una excepción no controlada en /api responde 500 con un ProblemDetails sin traza ni
+    // mensaje interno; en las rutas web, con la vista Error.
+    app.UseWhen(
+        context => context.Request.Path.StartsWithSegments("/api"),
+        api => api.UseExceptionHandler());
+    app.UseWhen(
+        context => !context.Request.Path.StartsWithSegments("/api"),
+        web => web.UseExceptionHandler("/Home/Error"));
     app.UseHttpsRedirection();
     app.UseHsts();
 }

@@ -1,0 +1,44 @@
+@model IReadOnlyList<TelefonoViewModel>
+@{
+    ViewData["Title"] = "Teléfonos";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Teléfonos</h1>
+    <a class="btn btn-primary" asp-action="Create">Nuevo teléfono</a>
+</div>
+
+<partial name="_MensajesServicio" />
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted" data-mensaje="vacio">No hay teléfonos registrados.</p>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th scope="col">Número</th>
+                <th scope="col">Operador</th>
+                <th scope="col">Dueño</th>
+                <th scope="col"><span class="visually-hidden">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var telefono in Model)
+            {
+                <tr data-telefono="@telefono.Num">
+                    <td>@telefono.Num</td>
+                    <td>@telefono.Oper</td>
+                    <td>@telefono.Duenio · @telefono.NombreDuenio</td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-outline-secondary btn-sm" asp-action="Details" asp-route-num="@telefono.Num">Ver</a>
+                        <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-num="@telefono.Num">Editar</a>
+                        <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-num="@telefono.Num">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

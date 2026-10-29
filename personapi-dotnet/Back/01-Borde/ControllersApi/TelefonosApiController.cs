@@ -18,23 +18,31 @@ public class TelefonosApiController : ControllerBase
 
     public TelefonosApiController(ITelefonoService telefonos) => _telefonos = telefonos;
 
-    /// <summary>Listado completo; sin filas devuelve <c>[]</c>.</summary>
+    /// <summary>Lista todos los teléfonos.</summary>
+    /// <response code="200">Los teléfonos registrados; sin filas, <c>[]</c>.</response>
     [HttpGet]
     [ProducesResponseType<IReadOnlyList<TelefonoDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<TelefonoDto>>> GetAll() =>
         Ok(await _telefonos.GetAllAsync());
 
-    /// <summary>Detalle por número.</summary>
+    /// <summary>Consulta un teléfono por su número.</summary>
+    /// <param name="num">Número del teléfono, como cadena y con sus ceros iniciales.</param>
+    /// <response code="200">El teléfono encontrado.</response>
+    /// <response code="404">No existe un teléfono con ese número.</response>
     [HttpGet("{num}")]
     [ProducesResponseType<TelefonoDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(string num) =>
         Traducir(await _telefonos.GetByIdAsync(num));
 
-    /// <summary>Alta. Con un dueño inexistente responde <c>400</c>.</summary>
+    /// <summary>Registra un teléfono a nombre de una persona existente.</summary>
+    /// <param name="entrada">Número, operador y cédula del dueño.</param>
+    /// <response code="201">Teléfono creado; <c>Location</c> apunta a <c>/api/telefonos/{num}</c>.</response>
+    /// <response code="400">Falta el número, el operador o el dueño, el número tiene caracteres que no son dígitos o supera los 15, el operador supera los 45, o el dueño no existe.</response>
+    /// <response code="409">Ya existe un teléfono con ese número.</response>
     [HttpPost]
     [ProducesResponseType<TelefonoDto>(StatusCodes.Status201Created)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create([FromBody] TelefonoEntradaDto entrada)
     {
@@ -48,22 +56,30 @@ public class TelefonosApiController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { num = resultado.Value!.Num }, resultado.Value);
     }
 
-    /// <summary>Edición de operador y dueño; el número de la ruta manda.</summary>
+    /// <summary>Actualiza el operador y el dueño de un teléfono; el número no se puede cambiar.</summary>
+    /// <param name="num">Número del teléfono, como cadena y con sus ceros iniciales.</param>
+    /// <param name="entrada">Datos completos del teléfono, con el mismo número de la ruta.</param>
+    /// <response code="204">Teléfono actualizado.</response>
+    /// <response code="400">Datos inválidos, el dueño no existe o el número del cuerpo no coincide exactamente con el de la ruta.</response>
+    /// <response code="404">No existe un teléfono con ese número.</response>
     [HttpPut("{num}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(string num, [FromBody] TelefonoEntradaDto entrada) =>
         Traducir(await _telefonos.UpdateAsync(num, entrada));
 
-    /// <summary>Baja.</summary>
+    /// <summary>Elimina un teléfono. Nada depende de un teléfono, así que no hay conflicto al borrarlo.</summary>
+    /// <param name="num">Número del teléfono, como cadena y con sus ceros iniciales.</param>
+    /// <response code="204">Teléfono eliminado.</response>
+    /// <response code="404">No existe un teléfono con ese número.</response>
     [HttpDelete("{num}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(string num) =>
         Traducir(await _telefonos.DeleteAsync(num));
 
-    // Mismo mapeo que en personas y profesiones: los errores salen como ProblemDetails,
+    // Mismo mapeo que en personas, profesiones y estudios: los errores salen como ProblemDetails,
     // la forma que ya produce [ApiController] cuando el cuerpo no valida.
     private IActionResult Traducir(ServiceResult resultado) => resultado.Status switch
     {

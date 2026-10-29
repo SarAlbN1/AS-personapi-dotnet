@@ -18,23 +18,32 @@ public class EstudiosApiController : ControllerBase
 
     public EstudiosApiController(IEstudioService estudios) => _estudios = estudios;
 
-    /// <summary>Listado completo; sin filas devuelve <c>[]</c>.</summary>
+    /// <summary>Lista todos los estudios.</summary>
+    /// <response code="200">Los estudios registrados; sin filas, <c>[]</c>.</response>
     [HttpGet]
     [ProducesResponseType<IReadOnlyList<EstudioDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<EstudioDto>>> GetAll() =>
         Ok(await _estudios.GetAllAsync());
 
-    /// <summary>Detalle por el par (profesión, persona).</summary>
+    /// <summary>Consulta un estudio por el par (profesión, persona).</summary>
+    /// <param name="idProf">Id de la profesión, primera mitad de la clave.</param>
+    /// <param name="ccPer">Cédula de la persona, segunda mitad de la clave.</param>
+    /// <response code="200">El estudio encontrado.</response>
+    /// <response code="404">No existe un estudio para ese par.</response>
     [HttpGet("{idProf:int}/{ccPer:int}")]
     [ProducesResponseType<EstudioDto>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int idProf, int ccPer) =>
         Traducir(await _estudios.GetByIdAsync(idProf, ccPer));
 
-    /// <summary>Alta. Con profesión o persona inexistente responde <c>400</c>.</summary>
+    /// <summary>Registra que una persona estudió una profesión.</summary>
+    /// <param name="entrada">El par (<c>idProf</c>, <c>ccPer</c>) y, opcionalmente, la fecha y la universidad.</param>
+    /// <response code="201">Estudio creado; <c>Location</c> apunta a <c>/api/estudios/{idProf}/{ccPer}</c>.</response>
+    /// <response code="400">Falta una mitad de la clave, la fecha no es válida, la universidad supera los 50 caracteres sin contar los espacios de los extremos, o la profesión o la persona no existen.</response>
+    /// <response code="409">Ya existe un estudio para ese par.</response>
     [HttpPost]
     [ProducesResponseType<EstudioDto>(StatusCodes.Status201Created)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Create([FromBody] EstudioEntradaDto entrada)
     {
@@ -49,15 +58,25 @@ public class EstudiosApiController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { idProf = creado.IdProf, ccPer = creado.CcPer }, creado);
     }
 
-    /// <summary>Edición de fecha y universidad; el par de la ruta no cambia.</summary>
+    /// <summary>Actualiza la fecha y la universidad de un estudio; el par no se puede cambiar.</summary>
+    /// <param name="idProf">Id de la profesión, primera mitad de la clave.</param>
+    /// <param name="ccPer">Cédula de la persona, segunda mitad de la clave.</param>
+    /// <param name="entrada">Datos completos del estudio, con el mismo par de la ruta.</param>
+    /// <response code="204">Estudio actualizado.</response>
+    /// <response code="400">Datos inválidos o el par del cuerpo no coincide con el de la ruta.</response>
+    /// <response code="404">No existe un estudio para ese par.</response>
     [HttpPut("{idProf:int}/{ccPer:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ValidationProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int idProf, int ccPer, [FromBody] EstudioEntradaDto entrada) =>
         Traducir(await _estudios.UpdateAsync(idProf, ccPer, entrada));
 
-    /// <summary>Baja.</summary>
+    /// <summary>Elimina un estudio. Nada depende de un estudio, así que no hay conflicto al borrarlo.</summary>
+    /// <param name="idProf">Id de la profesión, primera mitad de la clave.</param>
+    /// <param name="ccPer">Cédula de la persona, segunda mitad de la clave.</param>
+    /// <response code="204">Estudio eliminado.</response>
+    /// <response code="404">No existe un estudio para ese par.</response>
     [HttpDelete("{idProf:int}/{ccPer:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
