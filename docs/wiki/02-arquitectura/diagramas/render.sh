@@ -42,6 +42,13 @@ for v in $VISTAS; do mv -f "structurizr-$v.png" "$v.png"; done
 cd "$RAIZ"
 rm -rf "$D/puml"
 
+# El nivel 4 (codigo) no sale del .dsl: Structurizr no dibuja ese nivel. Es un
+# diagrama de clases escrito a mano en PlantUML, al lado del modelo.
+echo "== Nivel 4 (codigo), escrito a mano =="
+docker run --rm --user root -e PLANTUML_LIMIT_SIZE=8192 \
+  -v "$RAIZ/$D:/data" -v "$RAIZ/$SALIDA:/out" -w /data \
+  plantuml/plantuml -tpng -charset UTF-8 -o /out c4-c4-codigo-personaservice.puml >/dev/null
+
 echo "== Listo =="
 file "$SALIDA"/*.png | sed 's/, 8-bit.*//'
 echo

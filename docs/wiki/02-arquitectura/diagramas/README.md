@@ -7,7 +7,8 @@ son material derivado y se regeneran a partir de él.
 
 | Archivo | Contenido |
 |---|---|
-| [`personapi-c4.dsl`](personapi-c4.dsl) | Modelo C4 completo en Structurizr DSL: contexto, contenedores, componentes, recortes por canal y despliegue |
+| [`personapi-c4.dsl`](personapi-c4.dsl) | Modelo C4 en Structurizr DSL: contexto, contenedores, componentes, tres recortes y despliegue |
+| [`c4-c4-codigo-personaservice.puml`](c4-c4-codigo-personaservice.puml) | **Nivel 4 (código)** del componente `PersonaService`, en PlantUML: Structurizr no dibuja ese nivel |
 | [`render.sh`](render.sh) | Regenera las seis imágenes desde el `.dsl`: valida, exporta a PlantUML y convierte a PNG con los nombres del informe |
 
 ## Qué se dibuja
@@ -31,7 +32,8 @@ y su código o su historia está más abajo.
 | `c4-c3-componentes-canal-web` | C4 3 · Recorte | Solo el canal MVC, para explicarlo sin el ruido del otro canal |
 | `c4-c3-componentes-canal-json` | C4 3 · Recorte | Solo el canal REST, con Swagger y el resultado discriminado |
 | `c4-c3-componentes-arranque` | C4 3 · Recorte | La composición de SDD §4: qué registra `Program.cs` y con qué ciclo de vida |
-| `c4-despliegue` | Despliegue | Los tres servicios de `docker-compose.yml` (`personapi`, `sqlserver`, `db-init`) en la red `personapi-net` |
+| `c4-despliegue` | Despliegue | Los tres servicios de `docker-compose.yml` con su imagen, puerto, volumen y las URL que quedan publicadas |
+| `c4-c4-codigo-personaservice` | C4 4 · Código | Zoom a **un** componente del nivel 3: `PersonaService`, con las firmas reales, sus tres repositorios y `ServiceResult` |
 
 Los dos recortes existen porque la vista completa tiene 22 componentes: sirven para la
 sustentación, mientras `c4-c3-componentes` es la que va al informe.
@@ -128,6 +130,12 @@ el pie de figura de `main.tex` dice «el usuario, el monolito y SQL Server `pers
 como único almacén», y el primer criterio de HU-016 repite esa frase. Quien decide es el
 modelo C4, no el pie: **la diferencia está reportada** a quien mantiene el informe y al
 backlog, y se corrige allí, no redibujando el diagrama.
+
+**Solo se dibujan llamadas reales.** Lo que el framework aplica por convención —el filtro
+de antiforgery— y los tipos de datos que viajan entre capas —`ServiceResult`, DTOs,
+ViewModels, entidades— no son flechas: se dicen en la descripción de quien los usa. Pintarlos
+hacía parecer que el sistema tiene más acoplamiento del que tiene: el nivel 3 pasó de unas
+sesenta flechas a treinta y seis, y ninguna de las que quedan es decorativa.
 
 **Las vistas, los DTOs y las entidades no son componentes.** Son plantillas y estructuras
 de datos, así que salieron del nivel 3. En su lugar están las piezas que sí tienen

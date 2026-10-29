@@ -1,0 +1,114 @@
+@startuml c4-c4-codigo-personaservice
+' C4 nivel 4 (codigo) del componente PersonaService.
+' Hecho a mano, no exportado del .dsl: Structurizr no dibuja el nivel de codigo.
+' Las firmas son las del codigo real; si el codigo cambia, se corrige aqui.
+title C4 nivel 4 · Código del componente **PersonaService**\nUn solo componente del nivel 3; los otros tres servicios siguen la misma forma.
+
+skinparam dpi 150
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam ranksep 70
+skinparam nodesep 55
+skinparam class {
+  BackgroundColor #EAF2FB
+  BorderColor #2E6DA4
+  ArrowColor #555555
+  FontSize 12
+}
+skinparam note {
+  BackgroundColor #FFF8DC
+  BorderColor #B8A24A
+}
+
+interface IPersonaService <<interface>> {
+  +GetAllAsync() : Task<IReadOnlyList<PersonaDto>>
+  +GetByIdAsync(cc) : Task<ServiceResult<PersonaDto>>
+  +CreateAsync(entrada) : Task<ServiceResult<PersonaDto>>
+  +UpdateAsync(cc, entrada) : Task<ServiceResult>
+  +DeleteAsync(cc) : Task<ServiceResult>
+}
+
+class PersonaService {
+  -_personas : IPersonaRepository
+  -_telefonos : ITelefonoRepository
+  -_estudios : IEstudioRepository
+  -{static} GenerosValidos : string[] = ["M","F"]
+  --
+  -Validar(entrada) : string?
+  -ContarDependencias(cc) : Task<string?>
+  -{static} ADto(persona) : PersonaDto
+}
+
+interface IPersonaRepository <<interface>> {
+  +GetAllAsync() : Task<IReadOnlyList<Persona>>
+  +GetByIdAsync(cc) : Task<Persona?>
+  +ExistsAsync(cc) : Task<bool>
+  +AddAsync(entity) : Task
+  +UpdateAsync(entity) : Task
+  +DeleteAsync(entity) : Task
+}
+
+interface ITelefonoRepository <<interface>>
+interface IEstudioRepository <<interface>>
+
+class ServiceResult {
+  +Status : ServiceResultStatus
+  +Message : string?
+  +IsSuccess : bool
+  --
+  +{static} Success()
+  +{static} NotFound(mensaje)
+  +{static} ValidationError(mensaje)
+  +{static} Conflict(mensaje)
+}
+
+enum ServiceResultStatus {
+  Success
+  NotFound
+  ValidationError
+  Conflict
+}
+
+class "ServiceResult<T>" as ServiceResultT {
+  +Value : T?
+}
+
+class PersonaEntradaDto {
+  +Cc : int?
+  +Nombre : string
+  +Apellido : string
+  +Genero : string
+  +Edad : int?
+}
+
+class PersonaDto {
+  +Cc : int
+  +Nombre : string
+  +Apellido : string
+  +Genero : string
+  +Edad : int?
+}
+
+PersonaService ..|> IPersonaService
+PersonaService --> IPersonaRepository : su entidad
+PersonaService --> ITelefonoRepository : dependientes
+PersonaService --> IEstudioRepository : dependientes
+ServiceResultT --|> ServiceResult
+ServiceResult --> ServiceResultStatus
+IPersonaService ..> PersonaEntradaDto : recibe
+IPersonaService ..> PersonaDto : devuelve
+IPersonaService ..> ServiceResult : devuelve
+
+note right of PersonaService
+  Reglas de SDD §7:
+  · cédula única (Conflict)
+  · género M/F y edad ≥ 0 (ValidationError)
+  · no se borra con teléfonos o estudios (Conflict)
+  Nunca referencia PersonaDbContext.
+end note
+
+note bottom of ServiceResult
+  El borde lo traduce: la API a 200/201/204/400/404/409
+  y las vistas a mensaje visible, sin repetir la regla.
+end note
+@enduml

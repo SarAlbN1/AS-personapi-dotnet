@@ -149,19 +149,19 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
 
         # ===== Despliegue declarado en el informe (docker-compose.yml) =====
         deploymentEnvironment "Docker Compose" {
-            equipo = deploymentNode "Equipo del laboratorio" "Donde corre la demostración" "macOS o Windows con Docker Desktop" {
-                motor = deploymentNode "Docker Engine · red personapi-net" "Los tres servicios comparten red" "Docker Compose" {
-                    nodoApp = deploymentNode "personapi" "Publica el 8080 del host" "mcr.microsoft.com/dotnet/aspnet:10.0 · puerto 8080" {
+            equipo = deploymentNode "Equipo del laboratorio" "docker compose up --build -d" "macOS o Windows · Docker Desktop" {
+                motor = deploymentNode "Docker Compose · red personapi-net" "Tres servicios en una red interna; solo 8080 y 1433 salen al host" "docker-compose.yml" {
+                    nodoApp = deploymentNode "personapi" "build: . · Dockerfile de dos etapas (sdk:10.0 compila, aspnet:10.0 ejecuta) · la cadena llega por ConnectionStrings__PersonaDb" "dotnet personapi-dotnet.dll · 8080 → http://localhost:8080 y /swagger" {
                         containerInstance personapi.web
                     }
-                    nodoSql = deploymentNode "sqlserver" "Datos en el volumen sqldata" "mcr.microsoft.com/mssql/server:2025-latest · puerto 1433" {
+                    nodoSql = deploymentNode "sqlserver" "MSSQL_PID=Express · contraseña de sa desde .env, no versionada" "mssql/server:2025-latest · 1433 · volumen sqldata" {
                         containerInstance personapi.db
                     }
-                    init = infrastructureNode "db-init" "Ejecuta 01_ddl.sql y 02_dml.sql y termina." "mssql-tools18"
+                    init = infrastructureNode "db-init" "Ejecuta 01_ddl.sql y después 02_dml.sql con sqlcmd y termina; la aplicación no arranca hasta que acaba bien." "sqlcmd · /scripts montado solo lectura"
                 }
             }
 
-            equipo.motor.init -> equipo.motor.nodoSql "Crea el esquema y carga datos" "TDS 1433"
+            equipo.motor.init -> equipo.motor.nodoSql "Crea persona_db y carga el DML" "TDS 1433"
         }
     }
 
