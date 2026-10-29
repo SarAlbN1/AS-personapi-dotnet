@@ -2,7 +2,7 @@
 
 [← Evidencias](README.md) · [Contrato REST](../../03-contratos/api-rest.md) · [Runbook de la demo](../runbook-demo.md)
 
-Los [criterios de éxito](../../01-producto/criterios-de-exito.md) 4 y 5 exigen las **cinco operaciones REST** y las **cinco acciones Razor** por recurso. Esta página las registra una por una. **Las 20 operaciones REST están ejecutadas. De las acciones Razor, profesiones, teléfonos y estudios están en `main`; falta personas (HU-007).**
+Los [criterios de éxito](../../01-producto/criterios-de-exito.md) 4 y 5 exigen las **cinco operaciones REST** y las **cinco acciones Razor** por recurso. Esta página las registra una por una. **Las 20 operaciones REST y las 20 acciones Razor están ejecutadas.**
 
 Columna `Resultado`: código HTTP observado en REST, o el comportamiento observado en la vista. Columna `Evidencia`: salida, captura o PR donde consta.
 
@@ -37,7 +37,7 @@ Columna `Resultado`: código HTTP observado en REST, o el comportamiento observa
 
 | Recurso | Index | Details | Create | Edit | Delete | Evidencia |
 |---|---|---|---|---|---|---|
-| Personas | Pendiente | Pendiente | Pendiente | Pendiente | Pendiente | HU-007, PR #35 sin integrar |
+| Personas | Funciona | Funciona | Funciona; redirige al detalle | Funciona | Funciona, y el 409 se ve sobre la confirmación | PR #35: 15 capturas en navegador, `PersonasMvcPersonaDbTests` y `PersonasMvcTests`; recorrido R2 del [runbook](../runbook-demo.md#ensayos-ejecutados) |
 | Profesiones | Funciona | Funciona | Funciona | Funciona | Funciona, y el 409 se ve sobre la confirmación | PR #32: capturas en navegador y `ProfesionesMvcPersonaDbTests` |
 | Teléfonos | Funciona | Funciona | Funciona | Funciona | Funciona | PR #39: 13 capturas en navegador, `TelefonosMvcPersonaDbTests` y el escenario 3 por MVC de `EscenariosSrsPersonaDbTests` |
 | Estudios | Funciona | Funciona | Funciona | Funciona | Funciona | PR #38: capturas en navegador y `EstudiosMvcPersonaDbTests` |

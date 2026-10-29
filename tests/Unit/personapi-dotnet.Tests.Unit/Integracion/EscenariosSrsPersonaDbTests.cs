@@ -10,8 +10,7 @@ namespace personapi_dotnet.Tests.Unit.Integracion;
 /// Escenarios de aceptación de SRS §10 contra persona_db real (HU-014), cruzando los dos
 /// canales cuando el módulo web ya está integrado. Trabajan sobre filas propias (persona
 /// 914000010, profesión 9142 y teléfono 9140000010) para no depender del estado que dejen
-/// otras pruebas, y las borran al empezar y al terminar. El escenario 1 y la parte MVC del
-/// 5 se añaden cuando se integre el módulo web de personas (HU-007).
+/// otras pruebas, y las borran al empezar y al terminar.
 /// </summary>
 public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<Program>>, IAsyncLifetime
 {
@@ -31,6 +30,27 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
     public Task InitializeAsync() => LimpiarAsync();
 
     public Task DisposeAsync() => LimpiarAsync();
+
+    [FactConPersonaDb]
+    public async Task Escenario_1_una_persona_creada_por_MVC_se_ve_por_REST()
+    {
+        var (cliente, token) = await ClienteConTokenAsync("/Personas/Create");
+
+        var alta = await cliente.PostAsync("/Personas/Create", Formulario(token, new()
+        {
+            ["Cc"] = $"{CcPrueba}", ["Nombre"] = "Escenario", ["Apellido"] = "Web", ["Genero"] = "F", ["Edad"] = "28"
+        }));
+
+        // POST-Redirect-GET: el cliente sigue la redirección y la persona ya está en el listado.
+        Assert.Equal(HttpStatusCode.OK, alta.StatusCode);
+        Assert.Contains("data-mensaje=\"exito\"", WebUtility.HtmlDecode(await alta.Content.ReadAsStringAsync()));
+
+        var porRest = await _client.GetFromJsonAsync<PersonaDto>($"/api/personas/{CcPrueba}");
+        Assert.Equal("Escenario", porRest!.Nombre);
+        Assert.Equal("Web", porRest.Apellido);
+        Assert.Equal("F", porRest.Genero);
+        Assert.Equal(28, porRest.Edad);
+    }
 
     [FactConPersonaDb]
     public async Task Escenario_2_una_profesion_creada_por_REST_se_ve_en_MVC()
@@ -132,6 +152,13 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
 
         // Escenario 5: con dependientes, el borrado responde 409 y la persona sigue.
         await BorradoBloqueadoAsync();
+
+        // Y en MVC el mismo intento muestra el conflicto sobre la confirmación, sin borrar.
+        var (cliente, token) = await ClienteConTokenAsync($"/Personas/Delete/{CcPrueba}");
+        var porMvc = await cliente.PostAsync($"/Personas/Delete/{CcPrueba}", Formulario(token, new()));
+        Assert.Equal(HttpStatusCode.Conflict, porMvc.StatusCode);
+        Assert.Contains("data-mensaje=\"conflicto\"", WebUtility.HtmlDecode(await porMvc.Content.ReadAsStringAsync()));
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync($"/api/personas/{CcPrueba}")).StatusCode);
 
         // Escenario 6: primero los dependientes, después la persona. Quitar solo el
         // teléfono no basta: el estudio sigue bloqueando el borrado.
