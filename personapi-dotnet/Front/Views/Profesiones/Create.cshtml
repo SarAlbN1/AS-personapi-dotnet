@@ -1,0 +1,23 @@
+@model ProfesionViewModel
+@{
+    ViewData["Title"] = "Nueva profesión";
+}
+
+<h1 class="h3">Nueva profesión</h1>
+
+<partial name="_MensajesServicio" />
+
+<form asp-action="Create" method="post" class="col-md-8">
+    <div class="mb-3">
+        <label asp-for="Id" class="form-label"></label>
+        <input asp-for="Id" class="form-control" />
+        <span asp-validation-for="Id" class="text-danger"></span>
+    </div>
+    <partial name="_Campos" model="Model" />
+    <button type="submit" class="btn btn-primary">Crear</button>
+    <a class="btn btn-link" asp-action="Index">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

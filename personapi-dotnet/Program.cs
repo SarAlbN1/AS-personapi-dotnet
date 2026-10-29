@@ -40,6 +40,7 @@ builder.Services.AddScoped<IEstudioRepository, EstudioRepository>();
 builder.Services.AddScoped<IPersonaService, PersonaService>();
 builder.Services.AddScoped<IProfesionService, ProfesionService>();
 builder.Services.AddScoped<ITelefonoService, TelefonoService>();
+builder.Services.AddScoped<IEstudioService, EstudioService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
