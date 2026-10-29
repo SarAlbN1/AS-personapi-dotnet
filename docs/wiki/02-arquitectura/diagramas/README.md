@@ -56,8 +56,10 @@ docker run --rm -v "$PWD/docs/wiki/02-arquitectura/diagramas:/w" \
   structurizr/structurizr export -workspace /w/personapi-c4.dsl \
   -format plantuml/structurizr -output /w/puml
 
-# 3. Convertir a PNG
-docker run --rm --user root \
+# 3. Convertir a PNG. PLANTUML_LIMIT_SIZE es obligatorio: por defecto PlantUML
+#    recorta a 4096 px y la vista de componentes mide mas, asi que sin el se
+#    pierden Swagger y persona_db sin ningun aviso.
+docker run --rm --user root -e PLANTUML_LIMIT_SIZE=8192 \
   -v "$PWD/docs/wiki/02-arquitectura/diagramas/puml:/data" \
   -v "$PWD/docs/informe/diagramas:/out" -w /data plantuml/plantuml \
   -tpng -charset UTF-8 -o /out \
@@ -99,7 +101,9 @@ incluye:
 | Componentes | [`c4-c3-componentes.png`](../../../informe/diagramas/c4-c3-componentes.png) |
 | Despliegue | [`c4-despliegue.png`](../../../informe/diagramas/c4-despliegue.png) |
 
-Se regeneran desde el `.dsl` cada vez que el modelo cambie; no se editan a mano.
+Se regeneran desde el `.dsl` cada vez que el modelo cambie; no se editan a mano. Al
+regenerarlas, **comprobar que la imagen de componentes no quede recortada**: mide unos
+5000 px de ancho y el límite por defecto de PlantUML la corta en silencio.
 
 ## Lo que el modelo garantiza
 
