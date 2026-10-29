@@ -85,6 +85,15 @@ controladores `[ApiController]` quedan fuera.
 duplicadas, dependencias, referencias) las decide el servicio y llegan por
 `VistaSiFalla`; no se repiten en el ViewModel.
 
+**Clave compuesta (estudios).** `EstudiosController` (HU-013) lleva las dos mitades de la
+clave en la ruta de `Details`, `Edit` y `Delete`, con rutas por atributo:
+`/Estudios/Edit/{idProf}/{ccPer}`. Las vistas las generan con `asp-route-idProf` y
+`asp-route-ccPer`. Los selectores de persona y profesión se llenan con `IPersonaService` e
+`IProfesionService`, y el servicio de estudios vuelve a comprobar las dos referencias si el
+formulario llega manipulado. En `Edit`, el par de la ruta lleva `[FromRoute]` y, al repintar,
+el formulario vuelve a tomarlo de la ruta y lo quita de `ModelState`: un par manipulado da
+400 y el siguiente «Guardar» sigue apuntando al estudio original.
+
 **Ejemplo.** `/Home/Convenciones` recorre los cuatro resultados con un resultado de
 servicio **simulado**. Es la referencia visual de la convención, no un módulo del dominio.
 
