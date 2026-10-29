@@ -7,10 +7,15 @@ namespace personapi_dotnet.Back.Borde.Dtos;
 /// </summary>
 public class TelefonoDto
 {
+    /// <summary>Número del teléfono, clave del recurso.</summary>
+    /// <example>3001234567</example>
     public string Num { get; set; } = null!;
 
+    /// <summary>Operador.</summary>
+    /// <example>Claro</example>
     public string Oper { get; set; } = null!;
 
     /// <summary>Cédula de la persona dueña; referencia <c>persona.cc</c>.</summary>
+    /// <example>1010101010</example>
     public int Duenio { get; set; }
 }

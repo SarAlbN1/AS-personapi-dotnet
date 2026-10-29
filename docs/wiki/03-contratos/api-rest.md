@@ -55,7 +55,7 @@ Los DTO se validan en la entrada y los servicios aplican reglas de negocio. **La
 
 ## Convención OpenAPI (HU-009)
 
-El documento OpenAPI 3 se genera a partir del código: los códigos salen de los `[ProducesResponseType]`, y los resúmenes, las descripciones y los ejemplos, de los comentarios XML (`GenerateDocumentationFile`). Personas, profesiones y estudios ya la cumplen. Un controlador nuevo queda documentado sin rediseño si cumple estos seis puntos.
+El documento OpenAPI 3 se genera a partir del código: los códigos salen de los `[ProducesResponseType]`, y los resúmenes, las descripciones y los ejemplos, de los comentarios XML (`GenerateDocumentationFile`). Los cuatro recursos la cumplen. Un controlador nuevo queda documentado sin rediseño si cumple estos seis puntos.
 
 1. **Clase.** Lleva `[ApiController]`, `[Route("api/<recurso>")]` y `[Produces("application/json")]`. La clave de la ruta lleva su restricción de tipo (`{cc:int}`); una clave de texto, como `{num}`, no la lleva.
 2. **Códigos.** Cada acción declara con `[ProducesResponseType]` al menos los códigos de esta tabla. Los errores usan `ProblemDetails`, salvo el 400, que usa `ValidationProblemDetails`: es la forma que devuelve `[ApiController]` cuando el cuerpo no valida, y cubre también el 400 del servicio.
@@ -77,5 +77,5 @@ El documento OpenAPI 3 se genera a partir del código: los códigos salen de los
 6. **Mensajes de error.** Los arma el controlador con `Problem(detail: resultado.Message, …)` a partir del `ServiceResult`. Nunca se envía el mensaje de una excepción.
 
 **Comprobación automática.** `tests/Unit/personapi-dotnet.Tests.Unit/OpenApi/DocumentoOpenApiTests.cs` lee `/swagger/v1/swagger.json`:
-- **Códigos mínimos, `500` y esquema `ProblemDetails`:** los exige a **toda** operación de `/api`, así que también se aplica a teléfonos en cuanto se integre.
+- **Códigos mínimos, `500` y esquema `ProblemDetails`:** los exige a **toda** operación de `/api`.
 - **Resúmenes, descripciones propias y ejemplos:** los exige a los recursos listados en `RecursosDocumentados` y a los esquemas de la prueba `Los_esquemas_de_entrada_y_salida_traen_ejemplo_en_cada_propiedad`. Al documentar un recurso nuevo se añade allí.

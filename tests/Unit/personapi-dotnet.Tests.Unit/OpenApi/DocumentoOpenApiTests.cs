@@ -8,13 +8,12 @@ namespace personapi_dotnet.Tests.Unit.OpenApi;
 
 /// <summary>
 /// Comprobaciones de HU-009 sobre el documento que publica /swagger/v1/swagger.json, sin
-/// base de datos. La regla de códigos se aplica a toda operación de /api, así que también
-/// vigila a teléfonos en cuanto se integre; los textos y ejemplos se exigen a los recursos
-/// de <see cref="RecursosDocumentados"/>.
+/// base de datos. La regla de códigos se aplica a toda operación de /api; los textos y
+/// ejemplos se exigen a los recursos de <see cref="RecursosDocumentados"/>, que ya son los cuatro.
 /// </summary>
 public class DocumentoOpenApiTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private static readonly string[] RecursosDocumentados = ["personas", "profesiones", "estudios"];
+    private static readonly string[] RecursosDocumentados = ["personas", "profesiones", "telefonos", "estudios"];
 
     // Respuestas genéricas que Swashbuckle pone cuando la operación no trae descripción.
     private static readonly string[] DescripcionesGenericas =
@@ -35,12 +34,12 @@ public class DocumentoOpenApiTests : IClassFixture<WebApplicationFactory<Program
     }
 
     [Fact]
-    public async Task Cada_recurso_documentado_publica_sus_cinco_operaciones()
+    public async Task Los_cuatro_recursos_publican_las_veinte_operaciones()
     {
         using var documento = await DocumentoAsync();
         var operaciones = Operaciones(documento).Select(o => $"{o.Verbo} {o.Ruta}").ToHashSet();
 
-        foreach (var (recurso, clave) in new[] { ("personas", "{cc}"), ("profesiones", "{id}"), ("estudios", "{idProf}/{ccPer}") })
+        foreach (var (recurso, clave) in new[] { ("personas", "{cc}"), ("profesiones", "{id}"), ("telefonos", "{num}"), ("estudios", "{idProf}/{ccPer}") })
         {
             Assert.Contains($"get /api/{recurso}", operaciones);
             Assert.Contains($"post /api/{recurso}", operaciones);
@@ -118,6 +117,8 @@ public class DocumentoOpenApiTests : IClassFixture<WebApplicationFactory<Program
     [InlineData("PersonaEntradaDto")]
     [InlineData("PersonaDto")]
     [InlineData("ProfesionDto")]
+    [InlineData("TelefonoEntradaDto")]
+    [InlineData("TelefonoDto")]
     [InlineData("EstudioEntradaDto")]
     [InlineData("EstudioDto")]
     public async Task Los_esquemas_de_entrada_y_salida_traen_ejemplo_en_cada_propiedad(string esquema)
