@@ -10,7 +10,7 @@
 
 **Componentes afectados:** `Back/01-Borde/Dtos/`, `Front/ViewModels/`, `ITelefonoService` / `TelefonoService`, `Back/01-Borde/ControllersApi/TelefonosApiController`, `Back/01-Borde/Controllers/TelefonosController`, `Front/Views/Telefonos/`.
 
-**Historias:** HU-010, HU-012 (ambas Sprint 2) · **7 puntos**
+**Historias:** HU-010 (integrante A), HU-012 (integrante C), ambas Sprint 2 · **7 puntos**
 
 **Criterio de éxito de la épica:** los cinco endpoints de `/api/telefonos` y las cinco vistas Razor operan contra `persona_db`; un teléfono solo puede vincularse a una persona existente ([criterio de éxito 7](../../01-producto/criterios-de-exito.md)); `num` conserva ceros iniciales.
 
@@ -55,7 +55,9 @@ DoD común + endpoints probados, intento de huérfano rechazado y PR revisado.
 
 ## HU-012 · CRUD MVC de teléfonos con selector de persona
 
-**Épica** EP-03 · **Sprint** 2 · **Responsable** Integrante A · **Prioridad** P1 · **Puntos** 3 · **Módulo** Teléfonos
+**Épica** EP-03 · **Sprint** 2 · **Responsable** Integrante C · **Prioridad** P1 · **Puntos** 3 · **Módulo** Teléfonos
+
+> **Reasignada.** Pasó de A a C al añadirse HU-016 y HU-017; es una de las dos historias de menor prioridad del Sprint 2 (`P1`, 3 puntos, hoja del grafo). Mantiene su dependencia de HU-010, que es de A: es la única espera entre responsables distintos del sprint y así queda declarada. El servicio y los DTO de teléfonos los fija HU-010: esta historia los consume sin modificarlos. Ver [priorización](../priorizacion.md#ampliación-documental-y-reasignación-hu-016-hu-017).
 
 ### Objetivo
 Entregar las cinco vistas Razor de teléfonos con selector de dueño, para que la relación con persona se construya sin escribir claves a mano y los errores de FK sean visibles.

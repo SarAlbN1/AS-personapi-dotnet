@@ -67,25 +67,45 @@ awk -F'\t' '
     ids[$1]=1; deps[$1]=$10
   }
   END {
-    if (filas != 15) { printf "ERROR: se esperan 15 historias, hay %d\n", filas; bad=1 }
+    if (filas != 17) { printf "ERROR: se esperan 17 historias, hay %d\n", filas; bad=1 }
     if (sprint[1] != 6) { printf "ERROR: Sprint 1 tiene %d historias, se esperan 6\n", sprint[1]; bad=1 }
-    if (sprint[2] != 9) { printf "ERROR: Sprint 2 tiene %d historias, se esperan 9\n", sprint[2]; bad=1 }
+    if (sprint[2] != 11) { printf "ERROR: Sprint 2 tiene %d historias, se esperan 11\n", sprint[2]; bad=1 }
     split("A B C", p, " ")
+    esp2["A"]=3; esp2["B"]=3; esp2["C"]=5
     for (i=1; i<=3; i++) {
       k=p[i]
       if (porpersona[k"-1"] != 2) { printf "ERROR: %s tiene %d issues en Sprint 1, se esperan 2\n", k, porpersona[k"-1"]; bad=1 }
-      if (porpersona[k"-2"] != 3) { printf "ERROR: %s tiene %d issues en Sprint 2, se esperan 3\n", k, porpersona[k"-2"]; bad=1 }
+      if (porpersona[k"-2"] != esp2[k]) { printf "ERROR: %s tiene %d issues en Sprint 2, se esperan %d\n", k, porpersona[k"-2"], esp2[k]; bad=1 }
     }
-    # dependencias: existentes y solo hacia historias anteriores (evita ciclos y bloqueos regresivos)
+    # dependencias: deben existir y el grafo no puede tener ciclos. Antes se exigia
+    # ademas que la dependencia fuera una historia anterior; esa regla se retiro
+    # porque HU-015 (entrega) depende de HU-016 y HU-017, posteriores, cuyo resultado
+    # entra en el informe que la entrega verifica. Un ciclo si sigue siendo un error.
     for (id in deps) {
       n = split(deps[id], d, /; */)
+      grado[id] = 0
       for (j=1; j<=n; j++) {
         dep=d[j]; gsub(/^ +| +$/, "", dep)
         if (dep == "") continue
-        if (!(dep in ids)) { printf "ERROR: %s depende de %s, que no existe\n", id, dep; bad=1 }
-        else if (dep >= id) { printf "ERROR: %s depende de %s, que no es anterior\n", id, dep; bad=1 }
+        if (!(dep in ids)) { printf "ERROR: %s depende de %s, que no existe\n", id, dep; bad=1; continue }
+        arista[id, grado[id]] = dep
+        grado[id]++
       }
     }
+    # Se retiran iterativamente las historias cuyas dependencias ya se retiraron
+    # (Kahn). Lo que quede al final pertenece a un ciclo.
+    for (id in ids) pendiente[id] = 1
+    cambio = 1
+    while (cambio) {
+      cambio = 0
+      for (id in pendiente) {
+        listo = 1
+        for (k=0; k<grado[id]; k++) if (arista[id,k] in pendiente) { listo = 0; break }
+        if (listo) quitar[id] = 1
+      }
+      for (id in quitar) { delete pendiente[id]; delete quitar[id]; cambio = 1 }
+    }
+    for (id in pendiente) { printf "ERROR: %s participa en un ciclo de dependencias\n", id; bad=1 }
     printf "  historias: %d | Sprint 1: %d | Sprint 2: %d | puntos: %d\n", filas, sprint[1], sprint[2], total
     for (i=1; i<=3; i++) { k=p[i]; printf "  %s: %d issues, %d puntos\n", k, issues[k], puntos[k] }
     if (bad) { print "VALIDACION FALLIDA"; exit 1 }
