@@ -14,10 +14,11 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 });
 
 // Antiforgery automático en los POST de los controladores MVC; la API REST queda fuera (HU-006).
-// Los [ApiController] documentan el 500 por convención (HU-009).
+// Los [ApiController] documentan el 500 por convención y los MVC no salen en Swagger (HU-009).
 builder.Services.AddControllersWithViews(options =>
 {
     options.Conventions.Add(new personapi_dotnet.Back.Borde.Controllers.AntiforgeryEnVistasConvention());
+    options.Conventions.Add(new personapi_dotnet.Back.Borde.Controllers.VistasFueraDeOpenApiConvention());
     options.Conventions.Add(new ErroresApiConvention());
 });
 
