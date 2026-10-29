@@ -10,7 +10,7 @@
 
 **Componentes afectados:** `Back/01-Borde/Dtos/`, `Front/ViewModels/`, `IProfesionService` / `ProfesionService`, `Back/01-Borde/ControllersApi/ProfesionesApiController`, `Back/01-Borde/Controllers/ProfesionesController`, `Front/Views/Profesiones/`.
 
-**Historias:** HU-005 (Sprint 1), HU-008 (Sprint 2) · **7 puntos**
+**Historias:** HU-005 (Sprint 1, integrante B), HU-008 (Sprint 2, integrante C) · **7 puntos**
 
 **Criterio de éxito de la épica:** los cinco endpoints de `/api/profesiones` y las cinco vistas Razor operan contra `persona_db`; una profesión creada por REST se visualiza en MVC; el borrado de una profesión con estudios devuelve `409` y un mensaje legible.
 
@@ -52,7 +52,9 @@ DoD común + endpoints probados con sus códigos HTTP, persistencia verificada y
 
 ## HU-008 · CRUD MVC de profesiones con errores controlados
 
-**Épica** EP-02 · **Sprint** 2 · **Responsable** Integrante B · **Prioridad** P1 · **Puntos** 3 · **Módulo** Profesiones
+**Épica** EP-02 · **Sprint** 2 · **Responsable** Integrante C · **Prioridad** P1 · **Puntos** 3 · **Módulo** Profesiones
+
+> **Reasignada.** Pasó de B a C al añadirse HU-016 y HU-017; es una de las dos historias de menor prioridad del Sprint 2 (`P1`, 3 puntos, hoja del grafo). El servicio y los DTO de profesiones los fija HU-005 (B): esta historia los **consume sin modificarlos** y pide en la issue de HU-005 cualquier método que le falte. Ver [priorización](../priorizacion.md#ampliación-documental-y-reasignación-hu-016-hu-017).
 
 ### Objetivo
 Entregar las cinco vistas Razor de profesiones sobre el servicio compartido, para cerrar el segundo CRUD dual y comprobar el sentido inverso de la persistencia compartida (crear por REST, ver en MVC).

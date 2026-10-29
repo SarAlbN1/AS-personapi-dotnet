@@ -65,13 +65,14 @@ Este bloque es el que demuestra RF-05, RF-06 y AK-04; se ejecuta en vivo porque 
 
 ## Bloque 5 · Proceso y entrega
 
-1. GitHub Projects como fuente de estado: 15 issues, dos milestones, campos `Sprint`, `Module`, `Priority`, `Points`.
+1. GitHub Projects como fuente de estado: 17 issues, dos milestones, campos `Sprint`, `Module`, `Priority`, `Points`.
 2. Trazabilidad de una issue cualquiera a su `RF-*`, su `AD-*` y su sección del SDD.
 3. Un PR real: issue vinculada con `Closes #<número>`, evidencia de pruebas y revisión cruzada de otro integrante.
 4. Lista de revisión arquitectónica cerrada y los siete killers con evidencia.
-5. Repositorio público, README verificado en clon limpio, scripts, informe académico compilado desde `docs/informe/main.tex` (fuente de verdad en LaTeX, no modificada por el backlog) y **URL del tag `v1.0.0`**.
+5. Diagramas C4 de contexto, contenedores y componentes como apoyo del Bloque 1 (HU-016).
+6. Repositorio público, README verificado en clon limpio, scripts, informe académico compilado desde `docs/informe/main.tex` —fuente de verdad en LaTeX, escrita solo por quien la mantiene e incluido el manual técnico de despliegue de HU-017— y **URL del tag `v1.0.0`**.
 
-**Respalda:** HU-014, HU-015 · **Referencias:** [entrega](../05-proceso/entrega.md), [pull requests y releases](../05-proceso/pull-requests-y-releases.md).
+**Respalda:** HU-014, HU-015, HU-016, HU-017 · **Referencias:** [entrega](../05-proceso/entrega.md), [pull requests y releases](../05-proceso/pull-requests-y-releases.md).
 
 ## Reparto de la exposición
 

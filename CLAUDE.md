@@ -13,7 +13,7 @@ El orden de autoridad es **enunciado del laboratorio → wiki → este archivo �
    3. SDD: `docs/wiki/04-implementacion/03-SDD-LDD.md` (clases, interfaces, vistas y endpoints).
    4. Contratos `docs/wiki/03-contratos/`; reglas `docs/wiki/02-arquitectura/reglas-arquitectonicas.md`.
    5. Proceso `docs/wiki/05-proceso/`; backlog **vivo** en GitHub Projects.
-   6. `docs/wiki/06-backlog/` contiene el backlog documentado (15 historias, 6 épicas, priorización, plan de sprints, guion de sustentación, plantilla de issue, `equipo.tsv` y `crear-issues.sh`). Es material **derivado** de SRS, SAD y SDD: no decide arquitectura, alcance ni contratos. El estado del trabajo vive en GitHub Projects. No publicar, crear ni asignar issues sin autorización explícita.
+   6. `docs/wiki/06-backlog/` contiene el backlog documentado (17 historias, 6 épicas, priorización, plan de sprints, guion de sustentación, plantilla de issue, `equipo.tsv` y `crear-issues.sh`). Es material **derivado** de SRS, SAD y SDD: no decide arquitectura, alcance ni contratos. El estado del trabajo vive en GitHub Projects. No publicar, crear ni asignar issues sin autorización explícita.
 2. **Este archivo (`CLAUDE.md`)**: instrucciones operativas del asistente, derivadas del enunciado y de la wiki. **No tiene autoridad para crear ni modificar requisitos ni decisiones arquitectónicas**, y no puede imponer reglas que contradigan el enunciado o la wiki. Si choca con alguno de ellos, se corrige este archivo.
 3. **Informe académico** `docs/informe/`: presenta y desarrolla el trabajo; debe ser coherente con el enunciado y con las decisiones vigentes, y no es fuente de decisiones arquitectónicas. **Sus contenidos no se reescriben para resolver una contradicción**: la contradicción se reporta y la corrige quien mantiene el documento propietario. La única intervención admitida sin esa revisión es retirar credenciales o datos sensibles antes de publicar.
 
@@ -50,7 +50,7 @@ Ante conflictos, no adivinar y no editar por iniciativa propia: documentar el co
 - No editar ni hacer push en ramas de otras personas ni corregir sus archivos sin asignación/acuerdo.
 - Reportar defectos encontrados fuera de la issue propia en comentarios/issue.
 - Antes de `Done`, demostrar pruebas, contratos y criterios; actualizar documentos afectados.
-- GitHub Projects es la fuente de estado; no duplicar el backlog en Markdown.
+- GitHub Projects es la fuente de estado; no duplicar el backlog en Markdown. Mover el tablero es obligatorio y tiene responsable y momento fijos: `In Progress` antes del primer commit, `Done` en el mismo acto de la fusión, y tras fusionar, barrido de las issues que quedan desbloqueadas para sacarlas de `Blocked` ([obligaciones del tablero](docs/wiki/05-proceso/issues-etiquetas-y-milestones.md#obligaciones-de-actualización-del-tablero)).
 - Equipo e identidades reales: [`docs/wiki/06-backlog/equipo.tsv`](docs/wiki/06-backlog/equipo.tsv). Sara (`SarAlbN1`), Juan Diego (`Juandi48`), Miguel (`ma-sarmiento`). No inventar cuentas ni reasignar responsables.
 
 ## Reglas obligatorias para Claude Code y cualquier agente
