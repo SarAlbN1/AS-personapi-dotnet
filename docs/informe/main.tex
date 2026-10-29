@@ -10,7 +10,9 @@
 % ---------------------------------------------------------------------
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+% es-noquoting: sin él, babel convierte < y > en atajos de comillas y los DbSet<...> del
+% diagrama de clases DAO detienen la compilación.
+\usepackage[spanish,es-tabla,es-nodecimaldot,es-noquoting]{babel}
 \usepackage{lmodern}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{graphicx}
@@ -45,7 +47,7 @@
 \newcommand{\integranteC}{Miguel Sarmiento}
 \newcommand{\ciudad}{Bogotá D.C.}
 \newcommand{\fecha}{Octubre de 2026}
-\newcommand{\repoURL}{https://github.com/USUARIO/personapi-dotnet}
+\newcommand{\repoURL}{https://github.com/SarAlbN1/AS-personapi-dotnet}
 \newcommand{\repoTag}{v1.0.0}
 
 % ---------------------------------------------------------------------
@@ -521,8 +523,9 @@ Structurizr no dibuja el nivel de código.
 \begin{figure}[H]
 \centering
 \imagenOPendiente[0.9\textwidth]{diagramas/c4-c1-contexto.png}{Diagrama C4 de nivel 1: contexto}
-\caption{C4 nivel 1 (contexto): el usuario, el monolito \texttt{personapi-dotnet} y
-SQL Server \texttt{persona\_db} como único almacén.}
+\caption{C4 nivel 1 (contexto): el usuario y el cliente REST frente al sistema
+PersonAPI; la base \texttt{persona\_db} es un contenedor del sistema y aparece en el
+nivel 2 (figura~\ref{fig:c4-contenedores}).}
 \label{fig:c4-contexto}
 \end{figure}
 
@@ -726,18 +729,25 @@ SDK de .NET              & .NET 6 / 7     & .NET 10 (LTS) \\
 Motor de base de datos   & SQL Server 2019 Express & SQL Server 2025 Express / imagen Docker 2025 \\
 Cliente de base de datos & SSMS 18        & SSMS 22 \\
 IDE                      & Visual Studio 2022 & Visual Studio 2026 Community (requerido para .NET 10) \\
-ORM                      & EF Core        & EF Core 10 \\
-Documentación de API     & Swagger 3      & Swashbuckle.AspNetCore (OpenAPI 3) \\
+ORM                      & EF Core        & EF Core 10 (paquetes 10.0.14) \\
+Documentación de API     & Swagger 3      & Swashbuckle.AspNetCore 10.3.1 (OpenAPI 3) \\
 Contenedores             & --             & Docker Desktop + Docker Compose v2 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Paso 1. Crear el repositorio Git}
-Se creó en GitHub el repositorio público \texttt{personapi-dotnet}, inicializado con un
-\texttt{README.md} y un \texttt{.gitignore} para Visual Studio.
+Se creó en GitHub el repositorio público \texttt{AS-personapi-dotnet}, inicializado con un
+\texttt{README.md} y un \texttt{.gitignore} para Visual Studio. La solución que contiene
+se llama \texttt{personapi-dotnet}.
 
-\begin{center}\captura{Repositorio \texttt{personapi-dotnet} creado en GitHub}\end{center}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.9\textwidth]{figuras/procedimiento/p1-repositorio-github.jpg}{Repositorio \texttt{AS-personapi-dotnet} en GitHub}
+\caption{Paso 1: repositorio \texttt{AS-personapi-dotnet} en GitHub, con la rama \texttt{main}
+y las carpetas \texttt{docs/}, \texttt{personapi-dotnet/}, \texttt{scripts/} y \texttt{tests/}.}
+\label{fig:paso1-repositorio}
+\end{figure}
 
 \subsection{Paso 2 y 3. Instalar SQL Server 2025 Express y SSMS}
 \begin{enumerate}[itemsep=2pt]
@@ -749,7 +759,14 @@ Se creó en GitHub el repositorio público \texttt{personapi-dotnet}, inicializa
   \item Instalar SQL Server Management Studio (SSMS) y conectarse a la instancia.
 \end{enumerate}
 
-\begin{center}\captura{Conexión exitosa a \texttt{localhost\textbackslash SQLEXPRESS} en SSMS}\end{center}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.9\textwidth]{figuras/procedimiento/p2-ssms-conexion.png}{Conexión a \texttt{localhost\textbackslash SQLEXPRESS} en SSMS}
+\caption{Pasos 2 y 3: SSMS 22 conectado a \texttt{localhost\textbackslash SQLEXPRESS}
+(SQL Server 17.0) con autenticación de Windows; la barra de estado indica «Conectado» y la
+base \texttt{persona\_db}.}
+\label{fig:paso2-ssms}
+\end{figure}
 
 \subsection{Paso 4 y 5. Crear la base de datos y las tablas (DDL)}
 Se creó la base de datos \texttt{persona\_db}, se asignó como propietario al usuario
@@ -829,7 +846,13 @@ INSERT INTO telefono (num, oper, duenio) VALUES
 GO
 \end{lstlisting}
 
-\begin{center}\captura{Tablas de \texttt{persona\_db} en el Explorador de objetos de SSMS}\end{center}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.9\textwidth]{figuras/procedimiento/p5-ssms-tablas.png}{Tablas de \texttt{persona\_db} en el Explorador de objetos de SSMS}
+\caption{Paso 5: Explorador de objetos de SSMS con las cuatro tablas de \texttt{persona\_db}:
+\texttt{dbo.estudios}, \texttt{dbo.persona}, \texttt{dbo.profesion} y \texttt{dbo.telefono}.}
+\label{fig:paso5-tablas}
+\end{figure}
 
 \subsection{Paso 6. Instalar Visual Studio Community}
 Se instaló Visual Studio 2026 Community con las cargas de trabajo:
@@ -842,8 +865,8 @@ Se instaló Visual Studio 2026 Community con las cargas de trabajo:
 
 \subsection{Paso 7. Clonar el repositorio}
 \begin{lstlisting}[language=bash,numbers=none]
-git clone https://github.com/USUARIO/personapi-dotnet.git
-cd personapi-dotnet
+git clone https://github.com/SarAlbN1/AS-personapi-dotnet.git
+cd AS-personapi-dotnet
 \end{lstlisting}
 
 \subsection{Paso 8. Desarrollo en Visual Studio}
@@ -867,12 +890,16 @@ conexión}.
 
 \subsubsection{8.7 -- 8.8 Instalación de paquetes NuGet}
 \begin{lstlisting}[language=bash,numbers=none]
-dotnet add package Microsoft.EntityFrameworkCore
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer
-dotnet add package Microsoft.EntityFrameworkCore.Tools
-dotnet add package Microsoft.EntityFrameworkCore.Design
-dotnet add package Swashbuckle.AspNetCore
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 10.0.14
+dotnet add package Microsoft.EntityFrameworkCore.Tools --version 10.0.14
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 10.0.14
+dotnet add package Swashbuckle.AspNetCore --version 10.3.1
 \end{lstlisting}
+
+\texttt{Microsoft.EntityFrameworkCore} no se añade aparte: llega como dependencia del
+proveedor de SQL Server. El proyecto de pruebas usa además
+\texttt{Microsoft.AspNetCore.Mvc.Testing} 10.0.13 para levantar la aplicación en memoria.
+Las versiones exactas son las de los \texttt{.csproj} del repositorio.
 
 \subsubsection{8.9 -- 8.10 Generación de entidades (\emph{scaffolding})}
 Se creó la carpeta \texttt{Back/04-Persistencia/Entities} y en la Consola del Administrador de paquetes
@@ -1287,7 +1314,7 @@ winget install --id Microsoft.DotNet.SDK.10 -e --source winget --accept-package-
 \begin{lstlisting}[language=bash,numbers=none]
 Get-Service 'MSSQL$SQLEXPRESS' | Format-Table Status, Name, DisplayName -AutoSize
 # Running  MSSQL$SQLEXPRESS  SQL Server (SQLEXPRESS)
-sqlcmd -S 'localhost\SQLEXPRESS' -E -C -W -Q "SELECT SERVERPROPERTY('ProductVersion') AS version, SERVERPROPERTY('Edition') AS edicion"
+sqlcmd -S 'lpc:localhost\SQLEXPRESS' -E -C -W -Q "SELECT SERVERPROPERTY('ProductVersion') AS version, SERVERPROPERTY('Edition') AS edicion"
 # 17.0.1000.7 Express Edition (64-bit)
 \end{lstlisting}
 
@@ -1590,9 +1617,9 @@ llaves y las restricciones, y después el DML, con tres filas de demostración p
 También pueden abrirse y ejecutarse en SSMS, en el mismo orden.
 
 \begin{lstlisting}[language=bash,numbers=none]
-sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i scripts/01_ddl.sql
-sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i scripts/02_dml.sql
-sqlcmd -S "localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT COUNT(*) FROM persona; SELECT COUNT(*) FROM profesion; SELECT COUNT(*) FROM telefono; SELECT COUNT(*) FROM estudios"
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -b -i scripts/01_ddl.sql
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -b -i scripts/02_dml.sql
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT COUNT(*) FROM persona; SELECT COUNT(*) FROM profesion; SELECT COUNT(*) FROM telefono; SELECT COUNT(*) FROM estudios"
 # 3, 3, 3 y 3 filas
 \end{lstlisting}
 
@@ -1617,10 +1644,10 @@ de SSMS y las tres personas cargadas por el DML.}
 El contenido de cada tabla se revisa con una consulta por tabla, en SSMS o con \texttt{sqlcmd}:
 
 \begin{lstlisting}[language=bash,numbers=none]
-sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM persona"
-sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM profesion"
-sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM telefono"
-sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM estudios"
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT * FROM persona"
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT * FROM profesion"
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT * FROM telefono"
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT * FROM estudios"
 \end{lstlisting}
 \begin{figure}[H]
 \centering
@@ -2201,11 +2228,45 @@ desarrollo en otras historias; la verificación se limitó a lo integrado en ese
 
 \subsection{Pruebas de funcionamiento}
 
-\begin{center}\captura{Swagger UI con los 20 endpoints agrupados por recurso}\end{center}
-\begin{center}\captura{Ejecución de \texttt{POST /api/personas} con respuesta \texttt{201 Created}}\end{center}
-\begin{center}\captura{Vista \texttt{/Personas} (Index) con los registros del script DML}\end{center}
-\begin{center}\captura{Formulario de creación de teléfono con lista desplegable de personas}\end{center}
-\begin{center}\captura{Contenedores en ejecución (\texttt{docker compose ps})}\end{center}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[\textwidth]{figuras/pruebas/f1-swagger.jpg}{Swagger UI con las 20 operaciones agrupadas por recurso}
+\caption{Swagger UI (\texttt{/swagger}) con las 20 operaciones REST agrupadas por recurso:
+estudios, personas, profesiones y teléfonos, cinco cada uno.}
+\label{fig:prueba-swagger}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[\textwidth]{figuras/pruebas/f2-post-personas-201.jpg}{\texttt{POST /api/personas} con respuesta \texttt{201 Created}}
+\caption{Ejecución de \texttt{POST /api/personas} desde Swagger UI: respuesta \texttt{201} con
+la persona creada y la cabecera \texttt{Location} hacia \texttt{/api/personas/1040404040}.}
+\label{fig:prueba-post}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[\textwidth]{figuras/pruebas/f3-personas-index.jpg}{Vista \texttt{/Personas} con los registros del script DML}
+\caption{Vista \texttt{/Personas} (Index) con las tres personas que carga
+\texttt{scripts/02\_dml.sql}.}
+\label{fig:prueba-personas}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[\textwidth]{figuras/pruebas/f4-telefono-create.jpg}{Formulario de creación de teléfono con el selector de personas}
+\caption{Formulario \texttt{/Telefonos/Create}: el selector de dueño ofrece las personas
+registradas (se muestra desplegado como lista para que se vean las opciones).}
+\label{fig:prueba-telefono}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[\textwidth]{figuras/pruebas/f5-docker-compose-ps.png}{Contenedores en ejecución (\texttt{docker compose ps})}
+\caption{\texttt{docker compose ps}: \texttt{personapi} publica el puerto 8080 y
+\texttt{sqlserver} el 1433 en estado \emph{healthy}; \texttt{db-init} ya terminó y no aparece.}
+\label{fig:prueba-compose}
+\end{figure}
 
 \begin{table}[H]
 \centering
@@ -2231,12 +2292,22 @@ desarrollo en otras historias; la verificación se limitó a lo integrado en ese
 
 \subsection{Paso 9 y 10. Publicación y etiqueta}
 \begin{lstlisting}[language=bash,numbers=none]
-git add .
-git commit -m "Laboratorio 1: monolito MVC + DAO con .NET 10 y SQL Server 2025"
-git push origin main
+# main está protegida: cada cambio va en una rama y entra por pull request
+git switch -c docs/LAB-15-cierre-entrega
+git add <archivos del cambio>
+git commit -m "docs(entrega): cierre del Laboratorio 1 [LAB-15]"
+git push -u origin docs/LAB-15-cierre-entrega
+# PR en GitHub, revisión de otro integrante y fusión con squash
+
+# Con todo integrado, la etiqueta se crea sobre main actualizada
+git switch main
+git pull
 git tag -a v1.0.0 -m "Entrega Laboratorio 1"
 git push origin v1.0.0
 \end{lstlisting}
+
+Nadie hace \texttt{push} directo a \texttt{main}: la rama está protegida y solo recibe
+cambios por \emph{pull request} aprobado por otro integrante.
 
 Repositorio: \url{\repoURL} \quad--\quad Tag: \texttt{\repoTag}
 
