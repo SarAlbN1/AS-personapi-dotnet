@@ -1,0 +1,33 @@
+@model PersonaDetalleViewModel
+@{
+    ViewData["Title"] = $"Persona {Model.Cc}";
+}
+
+<h1 class="h3">@Model.NombreCompleto</h1>
+
+<partial name="_MensajesServicio" />
+
+<dl class="row col-md-6" data-detalle="persona">
+    <dt class="col-sm-4">Cédula</dt>
+    <dd class="col-sm-8">@Model.Cc</dd>
+
+    <dt class="col-sm-4">Nombre</dt>
+    <dd class="col-sm-8">@Model.Nombre</dd>
+
+    <dt class="col-sm-4">Apellido</dt>
+    <dd class="col-sm-8">@Model.Apellido</dd>
+
+    <dt class="col-sm-4">Género</dt>
+    <dd class="col-sm-8">@Model.GeneroTexto</dd>
+
+    <dt class="col-sm-4">Edad</dt>
+    <dd class="col-sm-8">@Model.EdadTexto</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.Cc" class="btn btn-outline-secondary">Editar</a>
+<a asp-action="Delete" asp-route-id="@Model.Cc" class="btn btn-outline-danger">Eliminar</a>
+<a asp-action="Index" class="btn btn-link">Volver al listado</a>
+
+<p class="text-muted small mt-3">
+    La misma fila por el canal REST: <code>GET /api/personas/@Model.Cc</code>.
+</p>
