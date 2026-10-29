@@ -1,0 +1,16 @@
+@model TelefonoViewModel
+@* Operador y dueño; el número lo pinta cada formulario porque solo se escribe al crear.
+   Las opciones del dueño salen del servicio de personas; la existencia la vuelve a
+   comprobar el servicio de teléfonos. *@
+<div class="mb-3">
+    <label asp-for="Oper" class="form-label"></label>
+    <input asp-for="Oper" class="form-control" maxlength="@TelefonoViewModel.OperLongitudMaxima" />
+    <span asp-validation-for="Oper" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Duenio" class="form-label"></label>
+    <select asp-for="Duenio" asp-items="Model.Personas" class="form-select">
+        <option value="">Elija una persona</option>
+    </select>
+    <span asp-validation-for="Duenio" class="text-danger"></span>
+</div>

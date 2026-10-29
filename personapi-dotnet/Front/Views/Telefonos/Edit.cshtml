@@ -1,0 +1,23 @@
+@model TelefonoViewModel
+@{
+    ViewData["Title"] = $"Editar teléfono {Model.Num}";
+}
+
+<h1 class="h3">Editar teléfono @Model.Num</h1>
+
+<partial name="_MensajesServicio" />
+
+<form asp-action="Edit" asp-route-num="@Model.Num" method="post" class="col-md-8">
+    @* El número es la identidad: se muestra pero no se edita. *@
+    <div class="mb-3">
+        <label asp-for="Num" class="form-label"></label>
+        <input asp-for="Num" class="form-control-plaintext" readonly />
+    </div>
+    <partial name="_Campos" model="Model" />
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a class="btn btn-link" asp-action="Details" asp-route-num="@Model.Num">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
