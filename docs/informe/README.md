@@ -10,7 +10,7 @@ Documento académico que acompaña la entrega del Laboratorio 1 de `personapi-do
 
 ## Jerarquía documental
 
-El informe **deriva** de la wiki; no decide por su cuenta. El orden de autoridad es el de [`CLAUDE.md`](../../CLAUDE.md) y [Home de la wiki](../wiki/Home.md):
+El informe **deriva** de la wiki; no decide por su cuenta. El orden de autoridad es el de la [Home de la wiki](../wiki/Home.md):
 
 **SRS → SAD/HLD → SDD/LDD → contratos y reglas → proceso → informe.**
 

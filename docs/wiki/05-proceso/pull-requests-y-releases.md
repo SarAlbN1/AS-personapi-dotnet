@@ -44,24 +44,7 @@ Esta sección es la **fuente única** de la política de integración. El resto 
 8. Prohibido deshabilitar o modificar las reglas de protección de GitHub sin acuerdo explícito del equipo.
 9. **Que GitHub muestre `MERGEABLE` o `CLEAN` no es una aprobación.** Significa solo que no hay conflictos de merge.
 10. Cada historia se implementa en su propia rama y se integra con **squash merge**.
-11. **Aprobación registrada por un agente.** Un asistente automatizado puede registrar la aprobación con la cuenta del revisor **solo** si se cumplen todas estas condiciones:
-    1. El revisor la pide expresamente, para ese PR concreto, después de conocer el resultado de la revisión.
-    2. La cuenta que aprueba no es la del autor del PR (la regla 3 no cambia).
-    3. Antes de aprobar, el agente ejecutó sobre el último commit del PR las verificaciones que el [DoD](dor-y-dod.md) exige para ese tipo de cambio y publicó sus hallazgos en el PR.
-    4. Ningún commit del PR fue creado ni subido con la cuenta del revisor, y el agente que aprueba no redactó ni modificó el contenido del PR.
-
-    La aprobación cuenta como del revisor, que responde por ella como si la hubiera registrado él.
-12. **Integración registrada por un agente.** Un asistente automatizado puede fusionar el PR con la cuenta del revisor **solo** si se cumplen todas estas condiciones:
-    1. El revisor lo pide expresamente, para ese PR concreto.
-    2. El PR ya tiene una aprobación válida, vigente sobre el último commit, de una cuenta distinta de la del autor.
-    3. La cuenta que fusiona no es la del autor del PR.
-    4. Se cumplen las reglas 5 a 10: ningún *Request changes* activo y ninguna aprobación invalidada por commits nuevos.
-    5. La fusión se hace **solo** con *squash merge* y borrando la rama integrada, como pide la [plantilla de PR](../../../.github/pull_request_template.md): `gh pr merge <número> --squash --delete-branch`. Nunca *merge commit* ni *rebase*, aunque el repositorio los tenga habilitados.
-    6. La fusión no usa permisos administrativos, auto-merge ni ninguna vía que omita la protección de `main`. Si GitHub la rechaza, el agente se detiene e informa.
-
-    La integración cuenta como del revisor, que responde por ella.
-
-13. **Quien fusiona actualiza el tablero en el mismo acto.** Pasa la issue a `Done` —la fusión y el cambio de estado no se separan— y hace el **barrido de desbloqueo**: revisa qué issues declaraban esa historia como dependencia en [backlog.tsv](../06-backlog/backlog.tsv) y saca de `Blocked` las que ya no tengan ninguna pendiente, avisando a su responsable. Las obligaciones completas, con responsable y momento de cada transición, están en [issues, etiquetas y milestones](issues-etiquetas-y-milestones.md#obligaciones-de-actualización-del-tablero). Un PR fusionado cuyo tablero no se actualizó queda incompleto, y esto aplica igual a un agente que registre la integración por la regla 12, que lo hace con la autorización permanente de las [obligaciones del tablero](issues-etiquetas-y-milestones.md#transiciones-de-estado) y sin pedir confirmación para cada tarjeta.
+11. **Quien fusiona actualiza el tablero en el mismo acto.** Pasa la issue a `Done` —la fusión y el cambio de estado no se separan— y hace el **barrido de desbloqueo**: revisa qué issues declaraban esa historia como dependencia en [backlog.tsv](../06-backlog/backlog.tsv) y saca de `Blocked` las que ya no tengan ninguna pendiente, avisando a su responsable. Las obligaciones completas, con responsable y momento de cada transición, están en [issues, etiquetas y milestones](issues-etiquetas-y-milestones.md#obligaciones-de-actualización-del-tablero). Un PR fusionado cuyo tablero no se actualizó queda incompleto.
 
 ### Procedimiento por historia
 
@@ -75,7 +58,7 @@ Esta sección es la **fuente única** de la política de integración. El resto 
 8. Atender las observaciones y responder las conversaciones.
 9. Obtener una aprobación válida (de otra persona).
 10. Integrar con squash merge cuando se cumpla todo lo anterior.
-11. Pasar la issue a `Done` en el mismo momento de la fusión y hacer el barrido de desbloqueo de la regla 13, avisando a quien quede desbloqueado.
+11. Pasar la issue a `Done` en el mismo momento de la fusión y hacer el barrido de desbloqueo de la regla 11, avisando a quien quede desbloqueado.
 
 ### Configuración verificada en GitHub
 
@@ -105,7 +88,6 @@ La integración preferida es **squash and merge**. Si una protección se modific
 - Autor distinto de revisor; quien encuentra un defecto lo informa con evidencia, quien es responsable lo corrige en su rama.
 - El PR se revisa contra criterios de aceptación y [reglas arquitectónicas](../02-arquitectura/reglas-arquitectonicas.md), no solo estilo.
 - `main` siempre debe compilar. Borrar la rama tras integrar.
-- No atribuir tareas a asistentes como sustituto de responsabilidad humana; seguir las reglas de transparencia académica que indique el docente.
 
 ## Versionado y entrega
 

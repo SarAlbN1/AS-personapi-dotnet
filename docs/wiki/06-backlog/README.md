@@ -54,7 +54,7 @@ Queda **fuera**, conforme a [SRS §2](../01-producto/01-SRS.md#2-alcance-confirm
 4. Una issue no entra en ejecución sin cumplir el [DoR](../05-proceso/dor-y-dod.md) ni se cierra sin cumplir el DoD con evidencia.
 5. Las dependencias se declaran solo ante un bloqueo técnico real; se enuncian por ID de historia.
 6. Los defectos hallados fuera de la issue propia se reportan en comentarios o en una issue nueva; no se corrigen en la rama de otra persona.
-7. **El informe académico se escribe en LaTeX y `docs/informe/main.tex` es su fuente de verdad.** Ninguna historia lo regenera, lo sustituye por Markdown ni versiona un PDF como si fuera la fuente, y **solo quien mantiene el documento escribe en él**: la única historia que lo edita es **HU-017** (manual técnico de despliegue), asignada precisamente a esa persona. HU-015 **verifica y cita** su contenido; cualquier ajuste de redacción se solicita a quien mantiene el documento, que lo aplica en el `.tex`. La misma regla rige para cualquier persona o asistente automatizado.
+7. **El informe académico se escribe en LaTeX y `docs/informe/main.tex` es su fuente de verdad.** Ninguna historia lo regenera, lo sustituye por Markdown ni versiona un PDF como si fuera la fuente, y **solo quien mantiene el documento escribe en él**: la única historia que lo edita es **HU-017** (manual técnico de despliegue), asignada precisamente a esa persona. HU-015 **verifica y cita** su contenido; cualquier ajuste de redacción se solicita a quien mantiene el documento, que lo aplica en el `.tex`. La misma regla rige para cualquier persona.
 
 ## Configuración de GitHub Projects
 

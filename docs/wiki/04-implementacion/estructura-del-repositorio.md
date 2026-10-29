@@ -16,7 +16,6 @@ inmediatamente superior; **saltar capas está prohibido**.
 personapi-dotnet/
 ├── README.md
 ├── CONTRIBUTING.md
-├── CLAUDE.md
 ├── .github/
 │   ├── ISSUE_TEMPLATE/
 │   └── pull_request_template.md
