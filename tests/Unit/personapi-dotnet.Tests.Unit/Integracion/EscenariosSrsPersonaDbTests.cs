@@ -6,10 +6,11 @@ using personapi_dotnet.Back.Borde.Dtos;
 namespace personapi_dotnet.Tests.Unit.Integracion;
 
 /// <summary>
-/// Escenarios de aceptación de SRS §10 contra persona_db real (HU-014), por el canal REST.
-/// Trabajan sobre filas propias (persona 914000010 y profesión 9142) para no depender del
-/// estado que dejen otras pruebas, y las borran al empezar y al terminar. Las partes que
-/// pasan por las vistas Razor y por teléfonos se añaden cuando se integren sus módulos.
+/// Escenarios de aceptación de SRS §10 contra persona_db real (HU-014), cruzando los dos
+/// canales cuando el módulo web ya está integrado. Trabajan sobre filas propias (persona
+/// 914000010 y profesión 9142) para no depender del estado que dejen otras pruebas, y las
+/// borran al empezar y al terminar. Las partes de personas en Razor y de teléfonos se
+/// añaden cuando se integren sus módulos.
 /// </summary>
 public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<Program>>, IAsyncLifetime
 {
@@ -23,6 +24,20 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
     public Task InitializeAsync() => LimpiarAsync();
 
     public Task DisposeAsync() => LimpiarAsync();
+
+    [FactConPersonaDb]
+    public async Task Escenario_2_una_profesion_creada_por_REST_se_ve_en_MVC()
+    {
+        Assert.Equal(HttpStatusCode.Created, (await _client.PostAsJsonAsync("/api/profesiones",
+            new ProfesionDto { Id = IdPrueba, Nom = "Profesión de escenario", Des = "Creada por REST" })).StatusCode);
+
+        var listado = await HtmlAsync("/Profesiones");
+        Assert.Contains($"data-profesion=\"{IdPrueba}\"", listado);
+        Assert.Contains("Profesión de escenario", listado);
+
+        var detalle = await HtmlAsync($"/Profesiones/Details/{IdPrueba}");
+        Assert.Contains("Creada por REST", detalle);
+    }
 
     [FactConPersonaDb]
     public async Task Escenario_4_un_estudio_vincula_persona_y_profesion_y_se_consulta_por_la_clave_compuesta()
@@ -43,6 +58,13 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
 
         // El par es la identidad: con las mitades invertidas no hay estudio.
         Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync($"/api/estudios/{CcPrueba}/{IdPrueba}")).StatusCode);
+
+        // La misma fila por el canal web, con las dos mitades de la clave en la ruta.
+        var detalle = await HtmlAsync($"/Estudios/Details/{IdPrueba}/{CcPrueba}");
+        Assert.Contains($"{IdPrueba} · Profesión de escenario", detalle);
+        Assert.Contains($"{CcPrueba} · Escenario Srs", detalle);
+        Assert.Contains("2022-06-30", detalle);
+        Assert.Contains("Universidad Javeriana", detalle);
     }
 
     [FactConPersonaDb]
@@ -64,6 +86,14 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
 
         // La profesión ya no tiene estudios: también se puede borrar.
         Assert.Equal(HttpStatusCode.NoContent, (await _client.DeleteAsync($"/api/profesiones/{IdPrueba}")).StatusCode);
+    }
+
+    // Las vistas codifican los acentos como entidades HTML: se decodifican para comparar.
+    private async Task<string> HtmlAsync(string ruta)
+    {
+        var respuesta = await _client.GetAsync(ruta);
+        Assert.Equal(HttpStatusCode.OK, respuesta.StatusCode);
+        return WebUtility.HtmlDecode(await respuesta.Content.ReadAsStringAsync());
     }
 
     private async Task CrearPersonaYProfesionAsync()
