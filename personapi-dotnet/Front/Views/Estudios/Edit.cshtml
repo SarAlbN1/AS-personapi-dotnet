@@ -1,0 +1,33 @@
+@model EstudioViewModel
+@{
+    ViewData["Title"] = $"Editar estudio {Model.IdProf} / {Model.CcPer}";
+}
+
+<h1 class="h3">Editar estudio @Model.IdProf / @Model.CcPer</h1>
+
+<partial name="_MensajesServicio" />
+
+<form asp-action="Edit" asp-route-idProf="@Model.IdProf" asp-route-ccPer="@Model.CcPer" method="post" class="col-md-8">
+    @* El par es la identidad: se muestra pero no se edita. *@
+    <div class="mb-3">
+        <label asp-for="IdProf" class="form-label"></label>
+        <div class="d-flex align-items-baseline gap-2">
+            <input asp-for="IdProf" class="form-control-plaintext w-auto" size="10" readonly />
+            <span>@Model.NomProfesion</span>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="CcPer" class="form-label"></label>
+        <div class="d-flex align-items-baseline gap-2">
+            <input asp-for="CcPer" class="form-control-plaintext w-auto" size="10" readonly />
+            <span>@Model.NombrePersona</span>
+        </div>
+    </div>
+    <partial name="_Campos" model="Model" />
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a class="btn btn-link" asp-action="Details" asp-route-idProf="@Model.IdProf" asp-route-ccPer="@Model.CcPer">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

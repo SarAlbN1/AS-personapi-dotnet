@@ -63,6 +63,11 @@ Los errores de cada campo se pintan con `asp-validation-for` junto al campo; el 
 solo muestra los de nivel modelo, el conflicto y el éxito. Para un formulario de
 borrado, `modelo` es el ViewModel de la confirmación, y el 409 se muestra sobre ella.
 
+En `Edit`, la clave de la ruta lleva `[FromRoute]` (`Edit([FromRoute] int id, … modelo)`):
+el formulario también envía `Id` y el binding lo leería antes que la ruta, así que un id
+manipulado editaría otro registro en vez de llegar al servicio como discrepancia (400).
+`ProfesionesController` (HU-008) es el primer CRUD que aplica la convención completa.
+
 **Antiforgery.** Todo POST, PUT, PATCH o DELETE de un controlador MVC exige el token por
 convención (`AntiforgeryEnVistasConvention`, registrada en `Program.cs`). El tag helper
 `<form method="post">` lo inserta solo: **no** hace falta `[ValidateAntiForgeryToken]` ni
@@ -73,6 +78,15 @@ controladores `[ApiController]` quedan fuera.
 (obligatorio, longitud) y los mensajes en español. Las reglas de **dominio** (claves
 duplicadas, dependencias, referencias) las decide el servicio y llegan por
 `VistaSiFalla`; no se repiten en el ViewModel.
+
+**Clave compuesta (estudios).** `EstudiosController` (HU-013) lleva las dos mitades de la
+clave en la ruta de `Details`, `Edit` y `Delete`, con rutas por atributo:
+`/Estudios/Edit/{idProf}/{ccPer}`. Las vistas las generan con `asp-route-idProf` y
+`asp-route-ccPer`. Los selectores de persona y profesión se llenan con `IPersonaService` e
+`IProfesionService`, y el servicio de estudios vuelve a comprobar las dos referencias si el
+formulario llega manipulado. En `Edit`, el par de la ruta lleva `[FromRoute]` y, al repintar,
+el formulario vuelve a tomarlo de la ruta y lo quita de `ModelState`: un par manipulado da
+400 y el siguiente «Guardar» sigue apuntando al estudio original.
 
 **Ejemplo.** `/Home/Convenciones` recorre los cuatro resultados con un resultado de
 servicio **simulado**. Es la referencia visual de la convención, no un módulo del dominio.
