@@ -2,7 +2,7 @@
 
 [← Implementación](README.md) · [Criterios de éxito](../01-producto/criterios-de-exito.md)
 
-> Guion planificado. Ningún paso se declara ejecutado hasta que se adjunte evidencia de una prueba real.
+> Guion planificado. Ningún paso se declara ejecutado hasta que se adjunte evidencia de una prueba real. Los ensayos ya ejecutados están en [Ensayos ejecutados](#ensayos-ejecutados).
 
 ## Preparación
 
@@ -12,6 +12,10 @@
 4. Desde la raíz, ejecutar `dotnet restore` y `dotnet build`.
 5. Ejecutar el proyecto web desde Visual Studio o `dotnet run --project personapi-dotnet/personapi-dotnet.csproj`.
 6. Abrir la URL local anunciada por Kestrel y su ruta `/swagger`; no asumir un puerto fijo.
+
+**Alternativa con Docker.** Desde la raíz del clon, copiar `.env.example` a `.env`, escribir `SA_PASSWORD` y ejecutar `docker compose up --build -d`. Levanta SQL Server 2025, carga los dos scripts con `db-init` y publica la aplicación en `http://localhost:8080`. `docker compose down -v` la retira junto con su volumen.
+
+**Ojo con User Secrets.** Un segundo clon en el mismo equipo comparte el `UserSecretsId` del proyecto, así que lee la cadena que ya estaba guardada. Para que el clon apunte a otra base, se define `ConnectionStrings__PersonaDb`, que tiene prioridad.
 
 ## Recorrido E2E recomendado
 
@@ -33,6 +37,21 @@
 - Estudio con persona o profesión inexistente y teléfono con dueño inexistente → `400`.
 - Ruta `PUT` y clave del cuerpo inconsistentes → `400`.
 - Se conserva el estado de los demás registros tras un intento fallido.
+
+## Ensayos ejecutados
+
+| Fecha | Qué | Resultado |
+|---|---|---|
+| 2026-10-28 | **Clon limpio de `main` (`05c02ac`) por Docker.** Clon nuevo desde GitHub, `.env` con una contraseña aleatoria y `docker compose up --build -d`. | Los tres servicios levantaron. `db-init` ejecutó `01_ddl.sql` y `02_dml.sql` y terminó con 0. En `:8080` respondieron `/`, `/Profesiones`, `/Estudios` y `/swagger` con 200, con 20 operaciones en el documento (5 por recurso) y 3 filas en cada listado REST. La vuelta CRUD de personas dio `201`, `200`, `204`, `204` y `404`, y el borrado de una persona con dependientes, `409`. `/Personas` y `/Telefonos` dieron `404`, porque sus módulos web aún no estaban en `main`. |
+| 2026-10-28 | **El mismo clon por el camino local del README.** `dotnet restore`, `dotnet build` y `dotnet test` con `ConnectionStrings__PersonaDb` apuntando a la base recién creada del contenedor; después, `dotnet run`. | SDK 10.0.402. Compiló con 0 advertencias y 0 errores. Pasaron 119 de 119 pruebas, y sin cadena, 56 superadas y 63 omitidas. Con `dotnet run`, `/`, `/Profesiones`, `/Estudios` y `/swagger` respondieron con 200, el documento tenía 20 operaciones y `GET /api/telefonos/3001234567` devolvió la fila sembrada. |
+| 2026-10-28 | **Recorrido R1 de las 20 operaciones REST y de los casos negativos**, sobre `8434ffa`. | Las 39 comprobaciones dieron el código esperado. El detalle está en [cobertura CRUD](pruebas/cobertura-crud.md). |
+
+**Estado del recorrido E2E** (pasos de la tabla de arriba):
+- **3, 4, 6 (parte API), 7 y 8:** cubiertos por R1 y por `EscenariosSrsPersonaDbTests`.
+- **1, la parte MVC del 6 y la vista de teléfonos del 3:** pendientes de que se integren HU-007 (#35) y HU-012 (#39).
+- **2 y 5:** pendientes del ensayo final en navegador.
+
+El ensayo final se repite sobre el `main` que lleve el tag.
 
 ## Respuesta ante fallos en la demo
 
