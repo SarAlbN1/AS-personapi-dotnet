@@ -10,7 +10,9 @@
 % ---------------------------------------------------------------------
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[spanish,es-tabla,es-nodecimaldot]{babel}
+% es-noquoting: sin él, babel convierte < y > en atajos de comillas y los DbSet<...> del
+% diagrama de clases DAO detienen la compilación.
+\usepackage[spanish,es-tabla,es-nodecimaldot,es-noquoting]{babel}
 \usepackage{lmodern}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage{graphicx}
@@ -753,10 +755,17 @@ Contenedores             & --             & Docker Desktop + Docker Compose v2 \
 \end{table}
 
 \subsection{Paso 1. Crear el repositorio Git}
-Se creó en GitHub el repositorio público \texttt{personapi-dotnet}, inicializado con un
-\texttt{README.md} y un \texttt{.gitignore} para Visual Studio.
+Se creó en GitHub el repositorio público \texttt{AS-personapi-dotnet}, inicializado con un
+\texttt{README.md} y un \texttt{.gitignore} para Visual Studio. La solución que contiene
+se llama \texttt{personapi-dotnet}.
 
-\begin{center}\captura{Repositorio \texttt{personapi-dotnet} creado en GitHub}\end{center}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.9\textwidth]{figuras/procedimiento/p1-repositorio-github.jpg}{Repositorio \texttt{AS-personapi-dotnet} en GitHub}
+\caption{Paso 1: repositorio \texttt{AS-personapi-dotnet} en GitHub, con la rama \texttt{main}
+y las carpetas \texttt{docs/}, \texttt{personapi-dotnet/}, \texttt{scripts/} y \texttt{tests/}.}
+\label{fig:paso1-repositorio}
+\end{figure}
 
 \subsection{Paso 2 y 3. Instalar SQL Server 2025 Express y SSMS}
 \begin{enumerate}[itemsep=2pt]
@@ -768,7 +777,14 @@ Se creó en GitHub el repositorio público \texttt{personapi-dotnet}, inicializa
   \item Instalar SQL Server Management Studio (SSMS) y conectarse a la instancia.
 \end{enumerate}
 
-\begin{center}\captura{Conexión exitosa a \texttt{localhost\textbackslash SQLEXPRESS} en SSMS}\end{center}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.9\textwidth]{figuras/procedimiento/p2-ssms-conexion.png}{Conexión a \texttt{localhost\textbackslash SQLEXPRESS} en SSMS}
+\caption{Pasos 2 y 3: SSMS 22 conectado a \texttt{localhost\textbackslash SQLEXPRESS}
+(SQL Server 17.0) con autenticación de Windows; la barra de estado indica «Conectado» y la
+base \texttt{persona\_db}.}
+\label{fig:paso2-ssms}
+\end{figure}
 
 \subsection{Paso 4 y 5. Crear la base de datos y las tablas (DDL)}
 Se creó la base de datos \texttt{persona\_db}, se asignó como propietario al usuario
@@ -848,7 +864,13 @@ INSERT INTO telefono (num, oper, duenio) VALUES
 GO
 \end{lstlisting}
 
-\begin{center}\captura{Tablas de \texttt{persona\_db} en el Explorador de objetos de SSMS}\end{center}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[0.9\textwidth]{figuras/procedimiento/p5-ssms-tablas.png}{Tablas de \texttt{persona\_db} en el Explorador de objetos de SSMS}
+\caption{Paso 5: Explorador de objetos de SSMS con las cuatro tablas de \texttt{persona\_db}:
+\texttt{dbo.estudios}, \texttt{dbo.persona}, \texttt{dbo.profesion} y \texttt{dbo.telefono}.}
+\label{fig:paso5-tablas}
+\end{figure}
 
 \subsection{Paso 6. Instalar Visual Studio Community}
 Se instaló Visual Studio 2026 Community con las cargas de trabajo:
@@ -2220,11 +2242,45 @@ desarrollo en otras historias; la verificación se limitó a lo integrado en ese
 
 \subsection{Pruebas de funcionamiento}
 
-\begin{center}\captura{Swagger UI con los 20 endpoints agrupados por recurso}\end{center}
-\begin{center}\captura{Ejecución de \texttt{POST /api/personas} con respuesta \texttt{201 Created}}\end{center}
-\begin{center}\captura{Vista \texttt{/Personas} (Index) con los registros del script DML}\end{center}
-\begin{center}\captura{Formulario de creación de teléfono con lista desplegable de personas}\end{center}
-\begin{center}\captura{Contenedores en ejecución (\texttt{docker compose ps})}\end{center}
+\begin{figure}[H]
+\centering
+\imagenOPendiente[\textwidth]{figuras/pruebas/f1-swagger.jpg}{Swagger UI con las 20 operaciones agrupadas por recurso}
+\caption{Swagger UI (\texttt{/swagger}) con las 20 operaciones REST agrupadas por recurso:
+estudios, personas, profesiones y teléfonos, cinco cada uno.}
+\label{fig:prueba-swagger}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[\textwidth]{figuras/pruebas/f2-post-personas-201.jpg}{\texttt{POST /api/personas} con respuesta \texttt{201 Created}}
+\caption{Ejecución de \texttt{POST /api/personas} desde Swagger UI: respuesta \texttt{201} con
+la persona creada y la cabecera \texttt{Location} hacia \texttt{/api/personas/1040404040}.}
+\label{fig:prueba-post}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[\textwidth]{figuras/pruebas/f3-personas-index.jpg}{Vista \texttt{/Personas} con los registros del script DML}
+\caption{Vista \texttt{/Personas} (Index) con las tres personas que carga
+\texttt{scripts/02\_dml.sql}.}
+\label{fig:prueba-personas}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[\textwidth]{figuras/pruebas/f4-telefono-create.jpg}{Formulario de creación de teléfono con el selector de personas}
+\caption{Formulario \texttt{/Telefonos/Create}: el selector de dueño ofrece las personas
+registradas (se muestra desplegado como lista para que se vean las opciones).}
+\label{fig:prueba-telefono}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\imagenOPendiente[\textwidth]{figuras/pruebas/f5-docker-compose-ps.png}{Contenedores en ejecución (\texttt{docker compose ps})}
+\caption{\texttt{docker compose ps}: \texttt{personapi} publica el puerto 8080 y
+\texttt{sqlserver} el 1433 en estado \emph{healthy}; \texttt{db-init} ya terminó y no aparece.}
+\label{fig:prueba-compose}
+\end{figure}
 
 \begin{table}[H]
 \centering
