@@ -8,14 +8,15 @@ namespace personapi_dotnet.Tests.Unit.Integracion;
 /// <summary>
 /// Escenarios de aceptación de SRS §10 contra persona_db real (HU-014), cruzando los dos
 /// canales cuando el módulo web ya está integrado. Trabajan sobre filas propias (persona
-/// 914000010 y profesión 9142) para no depender del estado que dejen otras pruebas, y las
-/// borran al empezar y al terminar. Las partes de personas en Razor y de teléfonos se
-/// añaden cuando se integren sus módulos.
+/// 914000010, profesión 9142 y teléfono 9140000010) para no depender del estado que dejen
+/// otras pruebas, y las borran al empezar y al terminar. Las partes de personas en Razor
+/// se añaden cuando se integre su módulo.
 /// </summary>
 public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<Program>>, IAsyncLifetime
 {
     private const int CcPrueba = 914000010;
     private const int IdPrueba = 9142;
+    private const string NumPrueba = "9140000010";
 
     private readonly HttpClient _client;
 
@@ -37,6 +38,31 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
 
         var detalle = await HtmlAsync($"/Profesiones/Details/{IdPrueba}");
         Assert.Contains("Creada por REST", detalle);
+    }
+
+    [FactConPersonaDb]
+    public async Task Escenario_3_un_telefono_queda_asociado_a_su_persona_y_se_consulta_la_relacion()
+    {
+        await CrearPersonaYProfesionAsync();
+
+        var alta = await _client.PostAsJsonAsync("/api/telefonos",
+            new TelefonoEntradaDto { Num = NumPrueba, Oper = "Claro", Duenio = CcPrueba });
+
+        Assert.Equal(HttpStatusCode.Created, alta.StatusCode);
+        Assert.Equal($"/api/telefonos/{NumPrueba}", alta.Headers.Location!.AbsolutePath);
+
+        // La relación se consulta desde el teléfono: su dueño es la persona creada.
+        var telefono = await _client.GetFromJsonAsync<TelefonoDto>($"/api/telefonos/{NumPrueba}");
+        Assert.Equal(NumPrueba, telefono!.Num);
+        Assert.Equal("Claro", telefono.Oper);
+        Assert.Equal(CcPrueba, telefono.Duenio);
+
+        var dueno = await _client.GetFromJsonAsync<PersonaDto>($"/api/personas/{telefono.Duenio}");
+        Assert.Equal("Escenario", dueno!.Nombre);
+
+        // Y aparece en el listado entre los teléfonos de esa persona.
+        var telefonos = await _client.GetFromJsonAsync<List<TelefonoDto>>("/api/telefonos");
+        Assert.Contains(telefonos!, t => t.Num == NumPrueba && t.Duenio == CcPrueba);
     }
 
     [FactConPersonaDb]
@@ -68,24 +94,33 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
     }
 
     [FactConPersonaDb]
-    public async Task Escenarios_5_y_6_una_persona_con_estudios_no_se_borra_hasta_quitar_sus_dependientes()
+    public async Task Escenarios_5_y_6_una_persona_con_telefono_y_estudio_no_se_borra_hasta_quitar_sus_dependientes()
     {
         await CrearPersonaYProfesionAsync();
+        Assert.Equal(HttpStatusCode.Created, (await _client.PostAsJsonAsync("/api/telefonos",
+            new TelefonoEntradaDto { Num = NumPrueba, Oper = "Claro", Duenio = CcPrueba })).StatusCode);
         Assert.Equal(HttpStatusCode.Created, (await _client.PostAsJsonAsync("/api/estudios",
             new EstudioEntradaDto { IdProf = IdPrueba, CcPer = CcPrueba })).StatusCode);
 
-        // Escenario 5: con un estudio asociado, el borrado responde 409 y la persona sigue.
-        var bloqueado = await _client.DeleteAsync($"/api/personas/{CcPrueba}");
-        Assert.Equal(HttpStatusCode.Conflict, bloqueado.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync($"/api/personas/{CcPrueba}")).StatusCode);
+        // Escenario 5: con dependientes, el borrado responde 409 y la persona sigue.
+        await BorradoBloqueadoAsync();
 
-        // Escenario 6: primero el dependiente, después la persona.
+        // Escenario 6: primero los dependientes, después la persona. Quitar solo el
+        // teléfono no basta: el estudio sigue bloqueando el borrado.
+        Assert.Equal(HttpStatusCode.NoContent, (await _client.DeleteAsync($"/api/telefonos/{NumPrueba}")).StatusCode);
+        await BorradoBloqueadoAsync();
         Assert.Equal(HttpStatusCode.NoContent, (await _client.DeleteAsync($"/api/estudios/{IdPrueba}/{CcPrueba}")).StatusCode);
         Assert.Equal(HttpStatusCode.NoContent, (await _client.DeleteAsync($"/api/personas/{CcPrueba}")).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync($"/api/personas/{CcPrueba}")).StatusCode);
 
         // La profesión ya no tiene estudios: también se puede borrar.
         Assert.Equal(HttpStatusCode.NoContent, (await _client.DeleteAsync($"/api/profesiones/{IdPrueba}")).StatusCode);
+    }
+
+    private async Task BorradoBloqueadoAsync()
+    {
+        Assert.Equal(HttpStatusCode.Conflict, (await _client.DeleteAsync($"/api/personas/{CcPrueba}")).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync($"/api/personas/{CcPrueba}")).StatusCode);
     }
 
     // Las vistas codifican los acentos como entidades HTML: se decodifican para comparar.
@@ -104,7 +139,7 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
             new ProfesionDto { Id = IdPrueba, Nom = "Profesión de escenario" })).StatusCode);
     }
 
-    // Por el mismo canal REST y en orden de dependencias: estudio, persona y profesión.
+    // Por el mismo canal REST y en orden de dependencias: teléfono, estudio, persona y profesión.
     // Un 404 aquí solo significa que no quedaba nada.
     private async Task LimpiarAsync()
     {
@@ -113,6 +148,7 @@ public class EscenariosSrsPersonaDbTests : IClassFixture<WebApplicationFactory<P
             return;
         }
 
+        await _client.DeleteAsync($"/api/telefonos/{NumPrueba}");
         await _client.DeleteAsync($"/api/estudios/{IdPrueba}/{CcPrueba}");
         await _client.DeleteAsync($"/api/personas/{CcPrueba}");
         await _client.DeleteAsync($"/api/profesiones/{IdPrueba}");

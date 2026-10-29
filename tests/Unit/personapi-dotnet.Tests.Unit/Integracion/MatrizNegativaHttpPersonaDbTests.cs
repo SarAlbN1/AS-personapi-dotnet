@@ -11,8 +11,8 @@ namespace personapi_dotnet.Tests.Unit.Integracion;
 /// referencia inválida 400, clave ausente 404 y borrado bloqueado 409, en cada recurso
 /// REST integrado. Cada caso comprueba el código, que el cuerpo es un ProblemDetails con
 /// mensaje y que la fila afectada no cambió. Solo lee filas de scripts/02_dml.sql y usa
-/// claves que no existen (cc 914000002, id 9141); ninguna escritura prospera, así que no
-/// hay nada que limpiar. Teléfonos se añade cuando se integre HU-010.
+/// claves que no existen (cc 914000002, id 9141, num 9140000002); ninguna escritura
+/// prospera, así que no hay nada que limpiar.
 /// </summary>
 public class MatrizNegativaHttpPersonaDbTests : IClassFixture<WebApplicationFactory<Program>>
 {
@@ -20,6 +20,7 @@ public class MatrizNegativaHttpPersonaDbTests : IClassFixture<WebApplicationFact
     private const int CcLaura = 1030303030;
     private const int CcInexistente = 914000002;
     private const int IdInexistente = 9141;
+    private const string NumInexistente = "9140000002";
 
     private readonly HttpClient _client;
 
@@ -58,6 +59,21 @@ public class MatrizNegativaHttpPersonaDbTests : IClassFixture<WebApplicationFact
             HttpStatusCode.NotFound, $"/api/profesiones/{IdInexistente}" },
         { "profesiones", "borrado bloqueado", "DELETE", "/api/profesiones/1", null,
             HttpStatusCode.Conflict, "/api/profesiones/1" },
+
+        // Nada depende de un teléfono, así que no hay caso de borrado bloqueado.
+        { "telefonos", "clave duplicada", "POST", "/api/telefonos",
+            new TelefonoEntradaDto { Num = "3001234567", Oper = "Duplicado", Duenio = CcLaura },
+            HttpStatusCode.Conflict, "/api/telefonos/3001234567" },
+        { "telefonos", "referencia inválida (dueño)", "POST", "/api/telefonos",
+            new TelefonoEntradaDto { Num = NumInexistente, Oper = "Claro", Duenio = CcInexistente },
+            HttpStatusCode.BadRequest, $"/api/telefonos/{NumInexistente}" },
+        { "telefonos", "clave ausente", "GET", $"/api/telefonos/{NumInexistente}", null,
+            HttpStatusCode.NotFound, $"/api/telefonos/{NumInexistente}" },
+        { "telefonos", "clave ausente", "PUT", $"/api/telefonos/{NumInexistente}",
+            new TelefonoEntradaDto { Num = NumInexistente, Oper = "Ninguno", Duenio = CcAna },
+            HttpStatusCode.NotFound, $"/api/telefonos/{NumInexistente}" },
+        { "telefonos", "clave ausente", "DELETE", $"/api/telefonos/{NumInexistente}", null,
+            HttpStatusCode.NotFound, $"/api/telefonos/{NumInexistente}" },
 
         // Nada depende de un estudio, así que no hay caso de borrado bloqueado.
         { "estudios", "clave duplicada", "POST", "/api/estudios",
