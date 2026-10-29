@@ -719,22 +719,11 @@ manualmente una llave foránea.
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-  cont/.style={draw=azulj, thick, rounded corners=3pt, fill=white, minimum width=4.6cm,
-               minimum height=2.2cm, align=center, font=\small},
-  flecha/.style={-{Stealth[length=3mm]}, thick}
-]
-\node[cont] (app) {\textbf{personapi-dotnet}\\ \texttt{aspnet:10.0}\\ puerto 8080};
-\node[cont, right=2.2cm of app] (sql) {\textbf{sqlserver}\\ \texttt{mssql/server:2025-latest}\\ puerto 1433};
-\node[cont, below=0.9cm of sql, minimum height=1.1cm, fill=grisfondo] (init) {\textbf{db-init}\\ ejecuta \texttt{scripts/*.sql}};
-\node[draw, dashed, rounded corners, inner sep=0.45cm, fit=(app)(sql)(init),
-      label={[font=\small\bfseries,text=azulj]above:Docker Compose -- red \texttt{personapi-net}}] {};
-\node[left=1.3cm of app, align=center, font=\small] (nav) {Navegador\\ \texttt{localhost:8080}};
-\draw[flecha] (nav) -- (app);
-\draw[flecha] (app) -- node[above,font=\scriptsize]{TDS} (sql);
-\draw[flecha] (init) -- (sql);
-\end{tikzpicture}
-\caption{Vista de despliegue con Docker Compose.}
+\imagenOPendiente[0.95\textwidth]{diagramas/c4-despliegue.png}{Vista de despliegue con Docker Compose}
+\caption{Vista de despliegue con Docker Compose: los tres servicios de
+\texttt{docker-compose.yml} en la red \texttt{personapi-net}, con su imagen, el puerto que
+publican, el volumen de datos y las URL que quedan disponibles. \texttt{db-init} ejecuta el
+DDL y el DML y termina; la aplicación no arranca hasta que ese servicio acaba bien.}
 \label{fig:deploy}
 \end{figure}
 
