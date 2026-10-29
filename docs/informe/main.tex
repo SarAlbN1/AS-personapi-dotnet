@@ -47,7 +47,7 @@
 \newcommand{\integranteC}{Miguel Sarmiento}
 \newcommand{\ciudad}{Bogotá D.C.}
 \newcommand{\fecha}{Octubre de 2026}
-\newcommand{\repoURL}{https://github.com/USUARIO/personapi-dotnet}
+\newcommand{\repoURL}{https://github.com/SarAlbN1/AS-personapi-dotnet}
 \newcommand{\repoTag}{v1.0.0}
 
 % ---------------------------------------------------------------------
@@ -747,8 +747,8 @@ SDK de .NET              & .NET 6 / 7     & .NET 10 (LTS) \\
 Motor de base de datos   & SQL Server 2019 Express & SQL Server 2025 Express / imagen Docker 2025 \\
 Cliente de base de datos & SSMS 18        & SSMS 22 \\
 IDE                      & Visual Studio 2022 & Visual Studio 2026 Community (requerido para .NET 10) \\
-ORM                      & EF Core        & EF Core 10 \\
-Documentación de API     & Swagger 3      & Swashbuckle.AspNetCore (OpenAPI 3) \\
+ORM                      & EF Core        & EF Core 10 (paquetes 10.0.14) \\
+Documentación de API     & Swagger 3      & Swashbuckle.AspNetCore 10.3.1 (OpenAPI 3) \\
 Contenedores             & --             & Docker Desktop + Docker Compose v2 \\
 \bottomrule
 \end{tabularx}
@@ -883,8 +883,8 @@ Se instaló Visual Studio 2026 Community con las cargas de trabajo:
 
 \subsection{Paso 7. Clonar el repositorio}
 \begin{lstlisting}[language=bash,numbers=none]
-git clone https://github.com/USUARIO/personapi-dotnet.git
-cd personapi-dotnet
+git clone https://github.com/SarAlbN1/AS-personapi-dotnet.git
+cd AS-personapi-dotnet
 \end{lstlisting}
 
 \subsection{Paso 8. Desarrollo en Visual Studio}
@@ -908,12 +908,16 @@ conexión}.
 
 \subsubsection{8.7 -- 8.8 Instalación de paquetes NuGet}
 \begin{lstlisting}[language=bash,numbers=none]
-dotnet add package Microsoft.EntityFrameworkCore
-dotnet add package Microsoft.EntityFrameworkCore.SqlServer
-dotnet add package Microsoft.EntityFrameworkCore.Tools
-dotnet add package Microsoft.EntityFrameworkCore.Design
-dotnet add package Swashbuckle.AspNetCore
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer --version 10.0.14
+dotnet add package Microsoft.EntityFrameworkCore.Tools --version 10.0.14
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 10.0.14
+dotnet add package Swashbuckle.AspNetCore --version 10.3.1
 \end{lstlisting}
+
+\texttt{Microsoft.EntityFrameworkCore} no se añade aparte: llega como dependencia del
+proveedor de SQL Server. El proyecto de pruebas usa además
+\texttt{Microsoft.AspNetCore.Mvc.Testing} 10.0.13 para levantar la aplicación en memoria.
+Las versiones exactas son las de los \texttt{.csproj} del repositorio.
 
 \subsubsection{8.9 -- 8.10 Generación de entidades (\emph{scaffolding})}
 Se creó la carpeta \texttt{Back/04-Persistencia/Entities} y en la Consola del Administrador de paquetes
@@ -1328,7 +1332,7 @@ winget install --id Microsoft.DotNet.SDK.10 -e --source winget --accept-package-
 \begin{lstlisting}[language=bash,numbers=none]
 Get-Service 'MSSQL$SQLEXPRESS' | Format-Table Status, Name, DisplayName -AutoSize
 # Running  MSSQL$SQLEXPRESS  SQL Server (SQLEXPRESS)
-sqlcmd -S 'localhost\SQLEXPRESS' -E -C -W -Q "SELECT SERVERPROPERTY('ProductVersion') AS version, SERVERPROPERTY('Edition') AS edicion"
+sqlcmd -S 'lpc:localhost\SQLEXPRESS' -E -C -W -Q "SELECT SERVERPROPERTY('ProductVersion') AS version, SERVERPROPERTY('Edition') AS edicion"
 # 17.0.1000.7 Express Edition (64-bit)
 \end{lstlisting}
 
@@ -1631,9 +1635,9 @@ llaves y las restricciones, y después el DML, con tres filas de demostración p
 También pueden abrirse y ejecutarse en SSMS, en el mismo orden.
 
 \begin{lstlisting}[language=bash,numbers=none]
-sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i scripts/01_ddl.sql
-sqlcmd -S "localhost\SQLEXPRESS" -E -C -b -i scripts/02_dml.sql
-sqlcmd -S "localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT COUNT(*) FROM persona; SELECT COUNT(*) FROM profesion; SELECT COUNT(*) FROM telefono; SELECT COUNT(*) FROM estudios"
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -b -i scripts/01_ddl.sql
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -b -i scripts/02_dml.sql
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT COUNT(*) FROM persona; SELECT COUNT(*) FROM profesion; SELECT COUNT(*) FROM telefono; SELECT COUNT(*) FROM estudios"
 # 3, 3, 3 y 3 filas
 \end{lstlisting}
 
@@ -1658,10 +1662,10 @@ de SSMS y las tres personas cargadas por el DML.}
 El contenido de cada tabla se revisa con una consulta por tabla, en SSMS o con \texttt{sqlcmd}:
 
 \begin{lstlisting}[language=bash,numbers=none]
-sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM persona"
-sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM profesion"
-sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM telefono"
-sqlcmd -S localhost\SQLEXPRESS -E -C -d persona_db -Q "SELECT * FROM estudios"
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT * FROM persona"
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT * FROM profesion"
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT * FROM telefono"
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -d persona_db -Q "SELECT * FROM estudios"
 \end{lstlisting}
 \begin{figure}[H]
 \centering
@@ -2306,12 +2310,22 @@ registradas (se muestra desplegado como lista para que se vean las opciones).}
 
 \subsection{Paso 9 y 10. Publicación y etiqueta}
 \begin{lstlisting}[language=bash,numbers=none]
-git add .
-git commit -m "Laboratorio 1: monolito MVC + DAO con .NET 10 y SQL Server 2025"
-git push origin main
+# main está protegida: cada cambio va en una rama y entra por pull request
+git switch -c docs/LAB-15-cierre-entrega
+git add <archivos del cambio>
+git commit -m "docs(entrega): cierre del Laboratorio 1 [LAB-15]"
+git push -u origin docs/LAB-15-cierre-entrega
+# PR en GitHub, revisión de otro integrante y fusión con squash
+
+# Con todo integrado, la etiqueta se crea sobre main actualizada
+git switch main
+git pull
 git tag -a v1.0.0 -m "Entrega Laboratorio 1"
 git push origin v1.0.0
 \end{lstlisting}
+
+Nadie hace \texttt{push} directo a \texttt{main}: la rama está protegida y solo recibe
+cambios por \emph{pull request} aprobado por otro integrante.
 
 Repositorio: \url{\repoURL} \quad--\quad Tag: \texttt{\repoTag}
 
