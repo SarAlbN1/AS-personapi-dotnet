@@ -29,7 +29,8 @@ y su código o su historia está más abajo.
 | `c4-c2-contenedores` | C4 2 · Contenedores | La aplicación ASP.NET Core MVC 10 como **único artefacto desplegable**, sus dos canales y la base `persona_db` |
 | `c4-c3-componentes` | C4 3 · Componentes | El contenedor web completo: cuatro controladores MVC y cuatro de API, un servicio por entidad, las cuatro interfaces DAO con su implementación EF Core, el contexto y las entidades |
 | `c4-c3-componentes-canal-web` | C4 3 · Recorte | Solo el canal MVC, para explicarlo sin el ruido del otro canal |
-| `c4-c3-componentes-canal-json` | C4 3 · Recorte | Solo el canal REST, con DTOs y Swagger |
+| `c4-c3-componentes-canal-json` | C4 3 · Recorte | Solo el canal REST, con Swagger y el resultado discriminado |
+| `c4-c3-componentes-arranque` | C4 3 · Recorte | La composición de SDD §4: qué registra `Program.cs` y con qué ciclo de vida |
 | `c4-despliegue` | Despliegue | Los tres servicios de `docker-compose.yml` (`personapi`, `sqlserver`, `db-init`) en la red `personapi-net` |
 
 Los dos recortes existen porque la vista completa tiene 22 componentes: sirven para la
@@ -105,6 +106,7 @@ incluye:
 | Componentes | [`c4-c3-componentes.png`](../../../informe/diagramas/c4-c3-componentes.png) | sí, figura de nivel 3 |
 | Recorte del canal MVC | [`c4-c3-componentes-canal-web.png`](../../../informe/diagramas/c4-c3-componentes-canal-web.png) | no: material de sustentación |
 | Recorte del canal REST | [`c4-c3-componentes-canal-json.png`](../../../informe/diagramas/c4-c3-componentes-canal-json.png) | no: material de sustentación |
+| Recorte de la composición | [`c4-c3-componentes-arranque.png`](../../../informe/diagramas/c4-c3-componentes-arranque.png) | no: material de sustentación |
 | Despliegue | [`c4-despliegue.png`](../../../informe/diagramas/c4-despliegue.png) | no: el informe tiene su propia figura de despliegue en TikZ |
 
 Las tres primeras son las que `main.tex` referencia por nombre, así que aparecen en el PDF
@@ -115,14 +117,25 @@ Se regeneran desde el `.dsl` cada vez que el modelo cambie; no se editan a mano.
 regenerarlas, **comprobar que la imagen de componentes no quede recortada**: mide unos
 5000 px de ancho y el límite por defecto de PlantUML la corta en silencio.
 
-## Una decisión de modelado que conviene saber
+## Dos decisiones de modelado
 
-`persona_db` se modela como **sistema propio**, no como contenedor dentro de PersonAPI.
-No es un capricho: una vista de contexto de Structurizr solo admite personas y sistemas,
-así que con la base como contenedor el nivel 1 salía **sin la base**, y tanto el pie de
-figura del informe como el primer criterio de HU-016 exigen que aparezca. Modelada como
-sistema, sale en los tres niveles y la relación «lee y escribe» conserva su protocolo.
-Sigue siendo **una sola base**: AD-01 y la regla 1 no cambian.
+**`persona_db` es un contenedor del sistema**, no un sistema externo: en C4 una base de
+datos es un contenedor, y la aplicación y su base son el mismo sistema (AD-01).
+
+Esto tiene una consecuencia que hay que conocer: **el diagrama de contexto no muestra la
+base**, porque una vista de contexto de Structurizr solo admite personas y sistemas. Hoy
+el pie de figura de `main.tex` dice «el usuario, el monolito y SQL Server `persona_db`
+como único almacén», y el primer criterio de HU-016 repite esa frase. Quien decide es el
+modelo C4, no el pie: **la diferencia está reportada** a quien mantiene el informe y al
+backlog, y se corrige allí, no redibujando el diagrama.
+
+**Las vistas, los DTOs y las entidades no son componentes.** Son plantillas y estructuras
+de datos, así que salieron del nivel 3. En su lugar están las piezas que sí tienen
+comportamiento y que el SDD nombra: la convención de errores de HU-006
+(`ResultadoServicioVistaExtensions`), el filtro de antiforgery
+(`AntiforgeryEnVistasConvention`), el resultado discriminado (`ServiceResult`) y la
+composición de dependencias (`Program.cs`, SDD §4), esta última en su propia vista para no
+cargar la del informe con once flechas de registro.
 
 ## Lo que el modelo garantiza
 
@@ -151,7 +164,8 @@ entrega, según el SDD. Comprobado contra `main` en `7d144fb` (28-10-2026).
 | Componente del diagrama | Dónde vive | Historia |
 |---|---|---|
 | `HomeController` y convención de errores | `HomeController`, `AntiforgeryEnVistasConvention`, `ResultadoServicioVistaExtensions` | HU-006 |
-| Vistas Razor y ViewModels | `Front/Views/`, `Front/ViewModels/` | HU-006 y el CRUD de cada módulo |
+| `ResultadoServicioVistaExtensions` | `Back/01-Borde/Controllers/` | HU-006 |
+| `AntiforgeryEnVistasConvention` | `Back/01-Borde/Controllers/` | HU-006 |
 | `PersonasController` | `Back/01-Borde/Controllers/` | HU-007 |
 | `ProfesionesController` | `Back/01-Borde/Controllers/` | HU-008 |
 | `TelefonosController` | `Back/01-Borde/Controllers/` | HU-012 |
@@ -160,11 +174,12 @@ entrega, según el SDD. Comprobado contra `main` en `7d144fb` (28-10-2026).
 | `ProfesionesApiController` | `Back/01-Borde/ControllersApi/` | HU-005 |
 | `TelefonosApiController` | `Back/01-Borde/ControllersApi/` | HU-010 |
 | `EstudiosApiController` | `Back/01-Borde/ControllersApi/` | HU-011 |
-| DTOs | `Back/01-Borde/Dtos/` | la historia REST de cada entidad |
+| `ServiceResult` | `Back/02-Aplicacion/Services/ServiceResult.cs` | HU-004 |
+| `Program.cs` | raíz del proyecto web | HU-001, más una línea por historia de módulo |
 | Swagger / OpenAPI 3 | configuración de Swashbuckle en `Program.cs` | HU-001 y HU-009 |
 | `PersonaService`, `ProfesionService`, `TelefonoService`, `EstudioService` | `Back/02-Aplicacion/Services/` | la historia REST de cada entidad |
 | Las cuatro interfaces DAO y sus implementaciones | `Back/03-AccesoDatos/Repository/` | HU-003 |
-| `PersonaDbContext` y entidades | `Back/04-Persistencia/Entities/` | HU-003 |
+| `PersonaDbContext` | `Back/04-Persistencia/Entities/` | HU-003 |
 | `persona_db` | `scripts/01_ddl.sql`, `scripts/02_dml.sql` | HU-002 |
 | `personapi`, `sqlserver`, `db-init` | `docker-compose.yml`, `Dockerfile` | despliegue declarado en el informe |
 

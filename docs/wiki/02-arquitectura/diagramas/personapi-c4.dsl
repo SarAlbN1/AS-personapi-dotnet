@@ -42,17 +42,19 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
                 mvcProfesiones = component "ProfesionesController" "Las cinco acciones web de profesiones." "Back/01-Borde/Controllers"
                 mvcTelefonos = component "TelefonosController" "Las cinco acciones web de teléfonos, con selector de persona dueña." "Back/01-Borde/Controllers"
                 mvcEstudios = component "EstudiosController" "Las cinco acciones web de estudios, con selectores de persona y profesión y la clave compuesta en la ruta." "Back/01-Borde/Controllers"
-                vistas = component "Vistas Razor y ViewModels" "Layout compartido y los cuatro grupos de vistas (Personas, Profesiones, Telefonos, Estudios). Reciben un ViewModel ya resuelto: no consultan servicios ni la base y no reciben entidades EF." "Front/Views, Front/ViewModels"
+                conv = component "ResultadoServicioVistaExtensions" "Convención de HU-006: traduce el resultado del servicio a lo que ve el usuario. ValidationError y Conflict vuelven a la misma vista conservando el formulario (400 y 409), NotFound va a la vista Estado (404) y el éxito redirige con TempData." "Back/01-Borde/Controllers"
+                antiforgery = component "AntiforgeryEnVistasConvention" "Exige el token antiforgery en todo POST, PUT, PATCH y DELETE de los controladores MVC; los [ApiController] quedan fuera. Un POST sin token responde 400 con la vista Estado." "Back/01-Borde/Controllers"
 
                 # ---- Capa 1 · Borde: canal JSON -----------------------------------
                 apiPersonas = component "PersonasApiController" "Las cinco operaciones de /api/personas." "Back/01-Borde/ControllersApi"
                 apiProfesiones = component "ProfesionesApiController" "Las cinco operaciones de /api/profesiones." "Back/01-Borde/ControllersApi"
                 apiTelefonos = component "TelefonosApiController" "Las cinco operaciones de /api/telefonos, con num como cadena para conservar los ceros iniciales." "Back/01-Borde/ControllersApi"
                 apiEstudios = component "EstudiosApiController" "Las cinco operaciones de /api/estudios/{idProf}/{ccPer}, identificadas por la clave compuesta." "Back/01-Borde/ControllersApi"
-                dtos = component "DTOs" "Contrato de entrada y salida del canal JSON: planos, sin navegaciones EF (AD-10, regla 8)." "Back/01-Borde/Dtos"
                 swagger = component "Swagger / OpenAPI 3" "Documenta y ejecuta las 20 operaciones REST desde /swagger." "Swashbuckle"
 
                 # ---- Capa 2 · Aplicación: un servicio por entidad -----------------
+                resultado = component "ServiceResult" "Resultado discriminado de SDD §2: Success, NotFound, ValidationError o Conflict, con su mensaje. Es lo que permite que una misma regla sirva a los dos canales sin repetirla." "Back/02-Aplicacion/Services"
+
                 svcPersona = component "PersonaService" "Reglas de persona: cédula única, género M/F, edad no negativa y borrado bloqueado si tiene teléfonos o estudios." "IPersonaService"
                 svcProfesion = component "ProfesionService" "Reglas de profesión: id único, nombre obligatorio y borrado bloqueado si tiene estudios." "IProfesionService"
                 svcTelefono = component "TelefonoService" "Reglas de teléfono: num único de hasta 15 caracteres y persona dueña existente." "ITelefonoService"
@@ -66,22 +68,20 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
 
                 # ---- Capa 4 · Persistencia ----------------------------------------
                 contexto = component "PersonaDbContext" "Contexto generado por scaffolding desde el esquema existente (Database First). Único punto del proceso que abre conexiones a la base; solo lo referencian las implementaciones de repositorio." "EF Core 10"
-                entidades = component "Entidades" "Persona, Profesion, Telefono y Estudio, con la clave compuesta (id_prof, cc_per) de estudios y sin identificador artificial." "Back/04-Persistencia/Entities"
+                arranque = component "Program.cs" "Composición de la aplicación (SDD §4): registra el contexto y los cuatro repositorios con ciclo de vida scoped, un servicio por entidad, la convención de antiforgery y Swagger. Es el único lugar donde se resuelven las dependencias." "ASP.NET Core"
             }
 
+            db = container "persona_db" "Única base del sistema: cuatro tablas con sus llaves primarias, foráneas y restricciones CHECK; el DDL de scripts/ es el origen del esquema." "SQL Server 2025 Express" "Base de datos"
         }
-
-        db = softwareSystem "persona_db" "SQL Server 2025 Express. Única base del sistema: cuatro tablas con sus llaves primarias, foráneas y restricciones CHECK; el DDL de scripts/ es el origen del esquema." "Base de datos"
 
         # ===== Nivel 1 ==========================================================
         usuario -> personapi "Consulta y mantiene los datos del dominio"
         clienteRest -> personapi "Prueba y documenta el contrato REST"
-        personapi -> db "Lee y escribe" "ADO.NET / TDS 1433"
 
         # ===== Nivel 2 ==========================================================
         usuario -> personapi.web "Usa las vistas HTML" "HTTPS"
         clienteRest -> personapi.web "Consume /api/* y /swagger" "HTTPS/JSON"
-        personapi.web -> db "Lee y escribe con EF Core" "ADO.NET / TDS 1433"
+        personapi.web -> personapi.db "Lee y escribe con EF Core" "ADO.NET / TDS 1433"
 
         # ===== Nivel 3 · entrada ================================================
         usuario -> personapi.web.home "Abre la página inicial" "HTTPS"
@@ -97,17 +97,30 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
         clienteRest -> personapi.web.apiEstudios "Llama a /api/estudios" "HTTPS/JSON"
 
         # ===== Nivel 3 · borde a presentación y contrato ========================
-        personapi.web.home -> personapi.web.vistas "Renderiza"
-        personapi.web.mvcPersonas -> personapi.web.vistas "Renderiza con un ViewModel"
-        personapi.web.mvcProfesiones -> personapi.web.vistas "Renderiza con un ViewModel"
-        personapi.web.mvcTelefonos -> personapi.web.vistas "Renderiza con un ViewModel"
-        personapi.web.mvcEstudios -> personapi.web.vistas "Renderiza con un ViewModel"
+        personapi.web.home -> personapi.web.conv "Pinta la vista Estado con su código"
+        personapi.web.mvcPersonas -> personapi.web.conv "Traduce el resultado del servicio a la vista"
+        personapi.web.mvcProfesiones -> personapi.web.conv "Traduce el resultado del servicio a la vista"
+        personapi.web.mvcTelefonos -> personapi.web.conv "Traduce el resultado del servicio a la vista"
+        personapi.web.mvcEstudios -> personapi.web.conv "Traduce el resultado del servicio a la vista"
 
-        personapi.web.apiPersonas -> personapi.web.dtos "Recibe y devuelve"
-        personapi.web.apiProfesiones -> personapi.web.dtos "Recibe y devuelve"
-        personapi.web.apiTelefonos -> personapi.web.dtos "Recibe y devuelve"
-        personapi.web.apiEstudios -> personapi.web.dtos "Recibe y devuelve"
-        personapi.web.swagger -> personapi.web.dtos "Publica sus esquemas"
+        personapi.web.apiPersonas -> personapi.web.resultado "Traduce el resultado a 200, 201, 204, 400, 404 o 409"
+        personapi.web.apiProfesiones -> personapi.web.resultado "Traduce el resultado a 200, 201, 204, 400, 404 o 409"
+        personapi.web.apiTelefonos -> personapi.web.resultado "Traduce el resultado a 200, 201, 204, 400, 404 o 409"
+        personapi.web.apiEstudios -> personapi.web.resultado "Traduce el resultado a 200, 201, 204, 400, 404 o 409"
+        personapi.web.conv -> personapi.web.resultado "Interpreta ValidationError, Conflict y NotFound"
+
+        # La convención de antiforgery se aplica por filtro a los controladores MVC;
+        # los [ApiController] quedan fuera, por eso no hay flechas hacia el canal JSON.
+        personapi.web.antiforgery -> personapi.web.home "Exige el token en sus POST"
+        personapi.web.antiforgery -> personapi.web.mvcPersonas "Exige el token en sus POST"
+        personapi.web.antiforgery -> personapi.web.mvcProfesiones "Exige el token en sus POST"
+        personapi.web.antiforgery -> personapi.web.mvcTelefonos "Exige el token en sus POST"
+        personapi.web.antiforgery -> personapi.web.mvcEstudios "Exige el token en sus POST"
+
+        personapi.web.svcPersona -> personapi.web.resultado "Devuelve"
+        personapi.web.svcProfesion -> personapi.web.resultado "Devuelve"
+        personapi.web.svcTelefono -> personapi.web.resultado "Devuelve"
+        personapi.web.svcEstudio -> personapi.web.resultado "Devuelve"
 
         # ===== Nivel 3 · los dos canales comparten el mismo servicio ============
         personapi.web.mvcPersonas -> personapi.web.svcPersona "Invoca las reglas de negocio"
@@ -143,8 +156,20 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
         personapi.web.daoProfesion -> personapi.web.contexto "Consulta y persiste con LINQ"
         personapi.web.daoTelefono -> personapi.web.contexto "Consulta y persiste con LINQ"
         personapi.web.daoEstudio -> personapi.web.contexto "Consulta y persiste con LINQ"
-        personapi.web.contexto -> personapi.web.entidades "Materializa y rastrea"
-        personapi.web.contexto -> db "Ejecuta SQL" "ADO.NET / TDS 1433"
+        personapi.web.contexto -> personapi.db "Ejecuta SQL" "ADO.NET / TDS 1433"
+
+        # Composición de SDD §4: el registro de dependencias, con su propia vista.
+        personapi.web.arranque -> personapi.web.contexto "Registra con ciclo de vida scoped"
+        personapi.web.arranque -> personapi.web.daoPersona "Registra la implementación de la interfaz"
+        personapi.web.arranque -> personapi.web.daoProfesion "Registra la implementación de la interfaz"
+        personapi.web.arranque -> personapi.web.daoTelefono "Registra la implementación de la interfaz"
+        personapi.web.arranque -> personapi.web.daoEstudio "Registra la implementación de la interfaz"
+        personapi.web.arranque -> personapi.web.svcPersona "Registra"
+        personapi.web.arranque -> personapi.web.svcProfesion "Registra"
+        personapi.web.arranque -> personapi.web.svcTelefono "Registra"
+        personapi.web.arranque -> personapi.web.svcEstudio "Registra"
+        personapi.web.arranque -> personapi.web.antiforgery "Registra la convención"
+        personapi.web.arranque -> personapi.web.swagger "Configura Swashbuckle"
 
         # ===== Despliegue declarado en el informe (docker-compose.yml) ==========
         deploymentEnvironment "Docker Compose" {
@@ -154,7 +179,7 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
                         containerInstance personapi.web
                     }
                     nodoSql = deploymentNode "sqlserver" "Los datos viven en el volumen sqldata" "mcr.microsoft.com/mssql/server:2025-latest · puerto 1433" {
-                        softwareSystemInstance db
+                        containerInstance personapi.db
                     }
                     init = infrastructureNode "db-init" "Ejecuta 01_ddl.sql y después 02_dml.sql con el sqlcmd de /opt/mssql-tools18 y termina; la aplicación arranca cuando este servicio acaba bien." "mcr.microsoft.com/mssql/server:2025-latest"
                 }
@@ -175,28 +200,39 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
             autolayout tb
         }
 
-        component personapi.web "c4-c3-componentes" "C4 nivel 3 · Componentes del contenedor web: los cuatro módulos en los dos canales, con un servicio por entidad, las interfaces DAO con su implementación EF Core, el contexto y las entidades. Ningún controlador alcanza el contexto de datos." {
+        component personapi.web "c4-c3-componentes" "C4 nivel 3 · Componentes del contenedor web: los cuatro módulos en los dos canales, la convención de errores y el antiforgery del borde, un servicio por entidad con su resultado discriminado, las interfaces DAO con su implementación EF Core y el contexto. Ningún controlador alcanza el contexto de datos." {
             include *
+            # La composición de Program.cs tiene su propia vista: aquí sus once
+            # relaciones de registro cruzarían el diagrama sin aportar nada al diseño.
+            exclude personapi.web.arranque
             autolayout tb 300 300
         }
 
-        component personapi.web "c4-c3-componentes-canal-web" "C4 nivel 3 · Recorte del canal MVC: controladores web, vistas y ViewModels, y la cadena de servicios y DAO que consumen." {
+        component personapi.web "c4-c3-componentes-canal-web" "C4 nivel 3 · Recorte del canal MVC: controladores web, la convención de errores y el antiforgery, y la cadena de servicios y DAO que consumen." {
             include personapi.web.home personapi.web.mvcPersonas personapi.web.mvcProfesiones personapi.web.mvcTelefonos personapi.web.mvcEstudios
-            include personapi.web.vistas
+            include personapi.web.conv personapi.web.antiforgery personapi.web.resultado
             include personapi.web.svcPersona personapi.web.svcProfesion personapi.web.svcTelefono personapi.web.svcEstudio
             include personapi.web.daoPersona personapi.web.daoProfesion personapi.web.daoTelefono personapi.web.daoEstudio
-            include personapi.web.contexto personapi.web.entidades
-            include usuario db
+            include personapi.web.contexto
+            include usuario personapi.db
             autolayout tb
         }
 
         component personapi.web "c4-c3-componentes-canal-json" "C4 nivel 3 · Recorte del canal REST: controladores de API, DTOs, Swagger y la cadena de servicios y DAO que consumen." {
             include personapi.web.apiPersonas personapi.web.apiProfesiones personapi.web.apiTelefonos personapi.web.apiEstudios
-            include personapi.web.dtos personapi.web.swagger
+            include personapi.web.swagger personapi.web.resultado
             include personapi.web.svcPersona personapi.web.svcProfesion personapi.web.svcTelefono personapi.web.svcEstudio
             include personapi.web.daoPersona personapi.web.daoProfesion personapi.web.daoTelefono personapi.web.daoEstudio
-            include personapi.web.contexto personapi.web.entidades
-            include clienteRest db
+            include personapi.web.contexto
+            include clienteRest personapi.db
+            autolayout tb
+        }
+
+        component personapi.web "c4-c3-componentes-arranque" "C4 nivel 3 · Recorte de la composición (SDD §4): qué registra Program.cs y con qué ciclo de vida." {
+            include personapi.web.arranque
+            include personapi.web.svcPersona personapi.web.svcProfesion personapi.web.svcTelefono personapi.web.svcEstudio
+            include personapi.web.daoPersona personapi.web.daoProfesion personapi.web.daoTelefono personapi.web.daoEstudio
+            include personapi.web.contexto personapi.web.antiforgery personapi.web.swagger
             autolayout tb
         }
 
