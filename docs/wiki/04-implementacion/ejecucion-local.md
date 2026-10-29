@@ -6,7 +6,7 @@
 
 SDK .NET 10, SQL Server 2025 Express accesible, cliente SQL (SSMS 22 en Windows) y un editor compatible (Visual Studio 2026 Community). Dependencias NuGet compatibles con EF Core 10 y proveedor SQL Server.
 
-## Secuencia de puesta en marcha (una vez implementada)
+## Secuencia de puesta en marcha
 
 1. Clonar el repositorio público `personapi-dotnet`.
 2. Configurar SQL Server Express local y ejecutar `scripts/01_ddl.sql`, luego `scripts/02_dml.sql`.
@@ -27,7 +27,7 @@ dotnet run --project personapi-dotnet/personapi-dotnet.csproj
 6. Usar la URL que muestre Kestrel; abrir la aplicación MVC y `/swagger` sobre ese mismo origen.
 7. Comprobar CRUD de las cuatro entidades y persistencia en `persona_db`.
 
-**Estado verificado (HU-001, SDK 10.0.402):** los pasos 4 a 6 se ejecutaron sin base de datos: `dotnet build` y `dotnet test` en verde, `/` responde 200, los estáticos 200 y `/swagger/v1/swagger.json` devuelve `"openapi": "3.0.4"` sin operaciones. El paso 2 está verificado en HU-002 sobre SQL Server 2025 Express, con reejecución y pruebas negativas ([scripts](../../../scripts/README.md)); el paso 3 está verificado en HU-003 con User Secrets y autenticación integrada: los cuatro repositorios leen filas reales de `persona_db` y, sin la cadena definida, esas pruebas se omiten. El paso 7 corresponde a las historias de CRUD.
+**Estado verificado.** La secuencia completa se ejecutó sobre un clon limpio de `main`, por este camino y por Docker Compose, contra una base creada desde cero. El detalle está en la [revisión de entrega](pruebas/revision-entrega.md) y en el [runbook](runbook-demo.md#ensayos-ejecutados). Sin la cadena definida, las pruebas que usan `persona_db` se omiten.
 
 ## Database First
 

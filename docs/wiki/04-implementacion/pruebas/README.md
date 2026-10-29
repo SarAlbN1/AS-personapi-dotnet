@@ -15,7 +15,8 @@ Esta carpeta registra **lo que se ejecutó realmente** sobre PersonAPI. La disti
 | Página | Qué registra | Estado |
 |---|---|---|
 | [Atributos de calidad medidos](atributos-de-calidad.md) | Una comprobación por cada atributo de la página de criterios, con el comando que la reproduce | Sin ejecutar |
-| [Cobertura CRUD](cobertura-crud.md) | Las 20 operaciones REST y las 20 acciones MVC, una fila por operación | Sin ejecutar |
+| [Cobertura CRUD](cobertura-crud.md) | Las 20 operaciones REST y las 20 acciones MVC, una fila por operación | Ejecutada (HU-014) |
+| [Revisión de entrega](revision-entrega.md) | Clon limpio, secretos, revisión arquitectónica (AK-01 a AK-07), informe y tag | Ejecutada (HU-015) |
 
 ## Reglas de registro
 

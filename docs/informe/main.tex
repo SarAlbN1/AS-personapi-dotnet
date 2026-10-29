@@ -978,64 +978,86 @@ scaffolding $\rightarrow$ Controlador de MVC con vistas que usan Entity Framewor
 modificaron para depender del servicio en lugar del \texttt{DbContext}. Los
 controladores de API se escribieron manualmente:
 
-\begin{lstlisting}[language=CSharpX,caption={\texttt{Back/01-Borde/ControllersApi/PersonasApiController.cs}.}]
+\begin{lstlisting}[language=CSharpX,caption={Fragmento de \texttt{Back/01-Borde/ControllersApi/PersonasApiController.cs} (sin los comentarios XML).}]
 [ApiController]
 [Route("api/personas")]
+[Produces("application/json")]
 public class PersonasApiController : ControllerBase
 {
-    private readonly IPersonaService _service;
+    private readonly IPersonaService _personas;
 
-    public PersonasApiController(IPersonaService service) => _service = service;
+    public PersonasApiController(IPersonaService personas) => _personas = personas;
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _service.GetAllAsync());
+    public async Task<ActionResult<IReadOnlyList<PersonaDto>>> GetAll() =>
+        Ok(await _personas.GetAllAsync());
 
     [HttpGet("{cc:int}")]
-    public async Task<IActionResult> Get(int cc)
-    {
-        var persona = await _service.GetByIdAsync(cc);
-        return persona is null ? NotFound() : Ok(persona);
-    }
+    public async Task<IActionResult> GetById(int cc) =>
+        Traducir(await _personas.GetByIdAsync(cc));
 
     [HttpPost]
-    public async Task<IActionResult> Post(Persona persona)
+    public async Task<IActionResult> Create([FromBody] PersonaEntradaDto entrada)
     {
-        if (!await _service.CreateAsync(persona))
-            return Conflict($"Ya existe una persona con cc {persona.Cc}");
-        return CreatedAtAction(nameof(Get), new { cc = persona.Cc }, persona);
+        var resultado = await _personas.CreateAsync(entrada);
+
+        if (!resultado.IsSuccess)
+        {
+            return Traducir(resultado);
+        }
+
+        return CreatedAtAction(nameof(GetById), new { cc = resultado.Value!.Cc }, resultado.Value);
     }
 
     [HttpPut("{cc:int}")]
-    public async Task<IActionResult> Put(int cc, Persona persona)
-    {
-        if (cc != persona.Cc) return BadRequest();
-        return await _service.UpdateAsync(cc, persona) ? NoContent() : NotFound();
-    }
+    public async Task<IActionResult> Update(int cc, [FromBody] PersonaEntradaDto entrada) =>
+        Traducir(await _personas.UpdateAsync(cc, entrada));
 
     [HttpDelete("{cc:int}")]
-    public async Task<IActionResult> Delete(int cc)
+    public async Task<IActionResult> Delete(int cc) =>
+        Traducir(await _personas.DeleteAsync(cc));
+
+    // Un único punto de traducción resultado -> código de estado.
+    private IActionResult Traducir(ServiceResult resultado) => resultado.Status switch
     {
-        var result = await _service.DeleteAsync(cc);
-        return result switch
-        {
-            DeleteResult.NotFound      => NotFound(),
-            DeleteResult.HasDependents => Conflict("La persona tiene estudios o teléfonos asociados"),
-            _                          => NoContent()
-        };
-    }
+        ServiceResultStatus.Success => NoContent(),
+        ServiceResultStatus.NotFound => Problem(detail: resultado.Message, statusCode: StatusCodes.Status404NotFound),
+        ServiceResultStatus.ValidationError => Problem(detail: resultado.Message, statusCode: StatusCodes.Status400BadRequest),
+        ServiceResultStatus.Conflict => Problem(detail: resultado.Message, statusCode: StatusCodes.Status409Conflict),
+        _ => Problem(statusCode: StatusCodes.Status500InternalServerError)
+    };
+
+    private IActionResult Traducir<T>(ServiceResult<T> resultado) =>
+        resultado.IsSuccess ? Ok(resultado.Value) : Traducir((ServiceResult)resultado);
 }
 \end{lstlisting}
+
+El controlador recibe y devuelve DTO (\texttt{PersonaEntradaDto}, \texttt{PersonaDto}),
+nunca la entidad de EF Core, y no decide reglas: traduce el \texttt{ServiceResult} del
+servicio a \texttt{200}, \texttt{201}, \texttt{204}, \texttt{400}, \texttt{404} o
+\texttt{409} con un \texttt{ProblemDetails}.
 
 El registro de dependencias y la configuración de Swagger se realizan en
 \texttt{Program.cs}:
 
 \begin{lstlisting}[language=CSharpX,caption={Fragmento de \texttt{Program.cs}.}]
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    WebRootPath = "Front/wwwroot"
+});
 
-builder.Services.AddControllersWithViews()
-    .AddJsonOptions(o => o.JsonSerializerOptions.ReferenceHandler =
-        System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+// Antiforgery en los POST de MVC; 500 documentado en la API; MVC fuera de Swagger.
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Conventions.Add(new AntiforgeryEnVistasConvention());
+    options.Conventions.Add(new VistasFueraDeOpenApiConvention());
+    options.Conventions.Add(new ErroresApiConvention());
+});
+builder.Services.AddProblemDetails();
+builder.Services.AddDocumentacionOpenApi();
 
+// La cadena llega por User Secrets o por ConnectionStrings__PersonaDb.
 builder.Services.AddDbContext<PersonaDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("PersonaDb")));
 
@@ -1045,29 +1067,34 @@ builder.Services.AddScoped<IProfesionRepository, ProfesionRepository>();
 builder.Services.AddScoped<ITelefonoRepository, TelefonoRepository>();
 builder.Services.AddScoped<IEstudioRepository, EstudioRepository>();
 
-// Capa de lógica de negocio
+// Capa de aplicación (servicios)
 builder.Services.AddScoped<IPersonaService, PersonaService>();
 builder.Services.AddScoped<IProfesionService, ProfesionService>();
 builder.Services.AddScoped<ITelefonoService, TelefonoService>();
 builder.Services.AddScoped<IEstudioService, EstudioService>();
 
-// Swagger / OpenAPI 3
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-    c.SwaggerDoc("v1", new() { Title = "personapi-dotnet", Version = "v1" }));
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAuthorization();
+
+app.UseSwagger();
+app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "PersonAPI v1"));
+
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
 \end{lstlisting}
+
+El fragmento omite la configuración de las rutas de vistas de \texttt{Front/} y el manejo
+de errores fuera de Development; el archivo completo está en el repositorio.
 
 \subsubsection{8.14 Despliegue}
 
@@ -2345,9 +2372,10 @@ Repositorio: \url{\repoURL} \quad--\quad Tag: \texttt{\repoTag}
         en versiones anteriores, debió adaptarse. Elegir una versión LTS asegura soporte
         durante la vida del proyecto.
   \item \textbf{Las relaciones bidireccionales generan ciclos} al serializar a JSON
-        (\texttt{Persona} $\rightarrow$ \texttt{Telefonos} $\rightarrow$ \texttt{Persona});
-        se resolvió con \texttt{ReferenceHandler.IgnoreCycles}. Una alternativa más limpia
-        es exponer DTOs en lugar de entidades.
+        (\texttt{Persona} $\rightarrow$ \texttt{Telefonos} $\rightarrow$ \texttt{Persona})
+        si se devuelven las entidades de EF Core. Se evitó desde el diseño: los
+        controladores REST reciben y devuelven DTO y las vistas usan ViewModels, así que
+        ningún contrato HTTP lleva navegaciones y el ciclo no llega a producirse.
   \item \textbf{La autenticación de Windows no funciona en contenedores Linux}: la cadena
         de conexión debe externalizarse y sobrescribirse por variables de entorno según el
         ambiente.
@@ -2358,19 +2386,6 @@ Repositorio: \url{\repoURL} \quad--\quad Tag: \texttt{\repoTag}
         \texttt{estudios} obliga a diseñar rutas con dos parámetros y vistas que
         identifican el registro por ambos valores.
 \end{itemize}
-
-\subsection{Preguntas para el grupo}
-\begin{enumerate}[itemsep=6pt]
-  \item Entity Framework Core ya implementa internamente los patrones \emph{Repository}
-        (\texttt{DbSet}) y \emph{Unit of Work} (\texttt{DbContext}). ¿Se justifica agregar
-        una capa DAO propia encima de EF Core, o se trata de una abstracción redundante?
-        ¿En qué escenarios aporta valor real (pruebas, cambio de motor, consultas
-        complejas) y en cuáles solo añade código?
-  \item Si el sistema creciera (por ejemplo, millones de personas y equipos de desarrollo
-        independientes para teléfonos y estudios), ¿qué señales indicarían que es momento de
-        migrar este monolito a microservicios, y qué decisiones del diseño actual
-        facilitarían o dificultarían esa transición?
-\end{enumerate}
 
 % ---------------------------------------------------------------------
 %  REFERENCIAS
