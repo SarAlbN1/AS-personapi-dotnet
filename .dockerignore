@@ -1,0 +1,12 @@
+# Solo el proyecto web entra al contexto de construcción que usa el Dockerfile.
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+.git/
+.github/
+docs/
+tests/
+.env
+.env.*
+**/secrets.json

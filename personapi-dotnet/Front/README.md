@@ -69,6 +69,11 @@ Los errores de cada campo se pintan con `asp-validation-for` junto al campo; el 
 solo muestra los de nivel modelo, el conflicto y el éxito. Para un formulario de
 borrado, `modelo` es el ViewModel de la confirmación, y el 409 se muestra sobre ella.
 
+En `Edit`, la clave de la ruta lleva `[FromRoute]` (`Edit([FromRoute] int id, … modelo)`):
+el formulario también envía `Id` y el binding lo leería antes que la ruta, así que un id
+manipulado editaría otro registro en vez de llegar al servicio como discrepancia (400).
+`ProfesionesController` (HU-008) es el primer CRUD que aplica la convención completa.
+
 **Antiforgery.** Todo POST, PUT, PATCH o DELETE de un controlador MVC exige el token por
 convención (`AntiforgeryEnVistasConvention`, registrada en `Program.cs`). El tag helper
 `<form method="post">` lo inserta solo: **no** hace falta `[ValidateAntiForgeryToken]` ni

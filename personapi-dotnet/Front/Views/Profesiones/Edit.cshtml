@@ -1,0 +1,23 @@
+@model ProfesionViewModel
+@{
+    ViewData["Title"] = $"Editar profesión {Model.Id}";
+}
+
+<h1 class="h3">Editar profesión @Model.Id</h1>
+
+<partial name="_MensajesServicio" />
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="col-md-8">
+    @* El id es la identidad: se muestra pero no se edita. *@
+    <div class="mb-3">
+        <label asp-for="Id" class="form-label"></label>
+        <input asp-for="Id" class="form-control-plaintext" readonly />
+    </div>
+    <partial name="_Campos" model="Model" />
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a class="btn btn-link" asp-action="Details" asp-route-id="@Model.Id">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
