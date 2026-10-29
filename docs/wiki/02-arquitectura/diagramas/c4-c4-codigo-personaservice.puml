@@ -2,7 +2,7 @@
 ' C4 nivel 4 (codigo) del componente PersonaService.
 ' Hecho a mano, no exportado del .dsl: Structurizr no dibuja el nivel de codigo.
 ' Las firmas son las del codigo real; si el codigo cambia, se corrige aqui.
-title C4 nivel 4 · Código del componente **PersonaService**\nUn solo componente del nivel 3; los otros tres servicios siguen la misma forma.
+title C4 nivel 4 (código) · Diagrama de clases del patrón DAO para **Persona**\nEs el nivel 4 del modelo C4; las otras tres entidades siguen la misma estructura.
 
 skinparam dpi 150
 skinparam shadowing false
@@ -18,6 +18,23 @@ skinparam class {
 skinparam note {
   BackgroundColor #FFF8DC
   BorderColor #B8A24A
+}
+
+class PersonasApiController {
+  -_personas : IPersonaService
+  --
+  +GetAll() : IActionResult
+  +GetById(cc) : IActionResult
+  +Create(entrada) : IActionResult
+  +Update(cc, entrada) : IActionResult
+  +Delete(cc) : IActionResult
+}
+
+class PersonasController {
+  -_personas : IPersonaService
+  --
+  +Index() / Details(id)
+  +Create() / Edit(id) / Delete(id)
 }
 
 interface IPersonaService <<interface>> {
@@ -50,6 +67,17 @@ interface IPersonaRepository <<interface>> {
 
 interface ITelefonoRepository <<interface>>
 interface IEstudioRepository <<interface>>
+
+class PersonaRepository {
+  -_context : PersonaDbContext
+}
+
+class PersonaDbContext {
+  +Personas : DbSet<Persona>
+  +Profesions : DbSet<Profesion>
+  +Telefonos : DbSet<Telefono>
+  +Estudios : DbSet<Estudio>
+}
 
 class ServiceResult {
   +Status : ServiceResultStatus
@@ -89,10 +117,14 @@ class PersonaDto {
   +Edad : int?
 }
 
+PersonasApiController --> IPersonaService : usa
+PersonasController --> IPersonaService : el mismo servicio
 PersonaService ..|> IPersonaService
 PersonaService --> IPersonaRepository : su entidad
 PersonaService --> ITelefonoRepository : dependientes
 PersonaService --> IEstudioRepository : dependientes
+PersonaRepository ..|> IPersonaRepository
+PersonaRepository --> PersonaDbContext : EF Core
 ServiceResultT --|> ServiceResult
 ServiceResult --> ServiceResultStatus
 IPersonaService ..> PersonaEntradaDto : recibe
@@ -104,7 +136,8 @@ note right of PersonaService
   · cédula única (Conflict)
   · género M/F y edad ≥ 0 (ValidationError)
   · no se borra con teléfonos o estudios (Conflict)
-  Nunca referencia PersonaDbContext.
+  Nunca referencia PersonaDbContext:
+  el contexto solo lo conoce el repositorio.
 end note
 
 note bottom of ServiceResult

@@ -545,15 +545,33 @@ servicios, interfaces DAO e implementaciones EF Core.}
 \label{fig:c4-componentes}
 \end{figure}
 
+El cuarto nivel es, por definición, un diagrama de clases del interior de un componente:
+el \textbf{diagrama de clases de la solución y el nivel 4 del modelo C4 son el mismo
+documento}, no dos vistas distintas, y por eso aparece una sola vez. La
+Figura~\ref{fig:c4-codigo} aplica el patrón DAO a la entidad \texttt{Persona}; las otras
+tres entidades siguen exactamente la misma estructura.
+
 \begin{figure}[H]
 \centering
 \imagenOPendiente[0.95\textwidth]{diagramas/c4-c4-codigo-personaservice.png}{Diagrama C4 de nivel 4: código del componente PersonaService}
-\caption{C4 nivel 4 (código) del componente \texttt{PersonaService}: su interfaz, los tres
-repositorios que inyecta y el resultado discriminado \texttt{ServiceResult}. El nivel de
-código se dibuja para \textbf{un} componente a modo de ejemplo; los otros tres servicios
-tienen la misma forma.}
+\caption{C4 nivel 4 (código): diagrama de clases del patrón DAO para \texttt{Persona}.}
 \label{fig:c4-codigo}
 \end{figure}
+
+La cadena que allí se ve es la que exige la arquitectura, y se lee de arriba abajo:
+
+\begin{enumerate}[itemsep=2pt]
+  \item el controlador —de vistas o de API— depende de la interfaz \texttt{IPersonaService}
+        y nunca de su implementación;
+  \item \texttt{PersonaService} implementa esa interfaz y concentra las reglas del dominio;
+  \item ese servicio depende de \textbf{tres} interfaces de repositorio: la de su propia
+        entidad, \texttt{IPersonaRepository}, y las de teléfono y estudio, que necesita para
+        comprobar dependientes antes de permitir un borrado;
+  \item cada \texttt{*Repository} implementa su interfaz y es el único punto que conoce
+        \texttt{PersonaDbContext}, de modo que EF Core no se filtra hacia arriba;
+  \item el resultado de cada operación viaja en \texttt{ServiceResult}, que el borde traduce
+        a código HTTP en la API y a mensaje visible en las vistas, sin repetir la regla.
+\end{enumerate}
 
 \subsection{Estructura del proyecto}
 
@@ -610,44 +628,6 @@ personapi-dotnet/
                 |-- Estudio.cs
                 `-- Telefono.cs
 \end{lstlisting}
-
-\subsection{Diagrama de clases (capa de acceso a datos)}
-
-La Figura~\ref{fig:dao} muestra la aplicación del patrón DAO para la entidad
-\texttt{Persona}; las demás entidades siguen exactamente la misma estructura.
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[
-  clase/.style={rectangle split, rectangle split parts=2, draw=black!70, thick,
-                rectangle split part fill={azulj!15,white}, font=\ttfamily\scriptsize,
-                align=left, inner sep=4pt},
-  impl/.style={-{Triangle[open,length=3mm]}, dashed, thick},
-  usa/.style={-{Stealth[length=2.5mm]}, thick}
-]
-\node[clase] (ctrl) {\textbf{PersonasApiController}
-  \nodepart{two} - \_service : IPersonaService\\ + GetAll() : IActionResult\\ + Get(cc) : IActionResult\\
-                 + Post(persona) : IActionResult\\ + Put(cc, persona) : IActionResult\\ + Delete(cc) : IActionResult};
-\node[clase, right=1.2cm of ctrl] (isrv) {\textit{<<interface>>}\\ \textbf{IPersonaService}
-  \nodepart{two} + GetAllAsync()\\ + GetByIdAsync(cc)\\ + CreateAsync(p)\\ + UpdateAsync(cc, p)\\ + DeleteAsync(cc)};
-\node[clase, below=1.2cm of isrv] (srv) {\textbf{PersonaService}
-  \nodepart{two} - \_repo : IPersonaRepository};
-\node[clase, below=1.2cm of ctrl] (irepo) {\textit{<<interface>>}\\ \textbf{IPersonaRepository}
-  \nodepart{two} + GetAllAsync()\\ + GetByIdAsync(cc)\\ + ExistsAsync(cc)\\ + AddAsync(p)\\ + UpdateAsync(p)\\ + DeleteAsync(p)};
-\node[clase, below=1.2cm of irepo] (repo) {\textbf{PersonaRepository}
-  \nodepart{two} - \_context : PersonaDbContext};
-\node[clase, right=1.2cm of repo] (ctx) {\textbf{PersonaDbContext}
-  \nodepart{two} + Personas : DbSet<Persona>\\ + Profesions : DbSet<Profesion>\\ + Estudios : DbSet<Estudio>\\ + Telefonos : DbSet<Telefono>};
-
-\draw[usa] (ctrl) -- (isrv);
-\draw[impl] (srv) -- (isrv);
-\draw[usa] (srv) -- (irepo);
-\draw[impl] (repo) -- (irepo);
-\draw[usa] (repo) -- (ctx);
-\end{tikzpicture}
-\caption{Patrón DAO/Repository aplicado a la entidad \texttt{Persona}.}
-\label{fig:dao}
-\end{figure}
 
 \subsection{Diseño de la API REST}
 
