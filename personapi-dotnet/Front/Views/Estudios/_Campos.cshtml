@@ -1,0 +1,12 @@
+@model EstudioViewModel
+@* Fecha y universidad; el par lo pinta cada formulario porque solo se elige al crear. *@
+<div class="mb-3">
+    <label asp-for="Fecha" class="form-label"></label>
+    <input asp-for="Fecha" class="form-control" />
+    <span asp-validation-for="Fecha" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Univer" class="form-label"></label>
+    <input asp-for="Univer" class="form-control" maxlength="@EstudioViewModel.UniverLongitudMaxima" />
+    <span asp-validation-for="Univer" class="text-danger"></span>
+</div>
