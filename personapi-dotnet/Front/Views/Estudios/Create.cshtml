@@ -1,0 +1,33 @@
+@model EstudioViewModel
+@{
+    ViewData["Title"] = "Nuevo estudio";
+}
+
+<h1 class="h3">Nuevo estudio</h1>
+
+<partial name="_MensajesServicio" />
+
+<form asp-action="Create" method="post" class="col-md-8">
+    @* Las opciones salen de los servicios; la existencia la vuelve a comprobar el servicio. *@
+    <div class="mb-3">
+        <label asp-for="IdProf" class="form-label"></label>
+        <select asp-for="IdProf" asp-items="Model.Profesiones" class="form-select">
+            <option value="">Elija una profesión</option>
+        </select>
+        <span asp-validation-for="IdProf" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="CcPer" class="form-label"></label>
+        <select asp-for="CcPer" asp-items="Model.Personas" class="form-select">
+            <option value="">Elija una persona</option>
+        </select>
+        <span asp-validation-for="CcPer" class="text-danger"></span>
+    </div>
+    <partial name="_Campos" model="Model" />
+    <button type="submit" class="btn btn-primary">Crear</button>
+    <a class="btn btn-link" asp-action="Index">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

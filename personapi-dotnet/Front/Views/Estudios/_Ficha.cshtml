@@ -1,0 +1,12 @@
+@model EstudioViewModel
+@* Datos de solo lectura de un estudio; lo comparten Details y Delete. *@
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.IdProf)</dt>
+    <dd class="col-sm-9">@Model.IdProf · @Model.NomProfesion</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.CcPer)</dt>
+    <dd class="col-sm-9">@Model.CcPer · @Model.NombrePersona</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Fecha)</dt>
+    <dd class="col-sm-9">@(Model.Fecha?.ToString("yyyy-MM-dd") ?? "—")</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Univer)</dt>
+    <dd class="col-sm-9">@(string.IsNullOrEmpty(Model.Univer) ? "—" : Model.Univer)</dd>
+</dl>
