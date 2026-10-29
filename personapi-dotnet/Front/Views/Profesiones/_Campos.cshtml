@@ -1,0 +1,12 @@
+@model ProfesionViewModel
+@* Nombre y descripción; el id lo pinta cada formulario porque solo se escribe al crear. *@
+<div class="mb-3">
+    <label asp-for="Nom" class="form-label"></label>
+    <input asp-for="Nom" class="form-control" maxlength="@ProfesionViewModel.NomLongitudMaxima" />
+    <span asp-validation-for="Nom" class="text-danger"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Des" class="form-label"></label>
+    <textarea asp-for="Des" class="form-control" rows="4"></textarea>
+    <span asp-validation-for="Des" class="text-danger"></span>
+</div>

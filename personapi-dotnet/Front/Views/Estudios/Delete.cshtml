@@ -1,0 +1,17 @@
+@model EstudioViewModel
+@{
+    ViewData["Title"] = $"Eliminar estudio {Model.IdProf} / {Model.CcPer}";
+}
+
+<h1 class="h3">Eliminar estudio @Model.IdProf / @Model.CcPer</h1>
+
+<partial name="_MensajesServicio" />
+
+<p>¿Seguro que quiere eliminar este estudio? La persona y la profesión no se eliminan.</p>
+
+<partial name="_Ficha" model="Model" />
+
+<form asp-action="Delete" asp-route-idProf="@Model.IdProf" asp-route-ccPer="@Model.CcPer" method="post">
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a class="btn btn-link" asp-action="Details" asp-route-idProf="@Model.IdProf" asp-route-ccPer="@Model.CcPer">Cancelar</a>
+</form>

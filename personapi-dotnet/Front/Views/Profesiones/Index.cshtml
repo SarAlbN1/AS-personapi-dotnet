@@ -1,0 +1,44 @@
+@model IReadOnlyList<ProfesionViewModel>
+@{
+    ViewData["Title"] = "Profesiones";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Profesiones</h1>
+    <a class="btn btn-primary" asp-action="Create">Nueva profesión</a>
+</div>
+
+<partial name="_MensajesServicio" />
+
+@if (Model.Count == 0)
+{
+    <p class="text-muted" data-mensaje="vacio">No hay profesiones registradas.</p>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th scope="col">Id</th>
+                <th scope="col">Nombre</th>
+                <th scope="col">Descripción</th>
+                <th scope="col"><span class="visually-hidden">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var profesion in Model)
+            {
+                <tr data-profesion="@profesion.Id">
+                    <td>@profesion.Id</td>
+                    <td>@profesion.Nom</td>
+                    <td class="text-truncate" style="max-width: 24rem;">@profesion.Des</td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-outline-secondary btn-sm" asp-action="Details" asp-route-id="@profesion.Id">Ver</a>
+                        <a class="btn btn-outline-primary btn-sm" asp-action="Edit" asp-route-id="@profesion.Id">Editar</a>
+                        <a class="btn btn-outline-danger btn-sm" asp-action="Delete" asp-route-id="@profesion.Id">Eliminar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
