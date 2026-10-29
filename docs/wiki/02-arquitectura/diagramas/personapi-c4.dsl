@@ -192,12 +192,12 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
     views {
         systemContext personapi "c4-c1-contexto" "C4 nivel 1 · Contexto: el usuario, el cliente REST, el monolito PersonAPI y SQL Server persona_db como único almacén." {
             include *
-            autolayout tb
+            autolayout tb 450 400
         }
 
         container personapi "c4-c2-contenedores" "C4 nivel 2 · Contenedores: la aplicación ASP.NET Core MVC 10 como único artefacto desplegable, con sus dos canales (vistas Razor y API REST), y la base persona_db." {
             include *
-            autolayout tb
+            autolayout tb 450 400
         }
 
         component personapi.web "c4-c3-componentes" "C4 nivel 3 · Componentes del contenedor web: los cuatro módulos en los dos canales, la convención de errores y el antiforgery del borde, un servicio por entidad con su resultado discriminado, las interfaces DAO con su implementación EF Core y el contexto. Ningún controlador alcanza el contexto de datos." {
@@ -205,7 +205,7 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
             # La composición de Program.cs tiene su propia vista: aquí sus once
             # relaciones de registro cruzarían el diagrama sin aportar nada al diseño.
             exclude personapi.web.arranque
-            autolayout tb 300 300
+            autolayout tb 550 500
         }
 
         component personapi.web "c4-c3-componentes-canal-web" "C4 nivel 3 · Recorte del canal MVC: controladores web, la convención de errores y el antiforgery, y la cadena de servicios y DAO que consumen." {
@@ -215,7 +215,7 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
             include personapi.web.daoPersona personapi.web.daoProfesion personapi.web.daoTelefono personapi.web.daoEstudio
             include personapi.web.contexto
             include usuario personapi.db
-            autolayout tb
+            autolayout tb 500 450
         }
 
         component personapi.web "c4-c3-componentes-canal-json" "C4 nivel 3 · Recorte del canal REST: controladores de API, DTOs, Swagger y la cadena de servicios y DAO que consumen." {
@@ -225,7 +225,7 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
             include personapi.web.daoPersona personapi.web.daoProfesion personapi.web.daoTelefono personapi.web.daoEstudio
             include personapi.web.contexto
             include clienteRest personapi.db
-            autolayout tb
+            autolayout tb 500 450
         }
 
         component personapi.web "c4-c3-componentes-arranque" "C4 nivel 3 · Recorte de la composición (SDD §4): qué registra Program.cs y con qué ciclo de vida." {
@@ -233,12 +233,12 @@ workspace "PersonAPI" "Monolito MVC + REST sobre SQL Server del Laboratorio 1 de
             include personapi.web.svcPersona personapi.web.svcProfesion personapi.web.svcTelefono personapi.web.svcEstudio
             include personapi.web.daoPersona personapi.web.daoProfesion personapi.web.daoTelefono personapi.web.daoEstudio
             include personapi.web.contexto personapi.web.antiforgery personapi.web.swagger
-            autolayout tb
+            autolayout tb 500 450
         }
 
         deployment personapi "Docker Compose" "c4-despliegue" "Vista de despliegue con Docker Compose: personapi, sqlserver y db-init en la red personapi-net." {
             include *
-            autolayout lr
+            autolayout lr 450 400
         }
 
         styles {
