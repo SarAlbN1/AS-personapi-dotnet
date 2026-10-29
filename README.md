@@ -4,7 +4,7 @@ Aplicación monolítica ASP.NET Core MVC + servicios + DAO/Repository para gesti
 
 **Stack adoptado:** .NET 10 LTS, ASP.NET Core MVC 10, EF Core 10, SQL Server 2025 Express, SSMS 22, Visual Studio 2026 Community, REST/JSON, OpenAPI 3. Se modernizan las versiones de la guía original por decisión del equipo, manteniendo los requisitos funcionales y los patrones solicitados ([versiones](docs/wiki/04-implementacion/versiones.md)).
 
-> Estado real: la solución arranca y compila (HU-001) y el esquema `persona_db` se crea con sus restricciones y datos de demostración desde `scripts/` (HU-002); las entidades EF Core, `PersonaDbContext` y los cuatro repositorios se generan y leen la base real (HU-003); las veinte operaciones REST responden contra la base con sus códigos 200, 201, 204, 400, 404 y 409: personas (HU-004), profesiones (HU-005), teléfonos (HU-010) y estudios (HU-011), estas últimas identificadas por el par `(idProf, ccPer)`. Los CRUD web de personas (HU-007), profesiones (HU-008), teléfonos (HU-012) y estudios (HU-013) funcionan en `/Personas`, `/Profesiones`, `/Telefonos` y `/Estudios` sobre los mismos servicios que la API; el de teléfonos lleva el número como cadena en la ruta, con sus ceros iniciales, y el de estudios las dos claves. Este repositorio no afirma despliegues ejecutados.
+> Estado real: la solución arranca y compila (HU-001) y el esquema `persona_db` se crea con sus restricciones y datos de demostración desde `scripts/` (HU-002); las entidades EF Core, `PersonaDbContext` y los cuatro repositorios se generan y leen la base real (HU-003); las veinte operaciones REST responden contra la base con sus códigos 200, 201, 204, 400, 404 y 409: personas (HU-004), profesiones (HU-005), teléfonos (HU-010) y estudios (HU-011), estas últimas identificadas por el par `(idProf, ccPer)`. Los CRUD web de personas (HU-007), profesiones (HU-008), teléfonos (HU-012) y estudios (HU-013) funcionan en `/Personas`, `/Profesiones`, `/Telefonos` y `/Estudios` sobre los mismos servicios que la API; el de teléfonos lleva el número como cadena en la ruta, con sus ceros iniciales, y el de estudios las dos claves. Los dos caminos de ejecución de abajo se comprobaron desde un clon limpio ([revisión de entrega](docs/wiki/04-implementacion/pruebas/revision-entrega.md)).
 
 ## Arquitectura
 
@@ -51,27 +51,65 @@ Un único artefacto desplegable. MVC y REST son dos interfaces HTTP del mismo pr
 
 ## Ejecución
 
+Requisitos: SDK de .NET 10, SQL Server 2025 Express (instancia `SQLEXPRESS`) y `sqlcmd` o SSMS 22. Para el camino con contenedores basta Docker Desktop. Las versiones exactas están en [versiones](docs/wiki/04-implementacion/versiones.md).
+
+### 1. Crear la base
+
+Desde la raíz del clon, primero el DDL y después el DML. Los dos scripts son idempotentes ([scripts](scripts/README.md)):
+
 ```bash
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -b -i scripts/01_ddl.sql
+sqlcmd -S "lpc:localhost\SQLEXPRESS" -E -C -b -i scripts/02_dml.sql
+```
+
+El prefijo `lpc:` (memoria compartida) conecta con la instancia local tanto con el `sqlcmd` clásico como con el nuevo (`sqlcmd` 1.x, el que instala el manual). Sin el prefijo, el `sqlcmd` nuevo no encuentra `SQLEXPRESS` si el servicio SQL Browser está detenido, que es lo habitual en una instalación Express.
+
+### 2. Configurar la cadena de conexión
+
+La aplicación lee `ConnectionStrings:PersonaDb`, que **no se versiona**: `appsettings.json` la deja vacía. Se define por User Secrets o por variable de entorno:
+
+```bash
+dotnet user-secrets set "ConnectionStrings:PersonaDb" "Server=localhost\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=True" --project personapi-dotnet/personapi-dotnet.csproj
+# o, solo para la sesión actual (en PowerShell: $env:ConnectionStrings__PersonaDb = "...")
+export ConnectionStrings__PersonaDb="Server=localhost\SQLEXPRESS;Database=persona_db;Trusted_Connection=True;TrustServerCertificate=True"
+```
+
+### 3. Restaurar, compilar y probar
+
+```bash
+dotnet restore
 dotnet build
 dotnet test
+```
+
+Sin la cadena, las pruebas que usan `persona_db` se **omiten** en vez de fallar; con ella se ejecutan todas.
+
+### 4. Ejecutar
+
+```bash
 dotnet run --project personapi-dotnet/personapi-dotnet.csproj
 ```
 
-La aplicación responde en la URL que publique Kestrel: `/` para las vistas MVC y `/swagger` para la interfaz de la API. La cadena de conexión se lee de `ConnectionStrings:PersonaDb` y **no se versiona**: se define por User Secrets o variable de entorno.
+La aplicación responde en la URL que muestre Kestrel: `/` abre las vistas MVC y `/swagger`, la interfaz de la API con sus 20 operaciones.
+
+### Alternativa: Docker Compose
+
+Copiar `.env.example` a `.env` y escribir `SA_PASSWORD` (el archivo `.env` está en `.gitignore`). Después:
 
 ```bash
-dotnet user-secrets init --project personapi-dotnet/personapi-dotnet.csproj
-dotnet user-secrets set "ConnectionStrings:PersonaDb" "<cadena-local>" --project personapi-dotnet/personapi-dotnet.csproj
-# alternativa equivalente sin User Secrets
-export ConnectionStrings__PersonaDb="<cadena-local>"
+docker compose up --build -d
 ```
 
-Detalle en [configuración y ejecución local](docs/wiki/04-implementacion/ejecucion-local.md) y el [runbook de la demo](docs/wiki/04-implementacion/runbook-demo.md). La creación del esquema está verificada en HU-002 y la conexión de la aplicación a `persona_db` por `ConnectionStrings:PersonaDb`, en HU-003; los recorridos CRUD siguen siendo una **guía prevista** hasta sus historias.
+Levanta SQL Server 2025, ejecuta `01_ddl.sql` y `02_dml.sql` con el servicio `db-init` y publica la aplicación en `http://localhost:8080` (Swagger en `/swagger`). `docker compose down -v` la retira junto con su volumen.
+
+Más detalle en [configuración y ejecución local](docs/wiki/04-implementacion/ejecucion-local.md), en el [runbook de la demo](docs/wiki/04-implementacion/runbook-demo.md) y en el manual técnico de despliegue del [informe](docs/informe/README.md).
 
 ## Trabajo en equipo
 
-Tres integrantes, dos sprints. Una issue por unidad de trabajo, con un responsable, una rama y un PR revisado por otra persona. El estado del trabajo se gestiona **solo** en GitHub Projects; la wiki no lo replica. El método para derivar el backlog está en [06-backlog](docs/wiki/06-backlog/README.md); las issues definitivas aún no están creadas.
+Tres integrantes, dos sprints. Una issue por unidad de trabajo, con un responsable, una rama y un PR revisado por otra persona. El estado del trabajo se gestiona **solo** en GitHub Projects; la wiki no lo replica. El backlog vive en GitHub Projects con 17 historias (`HU-001` a `HU-017`); el método con el que se derivó está en [06-backlog](docs/wiki/06-backlog/README.md).
 
 ## Entrega
 
-Repositorio público `personapi-dotnet`, scripts DDL/DML, README comprobado desde un clon limpio, código fuente, informe académico y tag `v1.0.0`. Detalle en [entrega](docs/wiki/05-proceso/entrega.md).
+Repositorio público [`AS-personapi-dotnet`](https://github.com/SarAlbN1/AS-personapi-dotnet) (solución `personapi-dotnet`), scripts DDL/DML, README comprobado desde un clon limpio, código fuente, informe académico y tag `v1.0.0`. Detalle en [entrega](docs/wiki/05-proceso/entrega.md); las comprobaciones previas al tag están en la [revisión de entrega](docs/wiki/04-implementacion/pruebas/revision-entrega.md).
+
+**Tag de entrega:** [`v1.0.0`](https://github.com/SarAlbN1/AS-personapi-dotnet/releases/tag/v1.0.0), creado sobre `main` después de fusionar el cierre (HU-015).
