@@ -1,0 +1,36 @@
+@model PersonaDetalleViewModel
+@{
+    ViewData["Title"] = $"Eliminar persona {Model.Cc}";
+}
+
+<h1 class="h3">¿Eliminar a @Model.NombreCompleto?</h1>
+
+@* El aviso de conflicto (teléfonos o estudios asociados) aparece aquí. *@
+<partial name="_MensajesServicio" />
+
+<p class="text-muted">
+    Esta operación no se puede deshacer. Si la persona tiene teléfonos o estudios asociados,
+    no se elimina: primero hay que eliminar esos registros.
+</p>
+
+<dl class="row col-md-6" data-detalle="persona">
+    <dt class="col-sm-4">Cédula</dt>
+    <dd class="col-sm-8">@Model.Cc</dd>
+
+    <dt class="col-sm-4">Nombre</dt>
+    <dd class="col-sm-8">@Model.Nombre</dd>
+
+    <dt class="col-sm-4">Apellido</dt>
+    <dd class="col-sm-8">@Model.Apellido</dd>
+
+    <dt class="col-sm-4">Género</dt>
+    <dd class="col-sm-8">@Model.GeneroTexto</dd>
+
+    <dt class="col-sm-4">Edad</dt>
+    <dd class="col-sm-8">@Model.EdadTexto</dd>
+</dl>
+
+<form asp-action="Delete" asp-route-id="@Model.Cc" method="post">
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a asp-action="Details" asp-route-id="@Model.Cc" class="btn btn-link">Cancelar</a>
+</form>

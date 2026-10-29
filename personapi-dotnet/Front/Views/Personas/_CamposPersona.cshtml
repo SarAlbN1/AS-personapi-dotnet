@@ -1,0 +1,54 @@
+@*
+    Campos compartidos por Create y Edit (HU-007). La cédula es la identidad de la fila:
+    en edición se muestra bloqueada y viaja oculta, para que la ruta y el cuerpo coincidan
+    y el servicio no tenga que adivinar cuál manda.
+*@
+@model PersonaFormViewModel
+
+<div class="mb-3">
+    <label asp-for="Cc" class="form-label"></label>
+    @if (Model.EsEdicion)
+    {
+        <input asp-for="Cc" class="form-control" readonly />
+        <input asp-for="Cc" type="hidden" />
+        <div class="form-text">La cédula identifica a la persona y no se modifica.</div>
+    }
+    else
+    {
+        <input asp-for="Cc" class="form-control" />
+    }
+    <span asp-validation-for="Cc" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Nombre" class="form-label"></label>
+    <input asp-for="Nombre" class="form-control" />
+    <span asp-validation-for="Nombre" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Apellido" class="form-label"></label>
+    <input asp-for="Apellido" class="form-control" />
+    <span asp-validation-for="Apellido" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Genero" class="form-label"></label>
+    <select asp-for="Genero" class="form-select">
+        <option value="">Seleccione…</option>
+        @foreach (var genero in PersonaFormViewModel.Generos)
+        {
+            <option value="@genero">@(genero == "M" ? "Masculino (M)" : "Femenino (F)")</option>
+        }
+    </select>
+    <span asp-validation-for="Genero" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Edad" class="form-label"></label>
+    <input asp-for="Edad" class="form-control" />
+    <div class="form-text">Opcional: la columna admite nulo.</div>
+    <span asp-validation-for="Edad" class="text-danger"></span>
+</div>
+
+<input asp-for="EsEdicion" type="hidden" />

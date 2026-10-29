@@ -37,6 +37,12 @@ controlador, su enlace responde con la vista `Estado` (404):
 | Teléfonos | HU-012 |
 | Estudios | HU-013 |
 
+**Personas es la referencia de los otros tres.** `Back/01-Borde/Controllers/PersonasController.cs`
+consume el mismo `IPersonaService` que el controlador REST, los ViewModels
+(`PersonaFormViewModel`, `PersonaDetalleViewModel`, `PersonaListadoViewModel`) llevan solo
+las anotaciones de forma, y `Views/Personas/_CamposPersona.cshtml` es el formulario que
+comparten `Create` y `Edit`, con la clave bloqueada en edición.
+
 **Errores del servicio.** El controlador traduce el `ServiceResult` con
 `this.VistaSiFalla(resultado, modelo)` (`Back/01-Borde/Controllers/ResultadoServicioVistaExtensions.cs`)
 y la vista incluye `<partial name="_MensajesServicio" />` encima del formulario:
