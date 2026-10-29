@@ -1,0 +1,25 @@
+@model TelefonoViewModel
+@{
+    ViewData["Title"] = "Nuevo teléfono";
+}
+
+<h1 class="h3">Nuevo teléfono</h1>
+
+<partial name="_MensajesServicio" />
+
+<form asp-action="Create" method="post" class="col-md-8">
+    @* Sin maxlength: un número de más de 15 dígitos se informa junto al campo en vez de
+       cortarse en silencio. *@
+    <div class="mb-3">
+        <label asp-for="Num" class="form-label"></label>
+        <input asp-for="Num" class="form-control" inputmode="numeric" />
+        <span asp-validation-for="Num" class="text-danger"></span>
+    </div>
+    <partial name="_Campos" model="Model" />
+    <button type="submit" class="btn btn-primary">Crear</button>
+    <a class="btn btn-link" asp-action="Index">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

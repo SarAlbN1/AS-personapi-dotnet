@@ -1,0 +1,10 @@
+@model TelefonoViewModel
+@* Datos de solo lectura de un teléfono; lo comparten Details y Delete. *@
+<dl class="row">
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Num)</dt>
+    <dd class="col-sm-9">@Model.Num</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Oper)</dt>
+    <dd class="col-sm-9">@Model.Oper</dd>
+    <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Duenio)</dt>
+    <dd class="col-sm-9">@Model.Duenio · @Model.NombreDuenio</dd>
+</dl>

@@ -30,12 +30,12 @@ Los cuatro CRUD web usan lo mismo y no inventan cada uno su presentación.
 Teléfonos y Estudios por ruta (`/Personas`, …) y Swagger. Mientras un módulo no tenga
 controlador, su enlace responde con la vista `Estado` (404):
 
-| Módulo | Historia que lo implementa | Estado |
-|---|---|---|
-| Personas | HU-007 | implementado: `Views/Personas/` con las cinco acciones |
-| Profesiones | HU-008 | pendiente |
-| Teléfonos | HU-012 | pendiente |
-| Estudios | HU-013 | pendiente |
+| Módulo | Historia que lo implementa |
+|---|---|
+| Personas | HU-007 |
+| Profesiones | HU-008 |
+| Teléfonos | HU-012 |
+| Estudios | HU-013 |
 
 **Personas es la referencia de los otros tres.** `Back/01-Borde/Controllers/PersonasController.cs`
 consume el mismo `IPersonaService` que el controlador REST, los ViewModels
@@ -93,6 +93,15 @@ clave en la ruta de `Details`, `Edit` y `Delete`, con rutas por atributo:
 formulario llega manipulado. En `Edit`, el par de la ruta lleva `[FromRoute]` y, al repintar,
 el formulario vuelve a tomarlo de la ruta y lo quita de `ModelState`: un par manipulado da
 400 y el siguiente «Guardar» sigue apuntando al estudio original.
+
+**Clave de texto (teléfonos).** `TelefonosController` (HU-012) lleva el número en la ruta
+como cadena y sin restricción de tipo (`/Telefonos/Edit/{num}`), para no perder los ceros
+iniciales. El selector de dueño se llena con `IPersonaService`, y el servicio de teléfonos
+vuelve a comprobar que el dueño existe si el formulario llega manipulado. El número no se
+recorta, así que su forma (obligatorio, hasta 15 dígitos, solo dígitos) se valida en el
+ViewModel y se informa junto al campo; el número repetido llega del servicio como conflicto
+(409). En `Edit` se aplica lo mismo que en estudios: `[FromRoute]` y, al repintar, el número
+de la ruta.
 
 **Ejemplo.** `/Home/Convenciones` recorre los cuatro resultados con un resultado de
 servicio **simulado**. Es la referencia visual de la convención, no un módulo del dominio.
