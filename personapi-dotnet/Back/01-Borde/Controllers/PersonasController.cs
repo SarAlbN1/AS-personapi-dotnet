@@ -75,8 +75,12 @@ public class PersonasController : Controller
     [HttpPost]
     public async Task<IActionResult> Edit(int id, PersonaFormViewModel modelo)
     {
-        // La vista envía la cédula oculta; si no coincide con la ruta, el servicio lo
-        // rechaza con ValidationError, igual que el PUT del canal REST.
+        // La cédula es la identidad de la fila y manda la de la ruta. Si el formulario
+        // llega con otra —campo oculto manipulado—, se descarta antes de validar: de lo
+        // contrario la vista se volvería a pintar apuntando a un registro distinto del
+        // que se está editando. Es la misma convención de HU-008 y HU-013.
+        modelo.Cc = id;
+        ModelState.Remove(nameof(PersonaFormViewModel.Cc));
         modelo.EsEdicion = true;
 
         if (!ModelState.IsValid)

@@ -137,6 +137,24 @@ public partial class PersonasMvcTests : IClassFixture<WebApplicationFactory<Prog
     }
 
     [Fact]
+    public async Task Una_cedula_manipulada_en_la_edicion_no_cambia_el_registro_editado()
+    {
+        var (cliente, token) = await ClienteConTokenAsync("/Personas/Edit/1010101010");
+
+        // El campo oculto llega con otra cédula; manda la de la ruta.
+        var respuesta = await cliente.PostAsync(
+            "/Personas/Edit/1010101010",
+            Formulario(token, cc: "2020202020", nombre: "Manipulada", edicion: true));
+
+        var (ruta, entrada) = Assert.Single(_servicio.Ediciones);
+        Assert.Equal(1010101010, ruta);
+        Assert.Equal(1010101010, entrada.Cc);
+        // Y la redirección lleva al registro de la ruta, no al del formulario.
+        Assert.Equal("/Personas/Details/1010101010", respuesta.RequestMessage!.RequestUri!.AbsolutePath);
+        Assert.DoesNotContain(_servicio.Filas, p => p.Cc == 2020202020);
+    }
+
+    [Fact]
     public async Task El_borrado_bloqueado_muestra_la_explicacion_y_no_elimina()
     {
         _servicio.ResultadoDeBaja = ServiceResult.Conflict(
