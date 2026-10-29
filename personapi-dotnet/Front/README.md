@@ -37,7 +37,7 @@ controlador, su enlace responde con la vista `Estado` (404):
 | Teléfonos | HU-012 |
 | Estudios | HU-013 |
 
-**Personas es la referencia de los otros tres.** `Back/01-Borde/Controllers/PersonasController.cs`
+**Personas aplica la misma convención.** `Back/01-Borde/Controllers/PersonasController.cs`
 consume el mismo `IPersonaService` que el controlador REST, los ViewModels
 (`PersonaFormViewModel`, `PersonaDetalleViewModel`, `PersonaListadoViewModel`) llevan solo
 las anotaciones de forma, y `Views/Personas/_CamposPersona.cshtml` es el formulario que
