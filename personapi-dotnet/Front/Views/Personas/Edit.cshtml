@@ -1,0 +1,18 @@
+@model PersonaFormViewModel
+@{
+    ViewData["Title"] = $"Editar persona {Model.Cc}";
+}
+
+<h1 class="h3">Editar persona @Model.Cc</h1>
+
+<partial name="_MensajesServicio" />
+
+<form asp-action="Edit" asp-route-id="@Model.Cc" method="post" class="col-md-6">
+    <partial name="_CamposPersona" model="Model" />
+    <button type="submit" class="btn btn-primary">Guardar cambios</button>
+    <a asp-action="Details" asp-route-id="@Model.Cc" class="btn btn-link">Cancelar</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -7,13 +7,18 @@ namespace personapi_dotnet.Back.Borde.Dtos;
 /// </summary>
 public class PersonaDto
 {
+    /// <example>1010101010</example>
     public int Cc { get; set; }
 
+    /// <example>Ana</example>
     public string Nombre { get; set; } = null!;
 
+    /// <example>Gómez</example>
     public string Apellido { get; set; } = null!;
 
+    /// <example>F</example>
     public string Genero { get; set; } = null!;
 
+    /// <example>28</example>
     public int? Edad { get; set; }
 }

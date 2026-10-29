@@ -13,20 +13,25 @@ public class PersonaEntradaDto
     // Anulable a propósito: con `int` no anulable, un cuerpo sin `cc` se enlaza como 0 y
     // el alta crearía la persona con cédula 0. Con `int?` el valor ausente es null y
     // [Required] lo rechaza con 400 antes de llegar al servicio.
+    /// <example>1040404040</example>
     [Required]
     public int? Cc { get; set; }
 
+    /// <example>Luis</example>
     [Required(AllowEmptyStrings = false)]
     [StringLength(45)]
     public string Nombre { get; set; } = null!;
 
+    /// <example>Martínez</example>
     [Required(AllowEmptyStrings = false)]
     [StringLength(45)]
     public string Apellido { get; set; } = null!;
 
+    /// <example>M</example>
     [Required(AllowEmptyStrings = false)]
     [StringLength(1)]
     public string Genero { get; set; } = null!;
 
+    /// <example>35</example>
     public int? Edad { get; set; }
 }

@@ -12,14 +12,17 @@ public class ProfesionDto
     public const int NomLongitudMaxima = 90;
 
     /// <summary>Clave de la profesión. Obligatoria: la tabla no la genera.</summary>
+    /// <example>4</example>
     [Required(ErrorMessage = "El id es obligatorio.")]
     public int? Id { get; set; }
 
     /// <summary>Nombre de la profesión, hasta 90 caracteres.</summary>
+    /// <example>Arquitectura</example>
     [Required(ErrorMessage = "El nombre (nom) es obligatorio.")]
     [StringLength(NomLongitudMaxima, ErrorMessage = "El nombre (nom) admite hasta 90 caracteres.")]
     public string? Nom { get; set; }
 
     /// <summary>Descripción opcional; en la base es VARCHAR(MAX), sin límite de longitud.</summary>
+    /// <example>Diseño y construcción de edificaciones</example>
     public string? Des { get; set; }
 }
