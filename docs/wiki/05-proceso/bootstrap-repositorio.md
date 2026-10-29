@@ -14,7 +14,7 @@ Git y GitHub CLI (`gh`) instalados, autenticación activa, propietario de repo y
 git --version
 gh --version
 gh auth status
-# Ejecutar en carpeta personapi-dotnet, ya con README, CLAUDE, CONTRIBUTING y docs/wiki/
+# Ejecutar en carpeta personapi-dotnet, ya con README, CONTRIBUTING y docs/wiki/
 git init -b main
 git add .
 git commit -m "chore(repo): inicializa documentación y estructura del laboratorio"

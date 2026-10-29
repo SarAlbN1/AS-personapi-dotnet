@@ -47,7 +47,7 @@ Un trabajo no está hecho hasta que el PR muestra: comandos ejecutados y su sali
 
 ## Asistentes de desarrollo
 
-Aplican las mismas reglas que a cualquier integrante, más las de [`CLAUDE.md`](CLAUDE.md) y [trabajo con asistentes de IA](docs/wiki/05-proceso/trabajo-con-ia.md): no introducen cambios fuera de la issue asignada, no inventan issues, ramas, pruebas, endpoints ni datos, y no declaran éxito sin ejecución. La responsabilidad sigue siendo del integrante asignado.
+Aplican las mismas reglas que a cualquier integrante: no introducen cambios fuera de la issue asignada, no inventan issues, ramas, pruebas, endpoints ni datos, y no declaran éxito sin ejecución. La responsabilidad sigue siendo del integrante asignado.
 
 **Sin rastro de asistentes en el repositorio.** Los commits, mensajes de PR, documentos, informe y logs **no** llevan líneas de co-autoría, firmas, menciones de la herramienta ni marcas del tipo «generado con». El autor registrado de cada cambio es el integrante asignado, que lo verifica y responde por él. Si el curso exige declarar el uso de asistentes, se hace por el canal que indique el docente, no mediante metadatos en el repositorio.
 

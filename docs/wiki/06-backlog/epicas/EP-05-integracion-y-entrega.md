@@ -63,7 +63,7 @@ Ejecutar y registrar la verificación de los dos canales, la integridad real de 
 - Comprobación arquitectónica automatizable: ningún archivo fuera de `Back/03-AccesoDatos/Repository/Implementations` referencia `PersonaDbContext`.
 - Actualización de [runbook-demo.md](../../04-implementacion/runbook-demo.md) con el recorrido realmente ejecutado.
 - Construcción de las pruebas sobre el proyecto de pruebas creado en HU-001; no se crea una estructura de pruebas paralela.
-- **No incluye:** corregir defectos de módulos ajenos. Se reportan como issue o comentario según [CLAUDE.md](../../../../CLAUDE.md) y el [proceso](../../05-proceso/pull-requests-y-releases.md); el responsable del módulo los corrige en su rama, regla de propiedad que se aplica durante toda la historia aunque no sea un criterio de aceptación.
+- **No incluye:** corregir defectos de módulos ajenos. Se reportan como issue o comentario según el [proceso](../../05-proceso/pull-requests-y-releases.md) y [CONTRIBUTING](../../../../CONTRIBUTING.md); el responsable del módulo los corrige en su rama, regla de propiedad que se aplica durante toda la historia aunque no sea un criterio de aceptación.
 
 ### Criterios de aceptación
 1. Los escenarios 1 a 7 de SRS §10 se ejecutan contra `persona_db` real y su resultado queda registrado.
@@ -170,7 +170,7 @@ Redactar en `docs/informe/main.tex` el manual técnico de despliegue del monolit
 
 ### Alcance técnico
 - **Instalación paso a paso de cada herramienta**, con su captura y con la **versión resuelta** de [versiones.md](../../04-implementacion/versiones.md): SDK .NET 10, SQL Server 2025 Express, la herramienta de consulta (SSMS o `sqlcmd`), Git y Docker Desktop con Compose v2. Incluye cómo comprobar la versión instalada (`dotnet --version`, `docker --version`, `docker compose version`). No basta con enumerar requisitos previos.
-- Cadena de conexión por **User Secrets** o variable de entorno. **Sin credenciales en el texto**, ni contraseñas, ni capturas que las muestren ([regla de secretos](../../../../CLAUDE.md)).
+- Cadena de conexión por **User Secrets** o variable de entorno. **Sin credenciales en el texto**, ni contraseñas, ni capturas que las muestren ([regla de secretos](../../02-arquitectura/reglas-arquitectonicas.md)).
 - Creación de `persona_db` ejecutando `scripts/01_ddl.sql` y después `scripts/02_dml.sql`, con el comportamiento esperado ante reejecución.
 - Restauración, compilación, ejecución, URL de la aplicación y de `/swagger`, verificación posterior al despliegue y fallos frecuentes con su causa.
 - **Archivos de despliegue con contenedores que el informe ya declara (§8.14) y que no existen en el repositorio:** `Dockerfile`, `docker-compose.yml` y `.dockerignore`, con las imágenes ya fijadas en [versiones.md](../../04-implementacion/versiones.md) y los servicios `personapi`, `sqlserver` y `db-init`. La contraseña de `sa` se lee de un `.env` **no versionado**; el repositorio solo lleva `.env.example`. No se añade ni se retira ninguna tecnología: las tres imágenes y Compose v2 ya están en `versiones.md` y en el informe.
