@@ -13,6 +13,9 @@ namespace personapi_dotnet.Tests.Unit.Integracion;
 /// repositorios, sin pasar por las comprobaciones de los servicios, para que la única
 /// defensa sea la base. Ninguna escritura llega a confirmarse; aun así, las filas que
 /// podrían quedar (cc 914000001, id 9140, num 9140000001) se borran al empezar y al terminar.
+/// Las filas existentes son siempre las de scripts/02_dml.sql y se piden por su clave: el
+/// primer elemento de un listado puede ser una fila temporal de otra clase de prueba que
+/// corre en paralelo y que desaparece a mitad de la comprobación.
 /// </summary>
 public class IntegridadSqlPersonaDbTests : IClassFixture<WebApplicationFactory<Program>>, IAsyncLifetime
 {
@@ -23,6 +26,11 @@ public class IntegridadSqlPersonaDbTests : IClassFixture<WebApplicationFactory<P
     private const int CcInexistente = 914000001;
     private const int IdInexistente = 9140;
     private const string NumPrueba = "9140000001";
+
+    // Filas sembradas: Ana es dueña del teléfono 3001234567 y estudió la profesión 1.
+    private const int CcAna = 1010101010;
+    private const int IdSembrado = 1;
+    private const string NumAna = "3001234567";
 
     private readonly WebApplicationFactory<Program> _factory;
 
@@ -35,7 +43,7 @@ public class IntegridadSqlPersonaDbTests : IClassFixture<WebApplicationFactory<P
     [FactConPersonaDb]
     public async Task La_PK_de_persona_impide_duplicar_la_cedula()
     {
-        var existente = (await Leer<IPersonaRepository, IReadOnlyList<Persona>>(r => r.GetAllAsync())).First();
+        var existente = (await Leer<IPersonaRepository, Persona?>(r => r.GetByIdAsync(CcAna)))!;
 
         var error = await RechazoAsync<IPersonaRepository>(r => r.AddAsync(
             new Persona { Cc = existente.Cc, Nombre = "Duplicada", Apellido = "Prueba", Genero = "F" }));
@@ -47,7 +55,7 @@ public class IntegridadSqlPersonaDbTests : IClassFixture<WebApplicationFactory<P
     [FactConPersonaDb]
     public async Task La_PK_de_profesion_impide_duplicar_el_id()
     {
-        var existente = (await Leer<IProfesionRepository, IReadOnlyList<Profesion>>(r => r.GetAllAsync())).First();
+        var existente = (await Leer<IProfesionRepository, Profesion?>(r => r.GetByIdAsync(IdSembrado)))!;
 
         var error = await RechazoAsync<IProfesionRepository>(r => r.AddAsync(
             new Profesion { Id = existente.Id, Nom = "Duplicada" }));
@@ -58,7 +66,7 @@ public class IntegridadSqlPersonaDbTests : IClassFixture<WebApplicationFactory<P
     [FactConPersonaDb]
     public async Task La_PK_de_telefono_impide_duplicar_el_numero()
     {
-        var existente = (await Leer<ITelefonoRepository, IReadOnlyList<Telefono>>(r => r.GetAllAsync())).First();
+        var existente = (await Leer<ITelefonoRepository, Telefono?>(r => r.GetByIdAsync(NumAna)))!;
 
         var error = await RechazoAsync<ITelefonoRepository>(r => r.AddAsync(
             new Telefono { Num = existente.Num, Oper = "Duplicado", Duenio = existente.Duenio }));
@@ -69,7 +77,7 @@ public class IntegridadSqlPersonaDbTests : IClassFixture<WebApplicationFactory<P
     [FactConPersonaDb]
     public async Task La_PK_compuesta_de_estudios_impide_duplicar_el_par()
     {
-        var existente = (await Leer<IEstudioRepository, IReadOnlyList<Estudio>>(r => r.GetAllAsync())).First();
+        var existente = (await Leer<IEstudioRepository, Estudio?>(r => r.GetByIdAsync(IdSembrado, CcAna)))!;
 
         var error = await RechazoAsync<IEstudioRepository>(r => r.AddAsync(
             new Estudio { IdProf = existente.IdProf, CcPer = existente.CcPer, Univer = "Duplicado" }));
@@ -91,13 +99,10 @@ public class IntegridadSqlPersonaDbTests : IClassFixture<WebApplicationFactory<P
     [FactConPersonaDb]
     public async Task Las_FK_impiden_un_estudio_con_persona_o_profesion_inexistente()
     {
-        var persona = (await Leer<IPersonaRepository, IReadOnlyList<Persona>>(r => r.GetAllAsync())).First();
-        var profesion = (await Leer<IProfesionRepository, IReadOnlyList<Profesion>>(r => r.GetAllAsync())).First();
-
         var sinPersona = await RechazoAsync<IEstudioRepository>(r => r.AddAsync(
-            new Estudio { IdProf = profesion.Id, CcPer = CcInexistente }));
+            new Estudio { IdProf = IdSembrado, CcPer = CcInexistente }));
         var sinProfesion = await RechazoAsync<IEstudioRepository>(r => r.AddAsync(
-            new Estudio { IdProf = IdInexistente, CcPer = persona.Cc }));
+            new Estudio { IdProf = IdInexistente, CcPer = CcAna }));
 
         Assert.Equal(RestriccionVulnerada, sinPersona.Number);
         Assert.Contains("estudio_persona_fk", sinPersona.Message);
@@ -119,7 +124,7 @@ public class IntegridadSqlPersonaDbTests : IClassFixture<WebApplicationFactory<P
     [FactConPersonaDb]
     public async Task La_base_impide_borrar_una_persona_con_telefonos()
     {
-        var duenio = (await Leer<ITelefonoRepository, IReadOnlyList<Telefono>>(r => r.GetAllAsync())).First().Duenio;
+        var duenio = (await Leer<ITelefonoRepository, Telefono?>(r => r.GetByIdAsync(NumAna)))!.Duenio;
 
         var error = await RechazoAsync<IPersonaRepository>(async r => await r.DeleteAsync((await r.GetByIdAsync(duenio))!));
 
@@ -130,7 +135,7 @@ public class IntegridadSqlPersonaDbTests : IClassFixture<WebApplicationFactory<P
     [FactConPersonaDb]
     public async Task La_base_impide_borrar_una_profesion_con_estudios()
     {
-        var idProf = (await Leer<IEstudioRepository, IReadOnlyList<Estudio>>(r => r.GetAllAsync())).First().IdProf;
+        var idProf = (await Leer<IEstudioRepository, Estudio?>(r => r.GetByIdAsync(IdSembrado, CcAna)))!.IdProf;
 
         var error = await RechazoAsync<IProfesionRepository>(async r => await r.DeleteAsync((await r.GetByIdAsync(idProf))!));
 
