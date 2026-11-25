@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 builder.Services.AddControllersWithViews(options =>
 {
     options.Conventions.Add(new personapi_dotnet.Back.Borde.Controllers.AntiforgeryEnVistasConvention());
-    options.Conventions.Add(new ErroresApiConvention());
+    options.Conventions.Add(new ErroresApiConvention());//ACTIVO MVC Y API
 });
 
 // ProblemDetails para los errores no controlados de /api (ver UseExceptionHandler abajo) y
@@ -30,17 +30,17 @@ builder.Services.AddDocumentacionOpenApi();
 builder.Services.Configure<RazorViewEngineOptions>(options =>
 {
     options.ViewLocationFormats.Clear();
-    options.ViewLocationFormats.Add("/Front/Views/{1}/{0}" + RazorViewEngine.ViewExtension);
+    options.ViewLocationFormats.Add("/Front/Views/{1}/{0}" + RazorViewEngine.ViewExtension);//dodne buscar las vistas de RAZOR (HTML)
     options.ViewLocationFormats.Add("/Front/Views/Shared/{0}" + RazorViewEngine.ViewExtension);
 });
 
 // La cadena llega por User Secrets o por ConnectionStrings__PersonaDb, nunca desde el repositorio.
 // AddDbContext registra el contexto como scoped: uno por solicitud.
 builder.Services.AddDbContext<PersonaDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("PersonaDb")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("PersonaDb")));//cuando alguien pide ipersonarepository, se le inyecta el dbcontext, que a su vez tiene la cadena de conexión.
 
-// Único registro de repositorios (acuerdo de archivos compartidos de HU-003). Cada
-// historia de API añade aquí solo la línea de su servicio.
+// Único registro de repositorios (acuerdo de archivos compartidos de HU-003). 
+// Cada historia de API añade aquí solo la línea de su servicio. Conexion db con servicios
 builder.Services.AddScoped<IPersonaRepository, PersonaRepository>();
 builder.Services.AddScoped<IProfesionRepository, ProfesionRepository>();
 builder.Services.AddScoped<ITelefonoRepository, TelefonoRepository>();
@@ -57,7 +57,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())//problem details en el json 
 {
     // Una excepción no controlada en /api responde 500 con un ProblemDetails sin traza ni
     // mensaje interno; en las rutas web, con la vista Error.
@@ -89,9 +89,9 @@ app.UseSwagger();
 app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "PersonAPI v1"));
 
 // MapControllers para las rutas por atributos de la API; MapControllerRoute para las vistas MVC.
-app.MapControllers();
+app.MapControllers();//las rutas de la API se definen por los atributos [Route] de cada controlador. La ruta de la API es /api/persona, /api/profesion, etc. (HU-003).
 
-app.MapControllerRoute(
+app.MapControllerRoute(//las rutas de las vistas MVC se definen por convención: /{controlador}/{accion}/{id?}. La ruta por defecto es /Home/Index. (HU-003).
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 

@@ -25,7 +25,7 @@ public partial class PersonaDbContext : DbContext
         {
             entity.HasKey(e => new { e.IdProf, e.CcPer });
 
-            entity.ToTable("estudios");
+            entity.ToTable("estudios");//nombre de la tabla en la base de datos
 
             entity.HasIndex(e => e.CcPer, "estudio_persona_fk");
 
